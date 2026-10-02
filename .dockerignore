@@ -1,0 +1,4 @@
+# Not part of any image build: caches and the build tool's own output.
+**/__pycache__
+**/*.pyc
+build

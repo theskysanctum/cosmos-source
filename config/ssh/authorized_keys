@@ -1,0 +1,3 @@
+# Public SSH keys allowed to log in as `user` (one per line: ssh-ed25519 AAAA... comment). Public keys are not secrets, so this
+# file can be committed. It is copied into the image; you can also add and remove keys later on the machine from
+# Settings > Remote Access without rebuilding. With no key here and none added there, nobody can log in over SSH.

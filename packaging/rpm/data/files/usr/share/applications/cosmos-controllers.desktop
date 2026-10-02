@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Controller Customizer
+Exec=cosmos-controllers
+Comment=Lights, rumble and motion for your controllers
+Icon=input-gaming
+Categories=Settings;HardwareSettings;
+Terminal=false
+NoDisplay=true

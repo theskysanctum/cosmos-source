@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>CosmOS Webtop (HTTPS)</short>
+  <description>The Webtop development desktop over HTTPS, behind its password. Opened only while network access is on in Remote Access; the plain HTTP port (3000) is never opened - it listens on this computer only.</description>
+  <port protocol="tcp" port="3001"/>
+</service>

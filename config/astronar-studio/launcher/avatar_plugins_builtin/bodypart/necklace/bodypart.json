@@ -1,0 +1,11 @@
+{
+    "name": "Necklace",
+    "description": "The built-in necklace accessory.",
+    "fields": [
+        {"category": "Accessories", "key": "accessories", "item": "necklace", "label": "Necklace", "kind": "multi_bool"},
+        {
+            "category": "Accessories", "key": "necklace_color", "label": "Necklace color", "kind": "color",
+            "options": ["#ffd700", "#c0c0c0", "#b76e79", "#1a1a1a"], "default": "#ffd700"
+        }
+    ]
+}

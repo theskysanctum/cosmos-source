@@ -1,0 +1,4 @@
+# The kronos account may run exactly one program as root, with no arguments (the request comes in on its standard input).
+# Nothing else - the desktop account has no sudo of its own.
+kronos ALL=(root) NOPASSWD: /usr/libexec/kronos/act
+Defaults:kronos !requiretty, !use_pty, env_reset

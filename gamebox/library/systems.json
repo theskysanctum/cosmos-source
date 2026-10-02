@@ -1,0 +1,1047 @@
+{
+	"categories": [
+		{
+			"name": "Consoles",
+			"manufacturers": [
+				{
+					"name": "Nintendo",
+					"platforms": [
+						{
+							"id": "nes",
+							"name": "Nintendo Entertainment System",
+							"description": "8-bit home console released by Nintendo (1985 NA launch); revived the home console market after the 1983 crash.",
+							"roms_dir": "/cosmos/roms/nes",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/nestopia_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Nestopia",
+							"filter": "crt"
+						},
+						{
+							"id": "snes",
+							"name": "Super Nintendo Entertainment System",
+							"description": "16-bit successor to the NES (1991 NA launch), Nintendo's answer to the Sega Genesis in the 16-bit generation.",
+							"roms_dir": "/cosmos/roms/snes",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/snes9x_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Snes9x",
+							"filter": "crt"
+						},
+						{
+							"id": "n64",
+							"name": "Nintendo 64",
+							"description": "Nintendo's fifth-generation console (1996), the last major cartridge-based home console.",
+							"roms_dir": "/cosmos/roms/n64",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/mupen64plus_next_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Mupen64Plus-Next",
+							"filter": "crt"
+						},
+						{
+							"id": "gc",
+							"name": "GameCube",
+							"description": "Sixth-generation Nintendo console (2001), emulated via standalone Dolphin (built from source, NoGUI frontend) - real compatibility/performance the libretro core it replaced couldn't match.",
+							"roms_dir": "/cosmos/roms/gc",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/dolphin-emu-nogui",
+								"-e",
+								"{rom}"
+							],
+							"save_dir": "/userdata/emulator-home/.local/share/dolphin-emu/GC",
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "Sony",
+					"platforms": [
+						{
+							"id": "ps1",
+							"name": "PlayStation",
+							"description": "Sony's first console (1994), emulated via the Beetle PSX HW libretro core.",
+							"roms_dir": "/cosmos/roms/ps1",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/mednafen_psx_hw_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Beetle PSX HW",
+							"filter": "crt"
+						},
+						{
+							"id": "ps2",
+							"name": "PlayStation 2",
+							"description": "Sony's sixth-generation console (2000) - the best-selling video game console of all time. Emulated via standalone PCSX2 (built from source) - no longer the LRPS2 libretro core's experimental, less-compatible tradeoff.",
+							"roms_dir": "/cosmos/roms/ps2",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/pcsx2-qt",
+								"-fullscreen",
+								"-batch",
+								"--",
+								"{rom}"
+							],
+							"save_dir": "/userdata/emulator-home/.config/PCSX2/memcards",
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "Sega",
+					"platforms": [
+						{
+							"id": "mastersystem",
+							"name": "Sega Master System",
+							"description": "Sega's 8-bit console (1985/1986), the NES's direct rival. Emulated via the Genesis Plus GX libretro core, which covers the whole 8-bit Sega family.",
+							"roms_dir": "/cosmos/roms/mastersystem",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/genesis_plus_gx_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Genesis Plus GX",
+							"filter": "crt"
+						},
+						{
+							"id": "genesis",
+							"name": "Sega Genesis / Mega Drive",
+							"description": "Sega's 16-bit console (1988/1989), the NES's chief 16-bit-era rival.",
+							"roms_dir": "/cosmos/roms/genesis",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/genesis_plus_gx_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Genesis Plus GX",
+							"filter": "crt"
+						},
+						{
+							"id": "segacd",
+							"name": "Sega CD / Mega-CD",
+							"description": "CD-ROM add-on for the Genesis (1991/1992). Same Genesis Plus GX core, pointed at .cue/.chd images instead of cartridge dumps.",
+							"roms_dir": "/cosmos/roms/segacd",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/genesis_plus_gx_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Genesis Plus GX",
+							"filter": "crt"
+						},
+						{
+							"id": "saturn",
+							"name": "Sega Saturn",
+							"description": "Sega's fifth-generation console (1994/1995), known for its complex dual-CPU architecture.",
+							"roms_dir": "/cosmos/roms/saturn",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/mednafen_saturn_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Beetle Saturn",
+							"filter": "crt"
+						},
+						{
+							"id": "dreamcast",
+							"name": "Sega Dreamcast",
+							"description": "Sega's last console (1998/1999), emulated via standalone Flycast (built from source).",
+							"roms_dir": "/cosmos/roms/dreamcast",
+							"mode": "graphical",
+							"launch_template": [
+								"{emu}/flycast/flycast",
+								"-config",
+								"window:fullscreen=yes",
+								"{rom}"
+							],
+							"save_dir": "/userdata/emulator-home/.local/share/flycast",
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "Atari",
+					"platforms": [
+						{
+							"id": "atari2600",
+							"name": "Atari 2600",
+							"description": "The console that established the cartridge-based home console market (1977), emulated via the Stella libretro core.",
+							"roms_dir": "/cosmos/roms/atari2600",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/stella_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Stella",
+							"filter": "crt"
+						},
+						{
+							"id": "atari7800",
+							"name": "Atari 7800",
+							"description": "Atari's third console (1986), backward-compatible with 2600 cartridges. Emulated via the ProSystem libretro core.",
+							"roms_dir": "/cosmos/roms/atari7800",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/prosystem_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/ProSystem",
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "NEC",
+					"platforms": [
+						{
+							"id": "pcengine",
+							"name": "TurboGrafx-16 / PC Engine",
+							"description": "NEC's 8/16-bit hybrid console (1987/1989), including its CD-ROM add-on library. Emulated via the Beetle PCE Fast libretro core.",
+							"roms_dir": "/cosmos/roms/pcengine",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/mednafen_pce_fast_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Beetle PCE Fast",
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "Coleco",
+					"platforms": [
+						{
+							"id": "colecovision",
+							"name": "ColecoVision",
+							"description": "Coleco's 1982 console, known for near-arcade-accurate ports of the era. Emulated via the Gearcoleco libretro core.",
+							"roms_dir": "/cosmos/roms/colecovision",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/gearcoleco_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Gearcoleco",
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "Mattel",
+					"platforms": [
+						{
+							"id": "intellivision",
+							"name": "Intellivision",
+							"description": "Mattel's 1979 console, the Atari 2600's main early rival. Emulated via the FreeIntv libretro core.",
+							"roms_dir": "/cosmos/roms/intellivision",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/freeintv_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/FreeIntv",
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "GCE",
+					"platforms": [
+						{
+							"id": "vectrex",
+							"name": "Vectrex",
+							"description": "GCE's 1982 console with its own built-in vector-graphics monitor. Emulated via the VeCx libretro core.",
+							"roms_dir": "/cosmos/roms/vectrex",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/vecx_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "3DO",
+					"platforms": []
+				},
+				{
+					"name": "Philips",
+					"platforms": []
+				},
+				{
+					"name": "SNK",
+					"platforms": []
+				},
+				{
+					"name": "Microsoft",
+					"platforms": [
+						{
+							"id": "xbox",
+							"name": "Xbox",
+							"description": "Microsoft's first console (2001), emulated via standalone xemu (built from source). Needs the Xbox BIOS files in /cosmos/bios/xbox (see emulators/xemu_config.py).",
+							"roms_dir": "/cosmos/roms/xbox",
+							"mode": "graphical",
+							"xemu": true,
+							"launch_template": [
+								"{emu}/xemu/xemu"
+							],
+							"save_dir": "/userdata/emulator-home/.local/share/xemu/xemu",
+							"filter": "lcd"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Handhelds",
+			"manufacturers": [
+				{
+					"name": "Nintendo",
+					"platforms": [
+						{
+							"id": "gb",
+							"name": "Game Boy / Game Boy Color",
+							"description": "Nintendo's original handheld line (1989/1998), emulated via the Gambatte libretro core.",
+							"roms_dir": "/cosmos/roms/gb",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/gambatte_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Gambatte",
+							"filter": "lcd"
+						},
+						{
+							"id": "gba",
+							"name": "Game Boy Advance",
+							"description": "Nintendo's 32-bit handheld (2001), emulated via the mGBA libretro core.",
+							"roms_dir": "/cosmos/roms/gba",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/mgba_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/mGBA",
+							"filter": "lcd"
+						},
+						{
+							"id": "nds",
+							"name": "Nintendo DS",
+							"description": "Nintendo's dual-screen handheld (2004), emulated via the melonDS DS libretro core.",
+							"roms_dir": "/cosmos/roms/nds",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/melondsds_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/melonDS DS",
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "Sony",
+					"platforms": [
+						{
+							"id": "psp",
+							"name": "PlayStation Portable",
+							"description": "Sony's first handheld (2004/2005), emulated via the PPSSPP libretro core.",
+							"roms_dir": "/cosmos/roms/psp",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/ppsspp_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/PPSSPP",
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "Sega",
+					"platforms": [
+						{
+							"id": "gamegear",
+							"name": "Game Gear",
+							"description": "Sega's portable rival to the Game Boy (1990/1991), emulated via the Genesis Plus GX libretro core (the same core covers the Master System family, including Game Gear).",
+							"roms_dir": "/cosmos/roms/gamegear",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/genesis_plus_gx_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Genesis Plus GX",
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "Atari",
+					"platforms": [
+						{
+							"id": "lynx",
+							"name": "Atari Lynx",
+							"description": "Atari's 1989 handheld - the first with a color backlit LCD. Emulated via the Handy libretro core.",
+							"roms_dir": "/cosmos/roms/lynx",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/handy_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Handy",
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "SNK",
+					"platforms": [
+						{
+							"id": "ngp",
+							"name": "Neo Geo Pocket / Color",
+							"description": "SNK's 1998/1999 handheld, emulated via the Beetle NeoPop libretro core.",
+							"roms_dir": "/cosmos/roms/ngp",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/mednafen_ngp_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Beetle NeoPop",
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "Bandai",
+					"platforms": [
+						{
+							"id": "wonderswan",
+							"name": "WonderSwan / Color",
+							"description": "Bandai's 1999/2000 handheld, designed with input from Game Boy creator Gunpei Yokoi. Emulated via the Beetle Cygne libretro core.",
+							"roms_dir": "/cosmos/roms/wonderswan",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/mednafen_wswan_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"save_dir": "/userdata/emulator-home/.config/retroarch/saves/Beetle Cygne",
+							"filter": "lcd"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Arcade",
+			"manufacturers": [
+				{
+					"name": "Sega",
+					"platforms": [
+						{
+							"id": "model2",
+							"name": "Sega Model 2",
+							"description": "Sega's mid-90s 3D arcade board (Daytona USA, Virtua Fighter 2). No native Linux emulator exists, so this runs the Windows-only Model 2 Emulator under Wine - install it into the Wine prefix separately, this is not bundled.",
+							"roms_dir": "/cosmos/roms/model2",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/wine/bin/bin/wine",
+								"M2Emulator.exe",
+								"{rom}"
+							],
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "Sammy",
+					"platforms": [
+						{
+							"id": "atomiswave",
+							"name": "Atomiswave",
+							"description": "Sammy's Dreamcast-derived arcade board, emulated via standalone Flycast (built from source), the same emulator as Dreamcast.",
+							"roms_dir": "/cosmos/roms/atomiswave",
+							"mode": "graphical",
+							"launch_template": [
+								"{emu}/flycast/flycast",
+								"-config",
+								"window:fullscreen=yes",
+								"{rom}"
+							],
+							"filter": "crt",
+							"save_dir": "/userdata/emulator-home/.local/share/flycast"
+						}
+					]
+				},
+				{
+					"name": "MAME",
+					"platforms": [
+						{
+							"id": "mame",
+							"name": "MAME",
+							"description": "Multiple Arcade Machine Emulator - emulates thousands of original arcade systems. Game names are resolved from the installed MAME binary's own -listxml output.",
+							"roms_dir": "/cosmos/roms/mame",
+							"mode": "graphical",
+							"dat": "mame",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/mame_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "FinalBurn Neo",
+					"platforms": [
+						{
+							"id": "fbneo",
+							"name": "FinalBurn Neo",
+							"description": "Arcade emulator with strong Capcom/Neo Geo/Cave-era coverage. Game names are resolved from FBNeo's official dat file.",
+							"roms_dir": "/cosmos/roms/fbneo",
+							"mode": "graphical",
+							"dat": "fbneo",
+							"dat_path": "{repo}/library/data/fbneo-arcade.dat",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/fbneo_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "TeknoParrot",
+					"platforms": [
+						{
+							"id": "teknoparrot",
+							"name": "TeknoParrot",
+							"description": "Launcher/emulator for PC-based arcade hardware (Sega RingEdge/Ringwide, Namco System, etc). Windows-only, so it runs under Wine - install TeknoParrot itself into the Wine prefix separately, this is not bundled.",
+							"roms_dir": "/cosmos/roms/teknoparrot",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/wine/bin/bin/wine",
+								"TeknoParrotUi.exe",
+								"{rom}"
+							],
+							"filter": "lcd"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Pinball",
+			"manufacturers": [
+				{
+					"name": "Visual Pinball",
+					"platforms": [
+						{
+							"id": "vpinball",
+							"name": "Visual Pinball",
+							"description": "The standard tool for simulating real and fantasy pinball tables. Windows-only, so it runs under Wine - install Visual Pinball itself into the Wine prefix separately, this is not bundled.",
+							"roms_dir": "/cosmos/roms/pinball",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/wine/bin/bin/wine",
+								"VPinballX.exe",
+								"{rom}"
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Computer",
+			"manufacturers": [
+				{
+					"name": "Windows (Wine)",
+					"platforms": [
+						{
+							"id": "pc",
+							"name": "PC Games",
+							"description": "Windows PC games run directly under Wine. Each entry here should be the game's own .exe (or a shortcut to it) - Wine is expected to already be configured with whatever prefix/dependencies the game needs.",
+							"roms_dir": "/cosmos/roms/pc",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/wine/bin/bin/wine",
+								"{rom}"
+							],
+							"filter": "lcd"
+						},
+						{
+							"id": "dos",
+							"name": "MS-DOS",
+							"description": "Classic DOS-era PC games, emulated via the DOSBox Core libretro core (a libretro-native DOSBox build, distinct from running DOSBox itself directly).",
+							"roms_dir": "/cosmos/roms/dos",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/dosbox_core_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "Commodore",
+					"platforms": [
+						{
+							"id": "c64",
+							"name": "Commodore 64",
+							"description": "The best-selling home computer model of all time (1982), emulated via the VICE x64sc libretro core (the cycle-accurate VICE variant).",
+							"roms_dir": "/cosmos/roms/c64",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/vice_x64sc_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"filter": "crt"
+						},
+						{
+							"id": "amiga",
+							"name": "Commodore Amiga",
+							"description": "Commodore's advanced multimedia computer line (1985), emulated via the PUAE libretro core.",
+							"roms_dir": "/cosmos/roms/amiga",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/puae_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "Atari",
+					"platforms": [
+						{
+							"id": "atarist",
+							"name": "Atari ST",
+							"description": "Atari's Amiga-era home computer (1985), emulated via the Hatari libretro core.",
+							"roms_dir": "/cosmos/roms/atarist",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/hatari_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "Sinclair",
+					"platforms": [
+						{
+							"id": "zxspectrum",
+							"name": "ZX Spectrum",
+							"description": "Sinclair's hugely influential UK home computer (1982), emulated via the Fuse libretro core.",
+							"roms_dir": "/cosmos/roms/zxspectrum",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/fuse_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "MSX Consortium",
+					"platforms": [
+						{
+							"id": "msx",
+							"name": "MSX",
+							"description": "The multi-vendor Japanese/European home computer standard (1983), emulated via the blueMSX libretro core.",
+							"roms_dir": "/cosmos/roms/msx",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/bluemsx_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "Amstrad",
+					"platforms": []
+				},
+				{
+					"name": "Sharp",
+					"platforms": []
+				},
+				{
+					"name": "NEC",
+					"platforms": []
+				},
+				{
+					"name": "Apple",
+					"platforms": [
+						{
+							"id": "apple2",
+							"name": "Apple II",
+							"description": "Apple's breakout home computer (1977), emulated via the AppleWin libretro core.",
+							"roms_dir": "/cosmos/roms/apple2",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/retroarch",
+								"-L",
+								"{repo}/emulators/bin/cores/applewin_libretro.so",
+								"{rom}",
+								"--appendconfig",
+								"{repo}/library/config/retroarch-overrides.cfg"
+							],
+							"filter": "crt"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "PC",
+			"manufacturers": [
+				{
+					"name": "Steam",
+					"requires_command": "steam",
+					"launch": {
+						"mode": "graphical",
+						"command": [
+							"steam",
+							"-gamepadui"
+						]
+					},
+					"platforms": []
+				},
+				{
+					"name": "Epic",
+					"launch": {
+						"mode": "graphical",
+						"command": [
+							"python3",
+							"{repo}/epic/epic_app.py"
+						]
+					},
+					"platforms": []
+				},
+				{
+					"name": "GOG",
+					"launch": {
+						"mode": "graphical",
+						"command": [
+							"python3",
+							"{repo}/gog/gog_app.py"
+						]
+					},
+					"platforms": []
+				},
+				{
+					"name": "Gotcha Gotcha Games",
+					"platforms": [
+						{
+							"id": "rpgmaker_xp",
+							"name": "RPG Maker XP",
+							"description": "RPG Maker's 2004 release, the first to use RGSS (Ruby Game Scripting System) - run via mkxp-z, an open-source reimplementation built from source and bundled directly (no prebuilt Linux release exists for it anywhere). Each game is its own project folder, not a single file.",
+							"roms_dir": "/cosmos/roms/rpgmaker_xp",
+							"mode": "graphical",
+							"rom_kind": "directory",
+							"rgss_version": 1,
+							"cwd": "{repo}/emulators/bin/mkxpz",
+							"launch_template": [
+								"{repo}/emulators/bin/mkxpz/mkxp-z.x86_64"
+							],
+							"filter": "lcd"
+						},
+						{
+							"id": "rpgmaker_vx",
+							"name": "RPG Maker VX",
+							"description": "RPG Maker's 2007 release, using RGSS2 - run via the same bundled mkxp-z reimplementation.",
+							"roms_dir": "/cosmos/roms/rpgmaker_vx",
+							"mode": "graphical",
+							"rom_kind": "directory",
+							"rgss_version": 2,
+							"cwd": "{repo}/emulators/bin/mkxpz",
+							"launch_template": [
+								"{repo}/emulators/bin/mkxpz/mkxp-z.x86_64"
+							],
+							"filter": "lcd"
+						},
+						{
+							"id": "rpgmaker_vxace",
+							"name": "RPG Maker VX Ace",
+							"description": "RPG Maker's 2011 release, using RGSS3 - the most widely used RGSS-era version - run via the same bundled mkxp-z reimplementation.",
+							"roms_dir": "/cosmos/roms/rpgmaker_vxace",
+							"mode": "graphical",
+							"rom_kind": "directory",
+							"rgss_version": 3,
+							"cwd": "{repo}/emulators/bin/mkxpz",
+							"launch_template": [
+								"{repo}/emulators/bin/mkxpz/mkxp-z.x86_64"
+							],
+							"filter": "lcd"
+						},
+						{
+							"id": "rpgmaker_mv",
+							"name": "RPG Maker MV",
+							"description": "RPG Maker's 2015 release, the first to move off RGSS onto NW.js/HTML5 - run via a bundled native NW.js runtime. Each game is a folder (containing its own www/index.html + package.json), not a single file.",
+							"roms_dir": "/cosmos/roms/rpgmaker_mv",
+							"mode": "graphical",
+							"rom_kind": "directory",
+							"launch_template": [
+								"{repo}/emulators/bin/engines/nwjs/nw",
+								"{rom}"
+							],
+							"filter": "lcd"
+						},
+						{
+							"id": "rpgmaker_mz",
+							"name": "RPG Maker MZ",
+							"description": "RPG Maker's 2020 release, MV's direct successor - same NW.js/HTML5 foundation, run the same way via the bundled native NW.js runtime.",
+							"roms_dir": "/cosmos/roms/rpgmaker_mz",
+							"mode": "graphical",
+							"rom_kind": "directory",
+							"launch_template": [
+								"{repo}/emulators/bin/engines/nwjs/nw",
+								"{rom}"
+							],
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "YoYo Games",
+					"platforms": [
+						{
+							"id": "gamemaker",
+							"name": "GameMaker",
+							"description": "YoYo Games' popular indie game engine (Undertale, Deltarune, and many more) - real Linux exports are rare in practice, so this runs the far more common Windows export directly under Wine.",
+							"roms_dir": "/cosmos/roms/gamemaker",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/wine/bin/bin/wine",
+								"{rom}"
+							],
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "WOLF RPG Editor",
+					"platforms": [
+						{
+							"id": "wolfrpg",
+							"name": "WOLF RPG Editor",
+							"description": "A Japanese doujin RPG-creation tool - Windows-only, no native Linux runtime exists, run directly under Wine like any other Windows PC game.",
+							"roms_dir": "/cosmos/roms/wolfrpg",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/wine/bin/bin/wine",
+								"{rom}"
+							],
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "LÖVE",
+					"platforms": [
+						{
+							"id": "love2d",
+							"name": "LÖVE (Love2D)",
+							"description": "A genuinely cross-platform 2D Lua game framework - real official Linux support, run via a bundled native LÖVE runtime against the game's own .love archive.",
+							"roms_dir": "/cosmos/roms/love2d",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/engines/love2d/AppRun",
+								"{rom}"
+							],
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "Ren'Py",
+					"platforms": [
+						{
+							"id": "renpy",
+							"name": "Ren'Py",
+							"description": "The dominant visual-novel engine - real official Linux support, run via a bundled Ren'Py SDK's own generic project launcher. Each game is its own project folder, not a single file.",
+							"roms_dir": "/cosmos/roms/renpy",
+							"mode": "graphical",
+							"rom_kind": "directory",
+							"launch_template": [
+								"{repo}/emulators/bin/engines/renpy/renpy.sh",
+								"{rom}"
+							],
+							"filter": "lcd"
+						}
+					]
+				},
+				{
+					"name": "TIC-80",
+					"platforms": [
+						{
+							"id": "tic80",
+							"name": "TIC-80",
+							"description": "A free, open-source \"fantasy console\" in the same spirit as PICO-8 - real official Linux support, run via a bundled native TIC-80 runtime against the game's own .tic cartridge.",
+							"roms_dir": "/cosmos/roms/tic80",
+							"mode": "graphical",
+							"launch_template": [
+								"{repo}/emulators/bin/engines/tic80/tic80",
+								"{rom}"
+							],
+							"filter": "crt"
+						}
+					]
+				},
+				{
+					"name": "Adventure Game Studio",
+					"platforms": [
+						{
+							"id": "ags",
+							"name": "Adventure Game Studio",
+							"description": "The classic point-and-click adventure game engine - real official Linux support, run via a bundled native AGS engine. Each game is its own folder, not a single file.",
+							"roms_dir": "/cosmos/roms/ags",
+							"mode": "graphical",
+							"rom_kind": "directory",
+							"launch_template": [
+								"{repo}/emulators/bin/engines/ags/data/ags64",
+								"{rom}"
+							],
+							"filter": "lcd"
+						}
+					]
+				}
+			]
+		}
+	]
+}

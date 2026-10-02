@@ -1,0 +1,32 @@
+# CosmOS Webtop: a full desktop in a container, shown in the browser - the place for development now that the base image carries
+# no developer tools. It has its own terminal, package manager and IDEs *inside the container*, isolated from CosmOS itself.
+# A rootless Podman "quadlet" for the desktop account (installed to /etc/containers/systemd/users/); started on demand by
+# `cosmos-webtop` (the "Webtop" entry in the launcher), never at boot. The first start downloads the image (about 1.5 GB).
+#
+# Listens on 127.0.0.1:3000 ONLY - nothing on the network can reach it directly. To use it from another computer, tunnel through
+# SSH: ssh -L 3000:localhost:3000 user@this-computer, then open http://localhost:3000 (Settings > Remote Access shows the command).
+[Unit]
+Description=CosmOS Webtop (development desktop in a container)
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=lscr.io/linuxserver/webtop:ubuntu-xfce
+ContainerName=cosmos-webtop
+PublishPort=127.0.0.1:3000:3000
+# Rootless: the container's root is this account on the host, so files it makes in /config belong to you.
+Environment=PUID=0
+Environment=PGID=0
+Environment=TZ=Etc/UTC
+Environment=TITLE=CosmOS Webtop
+# Chromium-based apps and some desktop features inside need this; the container is still rootless and unprivileged.
+SeccompProfile=unconfined
+ShmSize=1g
+Volume=%h/.local/share/cosmos-webtop:/config:Z
+
+[Service]
+# The folder the container keeps its files in must exist before the mount.
+ExecStartPre=/usr/bin/mkdir -p %h/.local/share/cosmos-webtop
+# The first start pulls the image, which takes a few minutes.
+TimeoutStartSec=1800
+Restart=no

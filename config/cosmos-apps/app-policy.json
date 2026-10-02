@@ -1,0 +1,591 @@
+{
+  "_about": "Which packaging an app may come in. Each app is installed ONE way: use=flatpak means the Flatpak is the app and its RPM/AppImage cannot be installed; use=rpm means the RPM is the app and its Flatpak cannot be installed. Enforced by cosmos_app_policy.py (dnf excludepkgs, a Flathub remote filter, the never-type-sudo wrapper and CosmOS Shop). To add an app: add an entry here, then move it in the Containerfile accordingly (test_cosmos_app_policy.py checks they agree). 'blocked' lists things that can never be installed in any form (terminal emulators). An entry with 'pack' is a Flatpak that is not in the base image but in that Expansion Pack (expansion-packs.json). 'dnf_only' groups may be installed as packages but not as Flatpaks or AppImages (game store clients).",
+  "apps": [
+    {
+      "name": "Kdenlive",
+      "use": "flatpak",
+      "flatpak": "org.kde.kdenlive",
+      "rpm": [
+        "kdenlive",
+        "kdenlive-*"
+      ],
+      "appimage": [
+        "kdenlive"
+      ],
+      "pack": "creative"
+    },
+    {
+      "name": "Krita",
+      "use": "flatpak",
+      "flatpak": "org.kde.krita",
+      "rpm": [
+        "krita",
+        "krita-*"
+      ],
+      "appimage": [
+        "krita"
+      ],
+      "pack": "creative"
+    },
+    {
+      "name": "MuseScore",
+      "use": "flatpak",
+      "flatpak": "org.musescore.MuseScore",
+      "rpm": [
+        "musescore",
+        "musescore-*"
+      ],
+      "appimage": [
+        "musescore",
+        "mscore"
+      ],
+      "pack": "music-studio"
+    },
+    {
+      "name": "Telegram Desktop",
+      "use": "flatpak",
+      "flatpak": "org.telegram.desktop",
+      "rpm": [
+        "telegram-desktop",
+        "telegram-desktop-*"
+      ],
+      "appimage": [
+        "telegram",
+        "telegram-desktop"
+      ],
+      "pack": "communication"
+    },
+    {
+      "name": "Tiled",
+      "use": "flatpak",
+      "flatpak": "org.mapeditor.Tiled",
+      "rpm": [
+        "tiled",
+        "tiled-*"
+      ],
+      "appimage": [
+        "tiled"
+      ],
+      "pack": "game-development"
+    },
+    {
+      "name": "Hydrogen",
+      "use": "flatpak",
+      "flatpak": "org.hydrogenmusic.Hydrogen",
+      "rpm": [
+        "hydrogen",
+        "hydrogen-*"
+      ],
+      "appimage": [
+        "hydrogen"
+      ],
+      "pack": "music-studio"
+    },
+    {
+      "name": "LMMS",
+      "use": "flatpak",
+      "flatpak": "io.lmms.LMMS",
+      "rpm": [
+        "lmms",
+        "lmms-*"
+      ],
+      "appimage": [
+        "lmms"
+      ],
+      "pack": "music-studio"
+    },
+    {
+      "name": "Qtractor",
+      "use": "flatpak",
+      "flatpak": "org.rncbc.qtractor",
+      "rpm": [
+        "qtractor",
+        "qtractor-*"
+      ],
+      "appimage": [
+        "qtractor"
+      ],
+      "pack": "music-studio"
+    },
+    {
+      "name": "Carla",
+      "use": "flatpak",
+      "flatpak": "studio.kx.carla",
+      "rpm": [
+        "carla",
+        "carla-*"
+      ],
+      "appimage": [
+        "carla"
+      ],
+      "pack": "music-studio"
+    },
+    {
+      "name": "Flameshot",
+      "use": "flatpak",
+      "flatpak": "org.flameshot.Flameshot",
+      "rpm": [
+        "flameshot",
+        "flameshot-*"
+      ],
+      "appimage": [
+        "flameshot"
+      ],
+      "pack": "creative"
+    },
+    {
+      "name": "Visual Studio Code",
+      "use": "flatpak",
+      "flatpak": "com.visualstudio.code",
+      "rpm": [
+        "code",
+        "code-*"
+      ],
+      "appimage": [
+        "code",
+        "vscode",
+        "visual-studio-code"
+      ],
+      "pack": "developer-tools"
+    },
+    {
+      "name": "Sublime Text",
+      "use": "flatpak",
+      "flatpak": "com.sublimehq.SublimeText",
+      "rpm": [
+        "sublime-text",
+        "sublime-text-*",
+        "sublime-merge"
+      ],
+      "appimage": [
+        "sublime-text",
+        "sublime"
+      ],
+      "pack": "developer-tools"
+    },
+    {
+      "name": "Neovim",
+      "use": "flatpak",
+      "flatpak": "io.neovim.nvim",
+      "rpm": [
+        "neovim",
+        "neovim-*",
+        "python3-neovim"
+      ],
+      "appimage": [
+        "nvim",
+        "neovim"
+      ],
+      "pack": "developer-tools"
+    },
+    {
+      "name": "IntelliJ IDEA Community",
+      "use": "flatpak",
+      "flatpak": "com.jetbrains.IntelliJ-IDEA-Community",
+      "rpm": [
+        "intellij-idea*",
+        "idea-community*"
+      ],
+      "appimage": [
+        "intellij-idea-community",
+        "intellij-idea"
+      ],
+      "pack": "developer-tools"
+    },
+    {
+      "name": "Eclipse",
+      "use": "flatpak",
+      "flatpak": "org.eclipse.Java",
+      "rpm": [
+        "eclipse",
+        "eclipse-*"
+      ],
+      "appimage": [
+        "eclipse"
+      ],
+      "pack": "developer-tools"
+    },
+    {
+      "name": "DBeaver",
+      "use": "flatpak",
+      "flatpak": "io.dbeaver.DBeaverCommunity",
+      "rpm": [
+        "dbeaver*"
+      ],
+      "appimage": [
+        "dbeaver",
+        "dbeaver-ce"
+      ],
+      "pack": "developer-tools"
+    },
+    {
+      "name": "Android Studio",
+      "use": "flatpak",
+      "flatpak": "com.google.AndroidStudio",
+      "rpm": [
+        "android-studio*"
+      ],
+      "appimage": [
+        "android-studio"
+      ],
+      "pack": "developer-tools"
+    },
+    {
+      "name": "gitg",
+      "use": "flatpak",
+      "flatpak": "org.gnome.gitg",
+      "rpm": [
+        "gitg",
+        "gitg-*"
+      ],
+      "appimage": [
+        "gitg"
+      ],
+      "pack": "developer-tools"
+    },
+    {
+      "name": "Godot",
+      "use": "flatpak",
+      "flatpak": "org.godotengine.Godot",
+      "rpm": [
+        "godot",
+        "godot-*"
+      ],
+      "appimage": [
+        "godot"
+      ],
+      "pack": "game-development"
+    },
+    {
+      "name": "LOVE",
+      "use": "flatpak",
+      "flatpak": "org.love2d.love2d",
+      "rpm": [
+        "love",
+        "love-*"
+      ],
+      "appimage": [
+        "love",
+        "love2d"
+      ],
+      "pack": "game-development"
+    },
+    {
+      "name": "GIMP",
+      "use": "flatpak",
+      "flatpak": "org.gimp.GIMP",
+      "rpm": [
+        "gimp",
+        "gimp-*"
+      ],
+      "appimage": [
+        "gimp"
+      ],
+      "pack": "creative"
+    },
+    {
+      "name": "Inkscape",
+      "use": "flatpak",
+      "flatpak": "org.inkscape.Inkscape",
+      "rpm": [
+        "inkscape",
+        "inkscape-*"
+      ],
+      "appimage": [
+        "inkscape"
+      ],
+      "pack": "creative"
+    },
+    {
+      "name": "darktable",
+      "use": "flatpak",
+      "flatpak": "org.darktable.Darktable",
+      "rpm": [
+        "darktable",
+        "darktable-*"
+      ],
+      "appimage": [
+        "darktable"
+      ],
+      "pack": "creative"
+    },
+    {
+      "name": "Blender",
+      "use": "flatpak",
+      "flatpak": "org.blender.Blender",
+      "rpm": [
+        "blender",
+        "blender-*"
+      ],
+      "appimage": [
+        "blender"
+      ],
+      "pack": "creative"
+    },
+    {
+      "name": "Audacity",
+      "use": "flatpak",
+      "flatpak": "org.audacityteam.Audacity",
+      "rpm": [
+        "audacity",
+        "audacity-*"
+      ],
+      "appimage": [
+        "audacity"
+      ],
+      "pack": "creative"
+    },
+    {
+      "name": "HandBrake",
+      "use": "flatpak",
+      "flatpak": "fr.handbrake.ghb",
+      "rpm": [
+        "HandBrake-gui",
+        "HandBrake-cli"
+      ],
+      "appimage": [
+        "handbrake"
+      ],
+      "pack": "creative"
+    },
+    {
+      "name": "LibreOffice",
+      "use": "flatpak",
+      "flatpak": "org.libreoffice.LibreOffice",
+      "rpm": [
+        "libreoffice-*"
+      ],
+      "appimage": [
+        "libreoffice"
+      ],
+      "pack": "office"
+    },
+    {
+      "name": "Thunderbird",
+      "use": "flatpak",
+      "flatpak": "org.mozilla.thunderbird",
+      "rpm": [
+        "thunderbird",
+        "thunderbird-*"
+      ],
+      "appimage": [
+        "thunderbird"
+      ],
+      "pack": "communication"
+    },
+    {
+      "name": "Pidgin",
+      "use": "flatpak",
+      "flatpak": "im.pidgin.Pidgin",
+      "rpm": [
+        "pidgin",
+        "pidgin-*"
+      ],
+      "appimage": [
+        "pidgin"
+      ],
+      "pack": "communication"
+    }
+  ],
+  "blocked": [
+    {
+      "name": "Terminal emulators",
+      "why": "CosmOS has no terminal: the Shop is how software is installed and every admin task goes through a typed action. A terminal (or a remote-shell client, which is one) in any packaging would be a way around that.",
+      "rpm": [
+        "gnome-terminal",
+        "gnome-terminal-*",
+        "gnome-console",
+        "gnome-console-*",
+        "ptyxis",
+        "ptyxis-*",
+        "konsole",
+        "konsole-*",
+        "yakuake",
+        "xterm",
+        "xterm-*",
+        "uxterm",
+        "rxvt",
+        "rxvt-*",
+        "rxvt-unicode",
+        "rxvt-unicode-*",
+        "urxvt",
+        "st",
+        "st-*",
+        "alacritty",
+        "alacritty-*",
+        "kitty",
+        "kitty-*",
+        "foot",
+        "foot-*",
+        "wezterm",
+        "wezterm-*",
+        "terminator",
+        "tilix",
+        "tilix-*",
+        "xfce4-terminal",
+        "xfce4-terminal-*",
+        "lxterminal",
+        "mate-terminal",
+        "mate-terminal-*",
+        "qterminal",
+        "qterminal-*",
+        "terminology",
+        "cool-retro-term",
+        "guake",
+        "tilda",
+        "sakura",
+        "roxterm",
+        "termite",
+        "eterm",
+        "mlterm",
+        "blackbox-terminal",
+        "deepin-terminal",
+        "contour",
+        "contour-*",
+        "cosmic-term",
+        "havoc",
+        "lxqt-qterminal",
+        "st-terminal",
+        "hyper",
+        "tabby",
+        "warp-terminal",
+        "ghostty",
+        "ghostty-*",
+        "rio",
+        "rio-terminal",
+        "ttyd",
+        "shellinabox",
+        "wetty",
+        "cockpit-ws",
+        "putty",
+        "qmlkonsole",
+        "yetty",
+        "easyssh",
+        "sshpilot",
+        "pterm",
+        "plink",
+        "kitty-terminfo"
+      ],
+      "flatpak": [
+        "org.gnome.Terminal",
+        "org.gnome.Console",
+        "org.gnome.Ptyxis",
+        "org.kde.konsole",
+        "org.kde.yakuake",
+        "com.raggesilver.BlackBox",
+        "com.gexperts.Tilix",
+        "io.elementary.terminal",
+        "org.wezfurlong.wezterm",
+        "org.alacritty.Alacritty",
+        "io.alacritty.Alacritty",
+        "net.kovidgoyal.kitty",
+        "org.xfce.Terminal",
+        "org.xfce.terminal",
+        "com.system76.CosmicTerm",
+        "org.contourterminal.Contour",
+        "com.mitchellh.ghostty",
+        "com.github.Guake.Guake",
+        "org.gnome.Terminal.Nautilus",
+        "io.github.cool_retro_term.cool-retro-term",
+        "com.github.stunkymonkey.terminal",
+        "org.mate_desktop.MateTerminal",
+        "org.lxqt.qterminal",
+        "com.gitlab.zamlz.termite",
+        "dev.warp.Warp",
+        "co.fig.terminal",
+        "com.termius.Termius",
+        "app.tabby.Tabby",
+        "com.tabby.Tabby",
+        "*.Terminal",
+        "*.terminal",
+        "*Terminal*",
+        "*.Konsole",
+        "*.Console",
+        "app.devsuite.Ptyxis",
+        "com.rioterm.Rio",
+        "dev.aa55.yetty",
+        "org.kde.qmlkonsole",
+        "page.codeberg.dnkl.foot",
+        "uk.org.greenend.chiark.sgtatham.putty",
+        "com.hostbuf.FinalShell",
+        "com.github.muriloventuroso.easyssh",
+        "io.github.mfat.sshpilot"
+      ],
+      "appimage": [
+        "alacritty",
+        "kitty",
+        "wezterm",
+        "tabby",
+        "hyper",
+        "warp",
+        "warp-terminal",
+        "terminator",
+        "konsole",
+        "foot",
+        "cool-retro-term",
+        "contour",
+        "tilix",
+        "xterm",
+        "st",
+        "ghostty",
+        "termius",
+        "gnome-terminal",
+        "qterminal",
+        "yakuake",
+        "guake",
+        "tilda",
+        "rio",
+        "ttyd"
+      ],
+      "scan": "terminal"
+    },
+    {
+      "name": "Heroic Games Launcher",
+      "scan": "installed",
+      "why": "CosmOS uses GameBox's own game-store client (Epic, GOG and more) instead of Heroic, so Heroic isn't installed and can't be installed in any form.",
+      "rpm": [
+        "heroic",
+        "heroic-*",
+        "heroic-games-launcher",
+        "heroic-games-launcher-*"
+      ],
+      "flatpak": [
+        "com.heroicgameslauncher.hgl",
+        "com.heroicgameslauncher.hgl.*"
+      ],
+      "appimage": [
+        "heroic",
+        "heroic-games-launcher",
+        "heroicgameslauncher"
+      ]
+    }
+  ],
+  "dnf_only": [
+    {
+      "name": "Game store clients",
+      "why": "Game stores are installed with dnf only - as system packages, not as Flatpaks or AppImages.",
+      "flatpak": [
+        "com.valvesoftware.Steam",
+        "com.valvesoftware.Steam.*",
+        "net.lutris.Lutris",
+        "net.lutris.Lutris.*",
+        "com.usebottles.bottles",
+        "io.github.sharkwouter.Minigalaxy",
+        "io.itch.itch",
+        "io.github.Faugus.faugus-launcher"
+      ],
+      "appimage": [
+        "steam",
+        "lutris",
+        "bottles",
+        "minigalaxy",
+        "itch",
+        "faugus-launcher",
+        "playnite",
+        "gamehub",
+        "legendary",
+        "nile"
+      ]
+    }
+  ]
+}

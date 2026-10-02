@@ -1,0 +1,224 @@
+#!/bin/bash
+# cosmos-priv - the dispatcher behind CosmOS's "no sudo to type".
+#
+# Every ordinary command has a symlink to this file in /usr/libexec/cosmos-sudo/bin (made at
+# build time by cosmos-sudo-shims) and interactive shells put that directory first in PATH
+# (/etc/profile.d/cosmos-sudo.sh). So typing `dnf install x` or `mv a /etc/b` lands here, under
+# the command's own name, and this decides whether it needs root:
+#
+#   always root      dnf rpm bootc systemctl mount modprobe useradd reboot ...
+#   read             cat less grep ls find stat head ... - root only if a file/directory named is
+#                    not readable by you
+#   write            mv cp rm mkdir ln touch chmod tee install ... - root only if a path named
+#                    can't be created/changed/removed by you (a home directory never needs it,
+#                    so nothing in your home becomes root-owned by accident)
+#   editors          nano vim ... - root only if a file named can't be written by you
+#   everything else  run as you first; if it fails with a permission error ("Permission denied",
+#                    "Operation not permitted", "must be root") it is run again with root
+#                    (standard input is kept for the second run)
+#
+# Programs that must stay yours - git, ssh, podman, interpreters, compilers, every app with a
+# desktop entry - get no symlink at all (see cosmos-sudo-shims). The real command always runs
+# with the shim directory taken back out of PATH, so scripts and programs it starts are
+# untouched. To skip this for one command: `raw mv ...` (or COSMOS_NO_AUTOSUDO=1).
+
+SHIM_DIR=${COSMOS_SUDO_SHIM_DIR:-/usr/libexec/cosmos-sudo/bin}
+name=${0##*/}
+
+# PATH without the shim directory - what the real command and its children see.
+clean=
+IFS=: read -ra parts <<< "$PATH"
+for p in "${parts[@]}"; do [ "$p" = "$SHIM_DIR" ] || clean=${clean:+$clean:}$p; done
+real=$(PATH=$clean command -v -- "$name" 2>/dev/null)
+if [ -z "$real" ] || [ "$real" = "$0" ]; then
+    echo "$name: command not found" >&2
+    exit 127
+fi
+export PATH=$clean
+[ -n "${COSMOS_NO_AUTOSUDO:-}" ] || [ "$(id -u)" = 0 ] && exec "$real" "$@"
+command -v kronos >/dev/null 2>&1 || command -v sudo >/dev/null 2>&1 || exec "$real" "$@"
+
+# priv COMMAND ARGS... - run a command with root. On CosmOS that is kronos (a typed action where one fits - dnf install, systemctl
+# restart, bootc upgrade... - else the passphrase-gated `run`; the desktop account has no sudo of its own). Where kronos isn't installed
+# (a dev machine) it is plain sudo.
+priv() {
+    if command -v kronos >/dev/null 2>&1; then kronos exec -- "$@"; else sudo -- "$@"; fi
+}
+priv_exec() { priv "$@"; exit $?; }
+# Things that never need root here, whatever their name suggests: power is the login manager's business for the active session, and
+# `systemctl --user` is your own.
+case $name in reboot|poweroff|shutdown|halt) exec "$real" "$@" ;; esac
+[ "$name" = systemctl ] && case " $* " in *" --user "*) exec "$real" "$@" ;; esac
+# Looking is never admin work: the read-only systemctl verbs run as you (they need nothing), so `systemctl status x` doesn't ask for a passphrase.
+if [ "$name" = systemctl ]; then
+    verb=; for a in "$@"; do case $a in -*) ;; *) verb=$a; break ;; esac; done
+    case $verb in status|show|cat|is-active|is-enabled|is-failed|is-system-running|get-default|list-units|list-unit-files|list-jobs|list-dependencies|list-sockets|list-timers|list-machines) exec "$real" "$@" ;; esac
+fi
+
+ALWAYS=" dnf dnf5 yum rpm rpm-ostree ostree bootc systemctl journalctl dmesg mount umount losetup fdisk sfdisk gdisk parted wipefs cryptsetup lvm modprobe rmmod insmod sysctl firewall-cmd useradd usermod userdel groupadd groupmod groupdel passwd chpasswd chown chgrp mkfs.ext4 mkfs.xfs mkfs.btrfs mkfs.vfat fsck reboot poweroff shutdown halt chattr setfacl restorecon semanage setenforce update-grub grub2-mkconfig dracut "
+READ=" cat tac less more head tail grep egrep fgrep rg ls ll stat file wc find du tree strings hexdump xxd od sort uniq md5sum sha1sum sha256sum sha512sum readlink realpath diff cmp "
+WRITE=" mv cp rm rmdir mkdir ln touch install truncate tee chmod unlink shred "
+EDITORS=" nano vim vi nvim emacs ed pico "
+[ -r /etc/cosmos-sudo/always ] && ALWAYS="$ALWAYS $(grep -v '^[[:space:]]*\(#\|$\)' /etc/cosmos-sudo/always | tr '\n' ' ') "
+[ -r "$HOME/.config/cosmos/autosudo" ] && ALWAYS="$ALWAYS $(grep -v '^[[:space:]]*\(#\|$\)' "$HOME/.config/cosmos/autosudo" | tr '\n' ' ') "
+
+# The nearest existing ancestor of a path (where a new file would land).
+anchor() {
+    local p=$1
+    while [ ! -e "$p" ] && [ ! -L "$p" ] && [ "$p" != "/" ] && [ "$p" != "." ]; do
+        case $p in */*) p=${p%/*}; [ -z "$p" ] && p=/ ;; *) p=. ;; esac
+    done
+    printf '%s' "$p"
+}
+
+# needs_root MODE args... - 0 if the paths named need root for MODE (read|write|edit).
+needs_root() {
+    local mode=$1 a parent; shift
+    for a in "$@"; do
+        case $a in -*) continue ;; esac
+        if [ -e "$a" ] || [ -L "$a" ]; then
+            if [ "$mode" = read ]; then
+                [ -r "$a" ] || return 0
+                [ -d "$a" ] && { [ -x "$a" ] || return 0; }
+                continue
+            fi
+            [ -r "$a" ] || return 0
+            parent=$(dirname -- "$a")
+            case $name:$mode in
+                chmod:*) [ -O "$a" ] || return 0 ;;
+                touch:*|truncate:*|tee:*|*:edit) [ -d "$a" ] || [ -w "$a" ] || return 0 ;;
+                *) [ -w "$parent" ] && [ -x "$parent" ] || return 0 ;;
+            esac
+        elif [ "$mode" != read ]; then
+            case $a in */*) ;; *) a=./$a ;; esac
+            local anc; anc=$(anchor "$(dirname -- "$a")")
+            [ -w "$anc" ] && [ -x "$anc" ] || return 0
+        fi
+    done
+    return 1
+}
+
+# dnf on an image-based system: installing/removing/upgrading packages is rpm-ostree's job (dnf
+# cannot write /usr on a running machine). Map the common subcommands; anything else (search, info,
+# list, repoquery, provides, check-update, ...) is still dnf, as root.
+# The curated catalog and one packaging per app (see cosmos_catalog.py and cosmos_app_policy.py): refuse to
+# install anything that is not in the catalog, and a second copy of an app that is already here another way
+# (an RPM of something that is a Flatpak, or the other way round). This is the friendly message; dnf's
+# excludepkgs, the Flathub remote filter and Kronos are what actually refuse it, so `raw` does not get around
+# it. Things that can't be checked by name - a local .rpm, a .flatpakref, a URL - are refused too.
+policy_check() {
+    local out
+    command -v python3 >/dev/null 2>&1 || return 0
+    local bin=${COSMOS_APP_POLICY_BIN:-/usr/local/bin/cosmos_app_policy.py}
+    [ -r "$bin" ] || return 0
+    out=$(python3 "$bin" check "$@" 2>&1) || { echo "$name: $out" >&2; exit 1; }
+}
+case $name in
+    dnf|dnf5|yum|rpm-ostree)
+        sub=
+        for a in "$@"; do
+            case $a in -*) continue ;; esac
+            if [ -z "$sub" ]; then sub=$a; continue; fi
+            case $sub in install|in|add|reinstall|rei|localinstall) policy_check rpm "$a" ;; esac
+        done ;;
+    flatpak)
+        sub=; scope=system
+        for a in "$@"; do [ "$a" = --user ] && scope=user; done
+        for a in "$@"; do
+            case $a in -*) continue ;; esac
+            if [ -z "$sub" ]; then sub=$a; continue; fi
+            [ "$sub" = install ] || break
+            ref=${a#app/}; ref=${ref%%/*}
+            case $ref in *.flatpakref|*.flatpak|*.flatpakrepo|*[!A-Za-z0-9._-]*) policy_check flatpak "$a" ;; *.*) policy_check flatpak "$ref"; policy_check flatpak-scope "$ref" "$scope" ;; esac
+        done ;;
+    am|appman)
+        # AM/AppMan: `am -i NAME...` / `am install NAME...` (also -ia and friends); every name has to be a catalog AppImage
+        installing=
+        for a in "$@"; do
+            case $a in -i|-ia|-ib|-id|install) installing=1; continue ;; -*) continue ;; esac
+            [ -n "$installing" ] && policy_check appimage "$a"
+        done ;;
+esac
+# AM/AppMan installs are the user's own (no root, ever): after the check above the real command runs as you, and it is never retried as root.
+if [ "$name" = am ] || [ "$name" = appman ]; then
+    exec "$real" "$@"
+fi
+# flatpak is guarded above and otherwise runs as you (system installs ask polkit themselves). After an install,
+# find-terminals removes anything that turned out to be a terminal emulator (the name lists can't know them all).
+if [ "$name" = flatpak ]; then
+    case " $* " in *" install "*) "$real" "$@"; rc=$?
+        if [ $rc = 0 ] && command -v find-terminals >/dev/null 2>&1; then
+            find-terminals --purge-flatpaks >/dev/null || { echo "$name: a terminal emulator can't stay installed on CosmOS - it was removed." >&2; exit 1; }
+        fi
+        exit $rc ;;
+    esac
+    exec "$real" "$@"
+fi
+
+case $name in dnf|dnf5|yum)
+    if command -v rpm-ostree >/dev/null 2>&1; then
+        sub=; pkgs=()
+        for a in "$@"; do
+            case $a in
+                -y|--assumeyes|-q|--quiet|--refresh|--best|--allowerasing|--nogpgcheck|--setopt=*|--skip-broken|--nobest) ;;
+                -*) ;;
+                *) if [ -z "$sub" ]; then sub=$a; else pkgs+=("$a"); fi ;;
+            esac
+        done
+        case $sub in
+            install|in|add)
+                [ ${#pkgs[@]} -gt 0 ] || priv_exec "$real" "$@"
+                echo "cosmos: dnf install -> rpm-ostree install (image-based system: layered on top of the image)" >&2
+                priv rpm-ostree install --idempotent --apply-live "${pkgs[@]}" || \
+                    priv rpm-ostree install --idempotent "${pkgs[@]}" || {
+                    echo "cosmos: rpm-ostree could not layer that. For a throwaway install: raw bootc usr-overlay, then raw dnf install ... ; for a permanent one add it to the Containerfile." >&2
+                    exit 1; }
+                echo "cosmos: done. If it says a reboot is needed, the change is staged and finishes on the next boot." >&2
+                exit 0 ;;
+            remove|erase|rm)
+                [ ${#pkgs[@]} -gt 0 ] || priv_exec "$real" "$@"
+                echo "cosmos: dnf remove -> rpm-ostree uninstall" >&2
+                priv_exec rpm-ostree uninstall "${pkgs[@]}" ;;
+            upgrade|update|up|upgrade-minimal|distro-sync|dsync)
+                echo "cosmos: dnf $sub -> rpm-ostree upgrade" >&2
+                priv_exec rpm-ostree upgrade ;;
+        esac
+    fi ;;
+esac
+
+case $ALWAYS in *" $name "*) priv_exec "$real" "$@" ;; esac
+case $READ in *" $name "*)
+    if needs_root read "$@"; then priv_exec "$real" "$@"; else exec "$real" "$@"; fi ;;
+esac
+case $WRITE in *" $name "*)
+    if needs_root write "$@"; then priv_exec "$real" "$@"; else exec "$real" "$@"; fi ;;
+esac
+case $EDITORS in *" $name "*)
+    if needs_root edit "$@"; then priv_exec "$real" "$@"; else exec "$real" "$@"; fi ;;
+esac
+if [ "$name" = sed ]; then           # only `sed -i` writes to the file
+    case " $* " in *" -i"*|*" --in-place"*) if needs_root write "$@"; then priv_exec "$real" "$@"; fi ;; *) exec "$real" "$@" ;; esac
+fi
+
+# Everything else: as you first; again with root if it was a permission problem.
+# The second run needs the same standard input, so it only happens when that can be replayed:
+# a terminal, /dev/null, or a file redirected in. A pipe cannot be (buffering it would also
+# stall streaming pipelines), so then the error is left as it is, with a hint.
+replay=
+if [ -t 0 ]; then replay=tty
+elif [ -f /proc/self/fd/0 ] || [ -c /proc/self/fd/0 ]; then replay=$(readlink /proc/self/fd/0); fi
+errf=$(mktemp); rcf=$(mktemp)
+trap 'rm -f "$errf" "$rcf"' EXIT
+{ "$real" "$@" 2>&1 1>&3 3>&-; echo $? > "$rcf"; } 3>&1 | tee "$errf" >&2
+rc=$(cat "$rcf" 2>/dev/null); rc=${rc:-1}
+if [ "$rc" -ne 0 ] && grep -qiE 'permission denied|operation not permitted|not permitted|must be (run as )?root|superuser|are you root|requires root|only root|access denied|insufficient privileges' "$errf"; then
+    if [ -n "$replay" ]; then
+        echo "cosmos-sudo: $name needs root - running it again with admin rights" >&2
+        [ "$replay" != tty ] && exec 0< "$replay"
+        priv "$real" "$@"
+        rc=$?
+    else
+        echo "cosmos-sudo: $name needs root, but its input was piped so it was not run again - repeat it with `kronos exec -- ...`" >&2
+    fi
+fi
+exit "$rc"

@@ -1,0 +1,3 @@
+SUBSYSTEM=="leds", ACTION=="add", KERNELS=="*:054C:*|*:057E:*|*:045E:*", RUN+="/bin/sh -c 'chgrp cosmos-pads /sys%p/brightness /sys%p/multi_intensity 2>/dev/null; chmod g+w /sys%p/brightness /sys%p/multi_intensity 2>/dev/null; true'"
+# DualSense adaptive triggers are set by writing to the controller's hidraw node (cosmos_dualsense.py)
+SUBSYSTEM=="hidraw", KERNELS=="*:054C:0CE6.*|*:054C:0DF2.*", GROUP="cosmos-pads", MODE="0660"

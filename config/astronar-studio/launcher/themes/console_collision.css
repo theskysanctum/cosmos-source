@@ -1,0 +1,66 @@
+/* "Console Collision" - CosmOS's original/default theme: a modern
+dark dashboard base with a four-stop magenta/violet gradient accent,
+not tied to any one manufacturer's real UI. Every color the shared
+theme.css actually uses is named here - theme.css itself never has a
+literal color in it any more (see theme.py's own load_theme()), so a
+new theme is just a second file defining this same set of names to
+different values, nothing in theme.css has to change or know which
+theme is active. */
+
+/* -- backgrounds -- */
+@define-color bg_primary #0a0e16;
+@define-color bg_row_selected #16233d;
+@define-color bg_card #0d1220;
+@define-color bg_panel rgba(12, 16, 26, 0.7);
+@define-color bg_panel_active rgba(20, 18, 32, 0.85);
+@define-color bg_panel_light rgba(12, 16, 26, 0.55);
+@define-color bg_panel_light_active rgba(20, 18, 32, 0.8);
+@define-color bg_panel_solid rgba(12, 16, 26, 0.9);
+@define-color bg_input #141b2b;
+@define-color bg_deep #05080e;
+@define-color bg_scrim rgba(0, 0, 0, 0.6);
+@define-color bg_scrim_heavy rgba(0, 0, 0, 0.85);
+@define-color bg_scrim_ceremony rgba(0, 0, 0, 0.88);
+@define-color bg_caption rgba(5, 8, 14, 0.85);
+@define-color shadow_color #000000;
+
+/* -- text -- */
+@define-color text_primary #e8ecf4;
+@define-color text_bright #ffffff;
+@define-color text_dim #7690b3;
+@define-color text_muted #cdd6e6;
+@define-color text_summary #aab4c8;
+@define-color text_line #d7dfec;
+@define-color text_warning #ff6b6b;
+
+/* -- borders / dividers -- */
+@define-color border_muted #2a3a56;
+@define-color border_panel rgba(130, 150, 200, 0.35);
+@define-color border_panel_light rgba(130, 150, 200, 0.3);
+
+/* -- the four-stop signature gradient, and accent_2 doubling as the
+single-color accent everywhere something can't be a gradient (badge
+borders, hover glows, the selected OSK key) -- */
+@define-color accent_1 #d6006f;
+@define-color accent_2 #ff0090;
+@define-color accent_3 #c400ff;
+@define-color accent_4 #ff6bea;
+@define-color accent_2_bright #ff8ef0;
+
+/* The window's own background image is a real per-theme asset, not
+just a color - @define-color can't hold a url(), so this theme's own
+full window{} rule lives here directly rather than in the shared
+theme.css (which has no window{} rule of its own at all any more). The
+dark overlay gradient (multiple comma-separated background-images is
+real GTK3 CSS, not a browser-only trick) keeps text readable over the
+busy starfield underneath - the image alone is too bright/detailed
+behind small UI text. */
+window {
+	background-color: @bg_primary;
+	background-image:
+		linear-gradient(rgba(6, 8, 14, 0.82), rgba(6, 8, 14, 0.9)),
+		url("../backgrounds/galaxy.jpg");
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+}

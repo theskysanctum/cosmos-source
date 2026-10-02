@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Admin Activity
+Exec=cosmos-admin
+Comment=What has been done with admin rights, and the admin passphrase
+Icon=security-high
+Categories=Settings;System;
+Terminal=false
+NoDisplay=true

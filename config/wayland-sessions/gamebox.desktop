@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=GameBox
+Comment=GameBox game and emulator frontend, full screen
+Exec=/usr/local/bin/gamebox-session
+Type=Application
+DesktopNames=CosmOS

@@ -1,0 +1,11 @@
+{
+    "name": "Wristband",
+    "description": "The built-in wristband accessory.",
+    "fields": [
+        {"category": "Accessories", "key": "accessories", "item": "wristband", "label": "Wristband", "kind": "multi_bool"},
+        {
+            "category": "Accessories", "key": "wristband_color", "label": "Wristband color", "kind": "color",
+            "options": ["#1a1a1a", "#f4f7ff", "#5c1414", "#1e3d2f", "#3355cc", "#6b4423"], "default": "#1a1a1a"
+        }
+    ]
+}

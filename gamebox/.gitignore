@@ -1,0 +1,78 @@
+__pycache__/
+*.pyc
+# Real API keys (IGDB, Dropbox, ...) - never committed; packaging/dotenv_config.py reads them.
+/.env
+usb/assignment.json
+browser/profile/
+wm/consolewm
+settings/igdb_credentials.json
+settings/realdebrid_credentials.json
+settings/screenscraper_credentials.json
+filemanager/remote_connections.json
+notifications/telegram_credentials.json
+launcher/ra_credentials.ini
+epic/launch_options.ini
+gog/launch_options.ini
+launcher/quick_launch.ini
+launcher/dashboard_widgets.ini
+launcher/active_profile.txt
+*.AppImage
+*.iso
+output/
+/roms/
+/movies/
+/tv/
+/music/
+/photos/
+# The raw curated-art source dump (~1.4GB, thousands of files) - only
+# the small, resized subset this project actually uses ever gets
+# committed, under launcher/platform_icons/ and launcher/
+# platform_wallpapers/ (see launcher/platform_art.py) - not this
+# folder itself.
+/images-for-use/
+# Runtime log output from GameGrubber - never source, never worth
+# committing. gamegrubber/ itself is gone from this repo entirely now -
+# a real, separately-installed module (see packaging/module_registry.py)
+# fetched into /userdata/modules_repo, not a plain sibling directory
+# here - but its own runtime config dir (RGSX_CONFIG_DIR, still set to
+# COSMOS_ROOT/data/gamegrubber - see gamegrubber/cosmos_bridge.py's own
+# docstring) still lands under this checkout's data/ directory.
+/data/gamegrubber/logs/
+# "One emulator, every core and asset" (RetroArch) means the full real
+# buildbot set - well over a gigabyte, and would hit GitHub's hard
+# 100MB-per-file push limit repeatedly (mame_libretro.so alone is
+# ~400MB). Fetched at deploy time instead - see emulators/cores.py and
+# emulators/assets.py. Only the from-source retroarch binary itself
+# stays committed.
+/emulators/bin/cores/
+/emulators/bin/assets/
+/emulators/bin/autoconfig/
+/emulators/bin/cheats/
+/emulators/bin/database/
+/emulators/bin/info/
+/emulators/bin/overlays/
+/emulators/bin/shaders/
+# Same story for the indie game-engine runtimes (NW.js/LÖVE/Ren'Py/
+# TIC-80/AGS) - real prebuilt third-party binaries, fetched at deploy
+# time (emulators/engines.py), never committed.
+/emulators/bin/engines/
+# Same story again for the Electron runtime webshell/main.js runs on
+# (replaced Brave - see webshell/electron_runtime.py) - a real
+# unmodified upstream binary release, fetched at deploy time, not
+# committed. First-party app code alongside it (main.js, package.json,
+# etc.) is NOT excluded, only this one fetched directory.
+/webshell/electron/
+# mkxp-z's own generated per-launch game config (see mkxp_config.py) -
+# the bundled mkxp-z.x86_64 binary/lib64/stdlib next to it ARE
+# committed (built from source, no prebuilt release exists), but this
+# one file is regenerated fresh before every RPG Maker XP/VX/VXAce
+# launch, never static.
+/emulators/bin/mkxpz/mkxp.json
+# launcher/avatar3d_previewer.py's own saved test combos - real
+# throwaway dev-session data (F5 in that tool), never a real profile's
+# actual picture (those live in a profile's own picture_traits.json,
+# under /userdata, never in the git tree at all).
+/launcher/avatar3d_previewer_seeds.json
+# launcher/avatar3d_mega_showcase.py's own rendered grid PNGs - same
+# "throwaway dev-session output, regenerate on demand" reasoning.
+/launcher/avatar3d_mega_showcase_output/

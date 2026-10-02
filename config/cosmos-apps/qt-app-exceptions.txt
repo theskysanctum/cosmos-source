@@ -1,0 +1,10 @@
+# Qt apps that are allowed to stay as they are (not Flatpaks): a desktop id or a command name per line.
+# find-qt-apps reads this; everything else built on Qt must be a Flatpak so its file dialog goes through the
+# scoped portal (see app-policy.json).
+#
+# The hand-built emulators from GameBox: Dolphin runs as dolphin-emu-nogui (no GUI at all) and PCSX2 is
+# being made to run without its Qt GUI.
+dolphin-emu
+dolphin-emu-nogui
+pcsx2-qt
+pcsx2

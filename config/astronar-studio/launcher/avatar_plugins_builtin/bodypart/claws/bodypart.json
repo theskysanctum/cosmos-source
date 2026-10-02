@@ -1,0 +1,12 @@
+{
+    "name": "Claws",
+    "description": "The built-in claws feature (small pale tips on hands and feet, independent of paws).",
+    "fields": [
+        {"category": "Body", "key": "claws", "label": "Claws", "kind": "bool", "default": false},
+        {
+            "category": "Body", "key": "claw_color", "label": "Claw color", "kind": "color",
+            "options": ["#f0ebd9", "#1a1a1a", "#f4f7ff", "#5c1414", "#1e3d2f", "#3355cc", "#6b4423"],
+            "default": "#f0ebd9"
+        }
+    ]
+}

@@ -1,0 +1,7 @@
+{
+    "name": "Muzzle",
+    "description": "The built-in animal-muzzle feature (a protruding snout replacing the flat nose+mouth). Unlike ears/horns/halo, `muzzle` the boolean is NOT a core avatar3d_viewer.py CUSTOM_FIELDS entry anymore - it's resolved from **extra_traits by build_character()/build_rig() (see those functions' own docstrings) purely as a local GATE passed into _build_face()/_build_head_bundle() to skip the normal nose+mouth geometry; the snout-replacement geometry itself lives entirely here.",
+    "fields": [
+        {"category": "Face", "key": "muzzle", "label": "Muzzle", "kind": "bool", "default": false}
+    ]
+}

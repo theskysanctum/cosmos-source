@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Game Packs
+Exec=cosmos-winpack
+Comment=Pack a Windows game into one compressed file that runs under any Proton version
+Icon=applications-games
+Categories=Game;Utility;
+Terminal=false
+NoDisplay=true

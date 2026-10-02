@@ -1,0 +1,23 @@
+#!/bin/bash
+# Turns on CosmOS's remote access for one account: SSH by key only (no passwords, no root login), only for that account. Run as root:
+#   sudo cosmos-remote-enable [ACCOUNT]      ACCOUNT defaults to the account that ran sudo
+#   sudo cosmos-remote-enable --undo         removes the CosmOS SSH configuration again
+# Keys are added afterwards with cosmos-remote. The configuration is checked with `sshd -t` before it is used, and dropped if it is refused.
+set -euo pipefail
+[ "$(id -u)" = 0 ] || { echo "run as root: sudo cosmos-remote-enable" >&2; exit 1; }
+DST=/etc/ssh/sshd_config.d/50-cosmos.conf
+if [ "${1:-}" = "--undo" ]; then
+    rm -f "$DST"; systemctl reload sshd.service 2>/dev/null || true; echo "removed $DST"; exit 0
+fi
+ACCOUNT=${1:-${SUDO_USER:-}}
+[ -n "$ACCOUNT" ] && id "$ACCOUNT" >/dev/null 2>&1 || { echo "which account? sudo cosmos-remote-enable ACCOUNT" >&2; exit 1; }
+mkdir -p /etc/ssh/sshd_config.d
+sed "s/^AllowUsers .*/AllowUsers $ACCOUNT/" /usr/share/cosmos/remote/sshd-50-cosmos.conf > "$DST"
+# Check the configuration before using it. sshd wants a host key even to check, and an image being built has none yet, so a throwaway one is made.
+KEYDIR=$(mktemp -d /var/tmp/cosmos-sshd-check.XXXXXX)
+trap 'rm -rf "$KEYDIR"' EXIT
+ssh-keygen -q -t ed25519 -N "" -f "$KEYDIR/key"
+if ! sshd -t -h "$KEYDIR/key" 2>"$KEYDIR/err"; then rm -f "$DST"; cat "$KEYDIR/err" >&2; echo "sshd refused the configuration; nothing was changed" >&2; exit 1; fi
+systemctl enable sshd.service
+[ -d /run/systemd/system ] && systemctl reload-or-restart sshd.service || true
+echo "SSH is on for $ACCOUNT, by key only. Add keys with cosmos-remote."

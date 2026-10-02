@@ -1,0 +1,3 @@
+# The motion sensors of Sony/Nintendo/Xbox pads (gyro view) are separate input nodes; give the signed-in session those too, like the pads themselves.
+SUBSYSTEM=="input", KERNEL=="event*", ATTRS{id/vendor}=="054c|057e|045e", ENV{ID_INPUT_ACCELEROMETER}=="1", TAG+="uaccess"
+SUBSYSTEM=="input", KERNEL=="event*", ENV{ID_INPUT_JOYSTICK}=="1", TAG+="uaccess"

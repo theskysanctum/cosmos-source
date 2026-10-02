@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""find-blocked-apps - find programs the app policy says must not be on this system that are not terminals (today: Heroic Games Launcher,
+because CosmOS uses GameBox's own game-store client). Same idea as find-terminals: the install paths refuse the known names, this checks
+what is actually installed, by any route.
+
+  find-blocked-apps                 scan this system (exit 1 if anything is found)
+  find-blocked-apps --root DIR      scan a mounted image root
+  find-blocked-apps --json
+
+The image build runs it at the end and fails on a hit.
+"""
+import argparse
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import cosmos_app_policy as policy  # noqa: E402
+from cosmos_blocked_scan import scan  # noqa: E402
+
+
+def groups():
+    return [g for g in policy.load_blocked() if g.get("scan") == "installed"]
+
+
+def main(argv):
+    ap = argparse.ArgumentParser(description="Find blocked programs that are not terminals.")
+    ap.add_argument("--root", default="/")
+    ap.add_argument("--json", action="store_true")
+    args = ap.parse_args(argv)
+    found = scan(args.root, groups())
+    if args.json:
+        print(json.dumps({"blocked": found}, indent=1))
+    elif found:
+        print(f"{len(found)} blocked program(s) found:")
+        for f in found:
+            print(f"  {f['group']:26} {f['kind']:8} {f['id']:36} {', '.join(f['why'])}")
+        why = {g["name"]: g.get("why", "") for g in groups()}
+        for name in sorted({f["group"] for f in found if f["group"]}):
+            print(f"\n{name}: {why.get(name, '')}")
+    else:
+        print("No blocked programs found.")
+    return 1 if found else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

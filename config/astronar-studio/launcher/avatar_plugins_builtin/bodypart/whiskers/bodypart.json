@@ -1,0 +1,7 @@
+{
+    "name": "Whiskers",
+    "description": "The built-in whiskers feature - independent of muzzle, a human-ish face can still have whiskers.",
+    "fields": [
+        {"category": "Face", "key": "whiskers", "label": "Whiskers", "kind": "bool", "default": false}
+    ]
+}

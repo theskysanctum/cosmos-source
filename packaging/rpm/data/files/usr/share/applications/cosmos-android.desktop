@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Android
+Comment=Set up Android and tune it for games (Waydroid, from the Virtualization pack)
+Exec=cosmos-android
+TryExec=waydroid
+Icon=phone
+Categories=System;Game;
+Terminal=false
+NoDisplay=true

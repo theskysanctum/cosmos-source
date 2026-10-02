@@ -1,0 +1,4 @@
+{
+    "name": "Horns",
+    "description": "The built-in mythical horns feature (small/curved/demon/unicorn). No \"fields\" here - horns/horn_color/horn_scale/horn_thickness stay real, core avatar3d_viewer.py CUSTOM_FIELDS entries (they still drive a hairstyle-override check inside build_character()/build_rig() themselves), only the geometry moved out here."
+}

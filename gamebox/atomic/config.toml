@@ -1,0 +1,18 @@
+# Keep this in sync with atomic/install_to_filesystem.py's own
+# ROOT_SIZE_MIB (its own real, parted-based partitioning path) - this is
+# bootc-image-builder's separate raw-image path, but both need to fit
+# the same real deployment content.
+[[customizations.filesystem]]
+mountpoint = "/"
+minsize = "40 GiB"
+
+# /var/userdata, not /userdata directly - bootc-image-builder's own
+# mountpoint validation rejects a real top-level path ("path
+# \"/userdata\" is not allowed"), only /var-rooted ones. The
+# Containerfile now ships /userdata as a symlink to /var/userdata (the
+# same pattern as /cosmos -> /var/lib/cosmos) specifically so this
+# still backs the app's real DATA_ROOT with a genuine separate
+# partition, not an arbitrary unused one.
+[[customizations.filesystem]]
+mountpoint = "/var/userdata"
+minsize = "8 GiB"

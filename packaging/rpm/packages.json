@@ -1,0 +1,1783 @@
+{
+  "_about": "What each cosmos-* RPM contains. build.py turns this into specs and a repository; see its docstring for the fields. Files install into one flat /usr/lib/cosmos/ (the modules import each other by name, as they did from /usr/local/bin) with CLI names as symlinks in /usr/bin.",
+  "version": "0.4.0",
+  "release": "1",
+  "packages": [
+    {
+      "name": "cosmos-common",
+      "summary": "CosmOS shared modules: the app policy, the curated catalog, Expansion Packs and the task window",
+      "description": "The pieces every CosmOS program shares: the curated catalog (what may be installed), the one-packaging-per-app policy, Expansion Packs, the optional-module installer, the updates helpers and cosmos-task, a window that runs a command and streams its output. Works on any Fedora.",
+      "requires": [
+        "python3",
+        "python3-gobject",
+        "gtk3",
+        "gobject-introspection"
+      ],
+      "recommends": [
+        "flatpak"
+      ],
+      "dirs": [
+        "/usr/lib/cosmos",
+        "/usr/share/cosmos"
+      ],
+      "files": [
+        {
+          "glob": "config/scripts/cosmos_app_policy.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_catalog.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_packs.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_modules.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_updates.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_blocked_scan.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "config/scripts/cosmos-task.py",
+          "dest": "/usr/lib/cosmos/cosmos-task.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/find-terminals",
+          "dest": "/usr/lib/cosmos/find-terminals",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/find-blocked-apps",
+          "dest": "/usr/lib/cosmos/find-blocked-apps",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/find-uncurated",
+          "dest": "/usr/lib/cosmos/find-uncurated",
+          "mode": "0755"
+        },
+        {
+          "src": "config/cosmos-apps/catalog.json",
+          "dest": "/usr/share/cosmos/catalog.json"
+        },
+        {
+          "src": "config/cosmos-apps/app-policy.json",
+          "dest": "/usr/share/cosmos/app-policy.json"
+        },
+        {
+          "src": "config/cosmos-apps/expansion-packs.json",
+          "dest": "/usr/share/cosmos/expansion-packs.json"
+        },
+        {
+          "glob": "config/scripts/cosmos_profiles.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_kronos.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_display.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_settings_link.py",
+          "dest_dir": "/usr/lib/cosmos"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-task",
+          "target": "/usr/lib/cosmos/cosmos-task.py"
+        },
+        {
+          "dest": "/usr/bin/find-terminals",
+          "target": "/usr/lib/cosmos/find-terminals"
+        },
+        {
+          "dest": "/usr/bin/find-blocked-apps",
+          "target": "/usr/lib/cosmos/find-blocked-apps"
+        },
+        {
+          "dest": "/usr/bin/find-uncurated",
+          "target": "/usr/lib/cosmos/find-uncurated"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-shop",
+      "summary": "The CosmOS Shop: curated Flatpaks, packages, AppImages, Expansion Packs, and game downloads",
+      "description": "A GTK shop for what CosmOS lets you install. Everything it offers comes from the curated catalog: Flatpaks, packages, AppImages (through AM/AppMan) and Expansion Packs that install a whole set at once. With the Game Downloads pack installed and switched on it also downloads games and BIOS files, organised by manufacturer. Installs run in cosmos-task, which takes answers to questions (for example the sudo password on a Fedora that is not image-based).",
+      "requires": [
+        "cosmos-common",
+        "python3-gobject",
+        "gtk3",
+        "python3-cryptography",
+        "python3-requests"
+      ],
+      "recommends": [
+        "flatpak"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-shop.py",
+          "dest": "/usr/lib/cosmos/cosmos-shop.py",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/cosmos_gamegrubber.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/xiso.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "gamebox/library/systems.json",
+          "dest": "/usr/lib/cosmos/gamebox-lite/library/systems.json"
+        },
+        {
+          "src": "gamebox/settings/realdebrid.py",
+          "dest": "/usr/lib/cosmos/gamebox-lite/settings/realdebrid.py"
+        },
+        {
+          "src": "gamebox/packaging/credentials_crypto.py",
+          "dest": "/usr/lib/cosmos/gamebox-lite/packaging/credentials_crypto.py"
+        },
+        {
+          "src": "gamebox/debuglog.py",
+          "dest": "/usr/lib/cosmos/gamebox-lite/debuglog.py"
+        },
+        {
+          "src": "gamebox/paths.py",
+          "dest": "/usr/lib/cosmos/gamebox-lite/paths.py"
+        },
+        {
+          "src": "gamebox/library/arcade_names.py",
+          "dest": "/usr/lib/cosmos/gamebox-lite/library/arcade_names.py"
+        },
+        {
+          "src": "gamebox/library/dats.py",
+          "dest": "/usr/lib/cosmos/gamebox-lite/library/dats.py"
+        },
+        {
+          "src": "gamebox/library/data/fbneo-arcade.dat",
+          "dest": "/usr/lib/cosmos/gamebox-lite/library/data/fbneo-arcade.dat"
+        },
+        {
+          "src": "packaging/rpm/data/cosmos-shop.desktop",
+          "dest": "/usr/share/applications/cosmos-shop.desktop"
+        }
+      ],
+      "dirs": [
+        "/usr/lib/cosmos/gamebox-lite",
+        "/usr/lib/cosmos/gamebox-lite/library",
+        "/usr/lib/cosmos/gamebox-lite/library/data",
+        "/usr/lib/cosmos/gamebox-lite/settings",
+        "/usr/lib/cosmos/gamebox-lite/packaging"
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-shop",
+          "target": "/usr/lib/cosmos/cosmos-shop.py"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-input",
+      "summary": "CosmOS controller input: any gamepad becomes a keyboard and mouse, plus an on-screen keyboard",
+      "description": "Turns any gamepad into a system-wide keyboard and mouse through uinput (so a desktop, a lock screen and every app respond to a controller), with an on-screen keyboard and per-player button remapping. Installs the udev rule that lets the signed-in session use /dev/uinput.",
+      "requires": [
+        "cosmos-common",
+        "python3",
+        "python3-evdev",
+        "python3-gobject",
+        "gtk3",
+        "gtk-layer-shell"
+      ],
+      "files": [
+        {
+          "src": "config/input/cosmos_input.py",
+          "dest": "/usr/lib/cosmos/cosmos_input.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/input/cosmos_osk.py",
+          "dest": "/usr/lib/cosmos/cosmos_osk.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/input/cosmos_remap.py",
+          "dest": "/usr/lib/cosmos/cosmos_remap.py"
+        },
+        {
+          "src": "config/scripts/cosmos_pad_native.py",
+          "dest": "/usr/lib/cosmos/cosmos_pad_native.py"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/lib/udev/rules.d/70-cosmos-input.rules",
+          "dest": "/usr/lib/udev/rules.d/70-cosmos-input.rules"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-input",
+          "target": "/usr/lib/cosmos/cosmos_input.py"
+        }
+      ],
+      "post": "udevadm control --reload 2>/dev/null || :"
+    },
+    {
+      "name": "cosmos-controllers",
+      "summary": "Controller Customizer: lights, rumble, motion and adaptive triggers",
+      "description": "Sets the light colour, effects and player lights of DualSense, DualShock 4, Switch and Xbox controllers, tests rumble, shows battery and a live gyroscope view, sets DualSense adaptive triggers, and saves it all per profile. Installs the udev rules and the cosmos-pads group that let the signed-in user write the controllers' LED files.",
+      "requires": [
+        "cosmos-common",
+        "cosmos-input",
+        "python3-evdev",
+        "python3-gobject",
+        "gtk3",
+        "systemd"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-controllers.py",
+          "dest": "/usr/lib/cosmos/cosmos-controllers.py",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/cosmos_pads.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_dualsense.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/lib/udev/rules.d/71-cosmos-controller-leds.rules",
+          "dest": "/usr/lib/udev/rules.d/71-cosmos-controller-leds.rules"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/lib/udev/rules.d/72-cosmos-controller-input.rules",
+          "dest": "/usr/lib/udev/rules.d/72-cosmos-controller-input.rules"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/lib/sysusers.d/cosmos-pads.conf",
+          "dest": "/usr/lib/sysusers.d/cosmos-pads.conf"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/share/applications/cosmos-controllers.desktop",
+          "dest": "/usr/share/applications/cosmos-controllers.desktop"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-controllers",
+          "target": "/usr/lib/cosmos/cosmos-controllers.py"
+        }
+      ],
+      "post": "systemd-sysusers /usr/lib/sysusers.d/cosmos-pads.conf 2>/dev/null || :\nudevadm control --reload 2>/dev/null || :"
+    },
+    {
+      "name": "cosmos-files",
+      "summary": "CosmOS Files: a file manager that shows only your files, drives and removable media",
+      "description": "A file manager that shows your files, USB and removable drives and other internal drives, never the system disk or the rest of the home folder; paths are resolved before they are accepted, and unmounted drives mount when clicked.",
+      "requires": [
+        "cosmos-common",
+        "python3-gobject",
+        "gtk3"
+      ],
+      "recommends": [
+        "udisks2"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-files.py",
+          "dest": "/usr/lib/cosmos/cosmos-files.py",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/cosmos_files_ui.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_fileops.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_places.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/share/applications/cosmos-files.desktop",
+          "dest": "/usr/share/applications/cosmos-files.desktop"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-files",
+          "target": "/usr/lib/cosmos/cosmos-files.py"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-winpack",
+      "summary": "Game Packs: a Windows game as one SquashFS file that runs under any Proton",
+      "description": "Turns a Windows game folder into one compressed SquashFS file that runs under any Proton version without root. Creating a pack finds the game's executable, Steam id, ProtonDB rating, working launch options and Proton versions, and any automatic fix.",
+      "requires": [
+        "cosmos-common",
+        "python3-gobject",
+        "gtk3",
+        "squashfs-tools",
+        "squashfuse",
+        "fuse-overlayfs"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-winpack.py",
+          "dest": "/usr/lib/cosmos/cosmos-winpack.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/cosmos-winpack-cli.py",
+          "dest": "/usr/lib/cosmos/cosmos-winpack-cli.py",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/cosmos_winpack.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_proton.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_protondb.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/share/applications/cosmos-winpack.desktop",
+          "dest": "/usr/share/applications/cosmos-winpack.desktop"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-winpack",
+          "target": "/usr/lib/cosmos/cosmos-winpack.py"
+        },
+        {
+          "dest": "/usr/bin/cosmos-winpack-cli",
+          "target": "/usr/lib/cosmos/cosmos-winpack-cli.py"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-android",
+      "summary": "Android (Waydroid) for games, with a button-to-touch mapper",
+      "description": "Sets up Waydroid and tunes it for gaming (resolution, keep-awake, controllers, animations), and maps controller buttons and keys to touch points on the Android screen with a layout editor. The mapper needs the CosmOS compositor for touch injection.",
+      "requires": [
+        "cosmos-common",
+        "cosmos-input",
+        "python3-evdev",
+        "python3-gobject",
+        "gtk3"
+      ],
+      "recommends": [
+        "waydroid"
+      ],
+      "suggests": [
+        "cosmos-wm"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-android.py",
+          "dest": "/usr/lib/cosmos/cosmos-android.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/cosmos_touchmap.py",
+          "dest": "/usr/lib/cosmos/cosmos_touchmap.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/cosmos-touchmap-editor.py",
+          "dest": "/usr/lib/cosmos/cosmos-touchmap-editor.py",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/cosmos_android.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/share/applications/cosmos-android.desktop",
+          "dest": "/usr/share/applications/cosmos-android.desktop"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-android",
+          "target": "/usr/lib/cosmos/cosmos-android.py"
+        },
+        {
+          "dest": "/usr/bin/cosmos-touchmap-editor",
+          "target": "/usr/lib/cosmos/cosmos-touchmap-editor.py"
+        },
+        {
+          "dest": "/usr/bin/cosmos-touchmapd",
+          "target": "/usr/lib/cosmos/cosmos_touchmap.py"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-vm-manager",
+      "summary": "Virtual Machines: a QEMU front end with host device passthrough",
+      "description": "A front end for QEMU with host device passthrough: audio, USB devices, host keyboard and mouse, and whole PCI devices such as a GPU through VFIO. It checks first and says what is missing.",
+      "requires": [
+        "cosmos-common",
+        "python3-gobject",
+        "gtk3"
+      ],
+      "recommends": [
+        "qemu-system-x86",
+        "qemu-img",
+        "edk2-ovmf"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-vm-manager.py",
+          "dest": "/usr/lib/cosmos/cosmos-vm-manager.py",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/vm_passthrough.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "config/vm-passthrough/71-cosmos-vm-passthrough.rules",
+          "dest": "/usr/lib/udev/rules.d/71-cosmos-vm-passthrough.rules"
+        },
+        {
+          "src": "config/vm-passthrough/90-cosmos-vfio.conf",
+          "dest": "/etc/security/limits.d/90-cosmos-vfio.conf",
+          "config": true
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/share/applications/cosmos-vm-manager.desktop",
+          "dest": "/usr/share/applications/cosmos-vm-manager.desktop"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-vm-manager",
+          "target": "/usr/lib/cosmos/cosmos-vm-manager.py"
+        }
+      ],
+      "post": "udevadm control --reload 2>/dev/null || :"
+    },
+    {
+      "name": "cosmos-updates",
+      "summary": "Updates for Flatpaks, AppImages and the system in one place",
+      "description": "Flatpaks, AppImages and the system in one window, with an Update button per source and one for everything, and a tray icon that shows when updates are waiting.",
+      "requires": [
+        "cosmos-common",
+        "python3-gobject",
+        "gtk3"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-updates.py",
+          "dest": "/usr/lib/cosmos/cosmos-updates.py",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/cosmos_sni_item.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/share/applications/cosmos-updates.desktop",
+          "dest": "/usr/share/applications/cosmos-updates.desktop"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-updates",
+          "target": "/usr/lib/cosmos/cosmos-updates.py"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-wm",
+      "arch": "x86_64",
+      "summary": "cosmos-wm: the CosmOS Wayland compositor",
+      "description": "CosmOS's own Wayland compositor, built on wlroots: one maximized window at a time with dialogs floating, a home grid raised by the Windows key or a controller's Guide button, Alt+Tab, layer-shell panels, XWayland, a screen lock the compositor enforces, and a control socket that the shell, the lock screen and the Android button mapper use.",
+      "build": "packaging/rpm/build-wm.sh",
+      "requires": [
+        "xorg-x11-server-Xwayland"
+      ],
+      "files": [
+        {
+          "src": "@WORK@/build/cosmos-wm",
+          "dest": "/usr/bin/cosmos-wm",
+          "mode": "0755"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-shell",
+      "summary": "The CosmOS desktop shell: bar, launcher, lock screen, profiles and the session",
+      "description": "CosmOS's own desktop on top of cosmos-wm: a top, left and bottom bar with tray, the full-screen home grid (Apps, Web and Dev tabs) with web apps you can rename and re-icon, the lock screen the compositor enforces, profiles with their own favorites, wallpaper and settings, and the session that starts them all. Registers the CosmOS Wayland session.",
+      "requires": [
+        "cosmos-common",
+        "cosmos-wm",
+        "cosmos-input",
+        "cosmos-controllers",
+        "cosmos-updates",
+        "python3-gobject",
+        "gtk3",
+        "gtk-layer-shell",
+        "python3-requests",
+        "cosmos-theme"
+      ],
+      "recommends": [
+        "dunst",
+        "NetworkManager-applet",
+        "blueman",
+        "xdg-desktop-portal-gtk",
+        "xdg-desktop-portal-wlr",
+        "brave-browser"
+      ],
+      "dirs": [
+        "/usr/share/cosmos/avatars"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-launcher.py",
+          "dest": "/usr/lib/cosmos/cosmos-launcher.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/cosmos-bar.py",
+          "dest": "/usr/lib/cosmos/cosmos-bar.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/cosmos-lockscreen.py",
+          "dest": "/usr/lib/cosmos/cosmos-lockscreen.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/cosmos-wallpaper.py",
+          "dest": "/usr/lib/cosmos/cosmos-wallpaper.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/cosmos-profiles.py",
+          "dest": "/usr/lib/cosmos/cosmos-profiles.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/cosmos-session",
+          "dest": "/usr/lib/cosmos/cosmos-session",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/cosmos-session-env",
+          "dest": "/usr/lib/cosmos/cosmos-session-env",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/cosmos-session-apps",
+          "dest": "/usr/lib/cosmos/cosmos-session-apps",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/cosmos_favorites.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_webapp_edit.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_wm_ipc.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_session_state.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_sni_host.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/user-face/avatar-*.png",
+          "dest_dir": "/usr/share/cosmos/avatars"
+        },
+        {
+          "src": "config/portals/cosmos-portals.conf",
+          "dest": "/usr/share/xdg-desktop-portal/cosmos-portals.conf"
+        },
+        {
+          "src": "config/wayland-sessions/cosmos.desktop",
+          "dest": "/usr/share/wayland-sessions/cosmos.desktop",
+          "replace": [
+            [
+              "/usr/local/bin/cosmos-session",
+              "/usr/bin/cosmos-session"
+            ]
+          ]
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/share/applications/cosmos-wallpaper.desktop",
+          "dest": "/usr/share/applications/cosmos-wallpaper.desktop"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/lib/systemd/user/cosmos-session.target",
+          "dest": "/usr/lib/systemd/user/cosmos-session.target"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-launcher",
+          "target": "/usr/lib/cosmos/cosmos-launcher.py"
+        },
+        {
+          "dest": "/usr/bin/cosmos-bar",
+          "target": "/usr/lib/cosmos/cosmos-bar.py"
+        },
+        {
+          "dest": "/usr/bin/cosmos-lockscreen",
+          "target": "/usr/lib/cosmos/cosmos-lockscreen.py"
+        },
+        {
+          "dest": "/usr/bin/cosmos-wallpaper",
+          "target": "/usr/lib/cosmos/cosmos-wallpaper.py"
+        },
+        {
+          "dest": "/usr/bin/cosmos-profiles",
+          "target": "/usr/lib/cosmos/cosmos-profiles.py"
+        },
+        {
+          "dest": "/usr/bin/cosmos-session",
+          "target": "/usr/lib/cosmos/cosmos-session"
+        },
+        {
+          "dest": "/usr/bin/cosmos-session-env",
+          "target": "/usr/lib/cosmos/cosmos-session-env"
+        },
+        {
+          "dest": "/usr/bin/cosmos-session-apps",
+          "target": "/usr/lib/cosmos/cosmos-session-apps"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-kronos",
+      "summary": "Kronos: the CosmOS admin service, with a tamper-evident audit log",
+      "description": "A small admin service with a fixed list of typed actions (package changes, OS upgrade, rollback, Flatpaks, services, firewall doors, allowlisted files and logs) that replaces sudo for the desktop account. Every request is checked, written to a hash-chained audit log, and only then carried out by a root helper that checks it again. Powerful actions need an admin passphrase the service asks for itself through a prompt in your session. Includes Admin Activity, which shows what has been done. Installing it changes how the machine handles administration: enable it with `systemctl enable --now kronos.socket` and list the accounts allowed to use it in /etc/kronos/clients.",
+      "requires": [
+        "cosmos-common",
+        "python3",
+        "sudo",
+        "systemd",
+        "python3-gobject",
+        "gtk3"
+      ],
+      "dirs": [
+        "/usr/lib/kronos",
+        "/usr/libexec/kronos",
+        "/etc/kronos"
+      ],
+      "files": [
+        {
+          "src": "config/kronos/kronos_audit.py",
+          "dest": "/usr/lib/kronos/kronos_audit.py"
+        },
+        {
+          "src": "config/kronos/kronos_config.py",
+          "dest": "/usr/lib/kronos/kronos_config.py",
+          "replace": [
+            [
+              "\"/usr/local/bin\"",
+              "\"/usr/lib/cosmos\""
+            ]
+          ]
+        },
+        {
+          "src": "config/kronos/kronos_core.py",
+          "dest": "/usr/lib/kronos/kronos_core.py"
+        },
+        {
+          "src": "config/kronos/kronos_passphrase.py",
+          "dest": "/usr/lib/kronos/kronos_passphrase.py"
+        },
+        {
+          "src": "config/kronos/kronos_actions.py",
+          "dest": "/usr/lib/kronos/kronos_actions.py",
+          "replace": [
+            [
+              "/usr/local/bin/find-terminals",
+              "/usr/bin/find-terminals"
+            ]
+          ]
+        },
+        {
+          "src": "config/kronos/kronosd.py",
+          "dest": "/usr/lib/kronos/kronosd.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/kronos/kronos_helper.py",
+          "dest": "/usr/libexec/kronos/act",
+          "mode": "0755",
+          "replace": [
+            [
+              "sys.path.insert(0, \"/usr/local/lib/kronos\")",
+              "sys.path.insert(0, \"/usr/lib/kronos\")"
+            ]
+          ]
+        },
+        {
+          "src": "config/kronos/kronos",
+          "dest": "/usr/bin/kronos",
+          "mode": "0755",
+          "replace": [
+            [
+              "sys.path.insert(0, \"/usr/local/bin\")",
+              "sys.path.insert(0, \"/usr/lib/cosmos\")"
+            ]
+          ]
+        },
+        {
+          "src": "config/kronos/kronos-audit",
+          "dest": "/usr/bin/kronos-audit",
+          "mode": "0755",
+          "replace": [
+            [
+              "sys.path.insert(0, \"/usr/local/lib/kronos\")",
+              "sys.path.insert(0, \"/usr/lib/kronos\")"
+            ]
+          ]
+        },
+        {
+          "src": "config/kronos/kronos.service",
+          "dest": "/usr/lib/systemd/system/kronos.service",
+          "replace": [
+            [
+              "/usr/local/lib/kronos/kronosd.py",
+              "/usr/lib/kronos/kronosd.py"
+            ]
+          ]
+        },
+        {
+          "src": "config/kronos/kronos.socket",
+          "dest": "/usr/lib/systemd/system/kronos.socket"
+        },
+        {
+          "src": "config/kronos/kronos-sudoers",
+          "dest": "/etc/sudoers.d/kronos",
+          "mode": "0440",
+          "config": true
+        },
+        {
+          "src": "config/kronos/clients",
+          "dest": "/etc/kronos/clients",
+          "config": true
+        },
+        {
+          "src": "config/tmpfiles/kronos.conf",
+          "dest": "/usr/lib/tmpfiles.d/kronos.conf"
+        },
+        {
+          "src": "config/kronos/50-cosmos-ptrace.conf",
+          "dest": "/usr/lib/sysctl.d/50-cosmos-ptrace.conf"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/lib/sysusers.d/kronos.conf",
+          "dest": "/usr/lib/sysusers.d/kronos.conf"
+        },
+        {
+          "src": "config/scripts/kronos-agent.py",
+          "dest": "/usr/lib/cosmos/kronos-agent.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/kronos-prompt.py",
+          "dest": "/usr/lib/cosmos/kronos-prompt.py",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/kronos_prompt_ui.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "config/scripts/cosmos-admin.py",
+          "dest": "/usr/lib/cosmos/cosmos-admin.py",
+          "mode": "0755"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/share/applications/cosmos-admin.desktop",
+          "dest": "/usr/share/applications/cosmos-admin.desktop"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/kronos-agent",
+          "target": "/usr/lib/cosmos/kronos-agent.py"
+        },
+        {
+          "dest": "/usr/bin/kronos-prompt",
+          "target": "/usr/lib/cosmos/kronos-prompt.py"
+        },
+        {
+          "dest": "/usr/bin/cosmos-admin",
+          "target": "/usr/lib/cosmos/cosmos-admin.py"
+        }
+      ],
+      "post": "systemd-sysusers /usr/lib/sysusers.d/kronos.conf 2>/dev/null || :\nsystemd-tmpfiles --create /usr/lib/tmpfiles.d/kronos.conf 2>/dev/null || :\nsysctl --system >/dev/null 2>&1 || :\nsystemctl daemon-reload 2>/dev/null || :"
+    },
+    {
+      "name": "cosmos-recovery",
+      "summary": "CosmOS recovery: a no-shell app that can roll back the OS, reset the admin passphrase or a PIN",
+      "description": "Started only when the kernel command line has cosmos.recovery=1: a small graphical app, with no shell, that can roll back the operating system, reset the admin passphrase, clear a profile PIN or reset a home folder. Keeps the login screen from starting in recovery mode.",
+      "requires": [
+        "cosmos-common",
+        "cosmos-kronos",
+        "cosmos-wm",
+        "python3-gobject",
+        "gtk3",
+        "greetd"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-recovery.py",
+          "dest": "/usr/lib/cosmos/cosmos-recovery.py",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/cosmos_recovery.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "config/kronos/cosmos-recovery.service",
+          "dest": "/usr/lib/systemd/system/cosmos-recovery.service",
+          "replace": [
+            [
+              "/usr/local/bin/cosmos-wm -s /usr/local/bin/cosmos-recovery",
+              "/usr/bin/cosmos-wm -s /usr/bin/cosmos-recovery"
+            ]
+          ]
+        },
+        {
+          "src": "config/kronos/greetd-not-in-recovery.conf",
+          "dest": "/usr/lib/systemd/system/greetd.service.d/10-not-in-recovery.conf"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-recovery",
+          "target": "/usr/lib/cosmos/cosmos-recovery.py"
+        }
+      ],
+      "post": "systemctl daemon-reload 2>/dev/null || :"
+    },
+    {
+      "name": "cosmos-sudo-shims",
+      "summary": "Never type sudo: commands that need root ask the admin service for it",
+      "description": "Every ordinary command gets a shim in front of it, so typing `dnf install x` or `mv a /etc/b` runs as you when it can and asks Kronos (or sudo, without Kronos) for root only when it needs it. Installs and app-policy checks (the curated catalog, one packaging per app) run before anything is installed. Interactive shells put the shims first in PATH; `raw COMMAND` skips them. Installing this changes how commands behave in your shell.",
+      "requires": [
+        "cosmos-common",
+        "bash",
+        "python3"
+      ],
+      "recommends": [
+        "cosmos-kronos"
+      ],
+      "dirs": [
+        "/usr/libexec/cosmos-sudo"
+      ],
+      "files": [
+        {
+          "src": "config/cosmos-sudo/cosmos-priv",
+          "dest": "/usr/libexec/cosmos-sudo/cosmos-priv",
+          "mode": "0755",
+          "replace": [
+            [
+              "/usr/local/bin/cosmos_app_policy.py",
+              "/usr/lib/cosmos/cosmos_app_policy.py"
+            ]
+          ]
+        },
+        {
+          "src": "config/cosmos-sudo/cosmos-sudo-shims",
+          "dest": "/usr/libexec/cosmos-sudo/cosmos-sudo-shims",
+          "mode": "0755"
+        },
+        {
+          "src": "config/profile.d/cosmos-sudo.sh",
+          "dest": "/etc/profile.d/cosmos-sudo.sh",
+          "config": true
+        }
+      ],
+      "posttrans": "/usr/libexec/cosmos-sudo/cosmos-sudo-shims >/dev/null 2>&1 || :",
+      "filetriggers": [
+        {
+          "paths": "/usr/bin /usr/sbin /usr/share/applications",
+          "script": "/usr/libexec/cosmos-sudo/cosmos-sudo-shims >/dev/null 2>&1 || :"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-login",
+      "summary": "The CosmOS login screen (a greetd greeter) with profiles, PINs and a Desktop or GameBox choice",
+      "description": "A light login screen that greetd runs inside cosmos-wm: pick a profile, enter its PIN, choose the Desktop or GameBox session, and restart or shut down. Signs in automatically when the profile has no PIN. Installing it changes nothing by itself: run `sudo cosmos-login-enable` to make greetd use this login screen (the existing greetd configuration is kept as config.toml.before-cosmos) and enable it.",
+      "requires": [
+        "cosmos-common",
+        "cosmos-shell",
+        "cosmos-wm",
+        "greetd",
+        "python3-gobject",
+        "gtk3",
+        "polkit",
+        "cosmos-theme"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-greeter.py",
+          "dest": "/usr/lib/cosmos/cosmos-greeter.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/cosmos-autologin.py",
+          "dest": "/usr/lib/cosmos/cosmos-autologin.py",
+          "mode": "0755",
+          "replace": [
+            [
+              "/usr/local/bin/cosmos-session",
+              "/usr/bin/cosmos-session"
+            ]
+          ]
+        },
+        {
+          "glob": "config/scripts/cosmos_login.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "config/greetd/tmpfiles-cosmos-greeter.conf",
+          "dest": "/usr/lib/tmpfiles.d/cosmos-greeter.conf"
+        },
+        {
+          "src": "config/polkit/50-cosmos-greeter-power.rules",
+          "dest": "/etc/polkit-1/rules.d/50-cosmos-greeter-power.rules"
+        },
+        {
+          "src": "config/greetd/config.toml",
+          "dest": "/usr/share/cosmos/login/greetd-config.toml"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/bin/cosmos-login-enable",
+          "dest": "/usr/bin/cosmos-login-enable",
+          "mode": "0755"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-greeter",
+          "target": "/usr/lib/cosmos/cosmos-greeter.py"
+        },
+        {
+          "dest": "/usr/bin/cosmos-autologin",
+          "target": "/usr/lib/cosmos/cosmos-autologin.py"
+        }
+      ],
+      "post": "systemd-tmpfiles --create /usr/lib/tmpfiles.d/cosmos-greeter.conf 2>/dev/null || :",
+      "dirs": [
+        "/usr/share/cosmos/login"
+      ]
+    },
+    {
+      "name": "cosmos-repo",
+      "summary": "The CosmOS package repository (optional)",
+      "description": "Adds the CosmOS package repository to dnf, so the cosmos-* packages can be installed and updated. Nothing else on the system needs it: installing this package is the opt-in, and removing it removes the repository. It also installs the key the packages and the repository metadata are signed with.",
+      "files": [
+        {
+          "src": "packaging/repo-site/cosmos.repo.in",
+          "dest": "/etc/yum.repos.d/cosmos.repo",
+          "config": true,
+          "replace": [
+            [
+              "@BASEURL@",
+              "https://theskysanctum.github.io/cosmos-repo"
+            ]
+          ]
+        },
+        {
+          "src": "packaging/repo-site/RPM-GPG-KEY-cosmos",
+          "dest": "/etc/pki/rpm-gpg/RPM-GPG-KEY-cosmos"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-portal",
+      "summary": "CosmOS file dialog for other apps (an xdg-desktop-portal FileChooser backend)",
+      "description": "Makes the CosmOS Files view the file dialog of other apps: GTK apps and Chromium-based browsers show only your files and drives when they open or save something. It is used by the CosmOS session (which sets GTK_USE_PORTAL=1) and does nothing elsewhere.",
+      "requires": [
+        "cosmos-common",
+        "cosmos-files",
+        "xdg-desktop-portal",
+        "python3-gobject",
+        "gtk3"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-portal-filechooser",
+          "dest": "/usr/lib/cosmos/cosmos-portal-filechooser",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/cosmos_portal_filechooser.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "config/portals/cosmos.portal",
+          "dest": "/usr/share/xdg-desktop-portal/portals/cosmos.portal"
+        },
+        {
+          "src": "config/portals/org.freedesktop.impl.portal.desktop.cosmos.service",
+          "dest": "/usr/share/dbus-1/services/org.freedesktop.impl.portal.desktop.cosmos.service",
+          "replace": [
+            [
+              "/usr/local/bin/cosmos-portal-filechooser",
+              "/usr/bin/cosmos-portal-filechooser"
+            ]
+          ]
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-portal-filechooser",
+          "target": "/usr/lib/cosmos/cosmos-portal-filechooser"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-files-udisks",
+      "summary": "Lets the account named \"user\" mount internal drives from CosmOS Files without a password (opt-in)",
+      "description": "A polkit rule: the active local session of the account named \"user\" may mount and unmount the machine's other internal drives without an administrator prompt, and nothing else. CosmOS Files never offers the system disk. Install it only where that is what you want; the image includes it.",
+      "requires": [
+        "cosmos-files",
+        "polkit",
+        "udisks2"
+      ],
+      "files": [
+        {
+          "src": "config/polkit/51-cosmos-files-udisks.rules",
+          "dest": "/etc/polkit-1/rules.d/51-cosmos-files-udisks.rules",
+          "config": true
+        }
+      ]
+    },
+    {
+      "name": "cosmos-firewall",
+      "summary": "The CosmOS firewall zone and its named doors (firewalld)",
+      "description": "One firewalld zone, \"cosmos\": everything coming in from the network is rejected except named doors (SSH, the Webtop, Play Together, Steam Remote Play and LAN transfer), opened and closed by the CosmOS tools. Installing it adds the zone only; run `sudo cosmos-firewall-enable` to make it the default and turn firewalld on.",
+      "requires": [
+        "cosmos-common",
+        "firewalld"
+      ],
+      "files": [
+        {
+          "src": "config/firewalld/zones/cosmos.xml",
+          "dest": "/usr/lib/firewalld/zones/cosmos.xml"
+        },
+        {
+          "src": "config/firewalld/services/cosmos-webtop.xml",
+          "dest": "/usr/lib/firewalld/services/cosmos-webtop.xml"
+        },
+        {
+          "src": "config/firewalld/services/cosmos-play-together.xml",
+          "dest": "/usr/lib/firewalld/services/cosmos-play-together.xml"
+        },
+        {
+          "src": "config/firewalld/services/cosmos-steam-remote-play.xml",
+          "dest": "/usr/lib/firewalld/services/cosmos-steam-remote-play.xml"
+        },
+        {
+          "src": "config/firewalld/services/cosmos-steam-lan-transfer.xml",
+          "dest": "/usr/lib/firewalld/services/cosmos-steam-lan-transfer.xml"
+        },
+        {
+          "glob": "config/scripts/cosmos_firewall.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_steam_door.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "config/scripts/cosmos-steam-door",
+          "dest": "/usr/lib/cosmos/cosmos-steam-door",
+          "mode": "0755"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/bin/cosmos-firewall-enable",
+          "dest": "/usr/bin/cosmos-firewall-enable",
+          "mode": "0755"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-steam-door",
+          "target": "/usr/lib/cosmos/cosmos-steam-door"
+        }
+      ],
+      "post": "firewall-cmd --reload >/dev/null 2>&1 || :"
+    },
+    {
+      "name": "cosmos-remote",
+      "summary": "Remote Access: SSH keys and the Webtop development desktop",
+      "description": "Remote Access turns SSH on or off and chooses which computers may sign in (by key only), and Webtop is a full development desktop in a rootless container, shown in a browser and listening on 127.0.0.1 only. Installing it changes nothing about SSH: run `sudo cosmos-remote-enable` to apply the key-only configuration for one account.",
+      "requires": [
+        "cosmos-common",
+        "python3-gobject",
+        "gtk3",
+        "openssh-server",
+        "cosmos-firewall"
+      ],
+      "recommends": [
+        "podman"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-remote.py",
+          "dest": "/usr/lib/cosmos/cosmos-remote.py",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/cosmos_remote.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_webtop_access.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "config/scripts/cosmos-webtop",
+          "dest": "/usr/lib/cosmos/cosmos-webtop",
+          "mode": "0755"
+        },
+        {
+          "src": "config/ssh/50-cosmos.conf",
+          "dest": "/usr/share/cosmos/remote/sshd-50-cosmos.conf"
+        },
+        {
+          "src": "config/webtop/cosmos-webtop.container",
+          "dest": "/etc/containers/systemd/users/cosmos-webtop.container",
+          "config": true
+        },
+        {
+          "src": "config/webtop/cosmos-webtop.desktop",
+          "dest": "/usr/share/applications/cosmos-webtop.desktop"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/share/applications/cosmos-remote.desktop",
+          "dest": "/usr/share/applications/cosmos-remote.desktop"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/bin/cosmos-remote-enable",
+          "dest": "/usr/bin/cosmos-remote-enable",
+          "mode": "0755"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-remote",
+          "target": "/usr/lib/cosmos/cosmos-remote.py"
+        },
+        {
+          "dest": "/usr/bin/cosmos-webtop",
+          "target": "/usr/lib/cosmos/cosmos-webtop"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-theme",
+      "summary": "CosmOS fonts and backgrounds",
+      "description": "The Rajdhani font and the CosmOS wallpaper and login backgrounds. Nothing is changed on the system: the CosmOS shell, lock screen and login screen read these files.",
+      "files": [
+        {
+          "src": "config/fonts/Rajdhani-Medium.ttf",
+          "dest": "/usr/share/fonts/rajdhani/Rajdhani-Medium.ttf"
+        },
+        {
+          "src": "config/fonts/Rajdhani-SemiBold.ttf",
+          "dest": "/usr/share/fonts/rajdhani/Rajdhani-SemiBold.ttf"
+        },
+        {
+          "src": "config/fonts/Rajdhani-Bold.ttf",
+          "dest": "/usr/share/fonts/rajdhani/Rajdhani-Bold.ttf"
+        },
+        {
+          "src": "config/backgrounds/cosmos-galaxy.jpg",
+          "dest": "/usr/share/backgrounds/cosmos-galaxy.jpg"
+        },
+        {
+          "src": "config/backgrounds/galaxy-nasa.jpg",
+          "dest": "/usr/share/backgrounds/galaxy-nasa.jpg"
+        }
+      ],
+      "post": "fc-cache -f /usr/share/fonts/rajdhani >/dev/null 2>&1 || :",
+      "postun": "fc-cache -f >/dev/null 2>&1 || :"
+    },
+    {
+      "name": "cosmos-theme-defaults",
+      "summary": "The CosmOS dark look as the system default for GTK, Qt and notifications (opt-in)",
+      "description": "Makes the dark CosmOS look the default for every account on the machine: the dconf system database for GTK4 apps, GTK3/GTK4 settings and accent colours, Qt through qt5ct/qt6ct, and dunst, copied to new accounts through /etc/skel. Existing accounts keep their own settings. Install it where the machine should look like CosmOS; the image includes it.",
+      "requires": [
+        "cosmos-theme",
+        "dconf",
+        "qt5ct",
+        "qt6ct",
+        "systemd"
+      ],
+      "recommends": [
+        "dunst",
+        "papirus-icon-theme"
+      ],
+      "files": [
+        {
+          "src": "config/dconf/db-local.d/00-dark-theme",
+          "dest": "/etc/dconf/db/local.d/00-dark-theme",
+          "config": true
+        },
+        {
+          "src": "config/gtk-3.0/settings.ini",
+          "dest": "/etc/skel/.config/gtk-3.0/settings.ini"
+        },
+        {
+          "src": "config/gtk-3.0/gtk.css",
+          "dest": "/etc/skel/.config/gtk-3.0/gtk.css"
+        },
+        {
+          "src": "config/gtk-4.0/settings.ini",
+          "dest": "/etc/skel/.config/gtk-4.0/settings.ini"
+        },
+        {
+          "src": "config/gtk-4.0/gtk.css",
+          "dest": "/etc/skel/.config/gtk-4.0/gtk.css"
+        },
+        {
+          "src": "config/dunst/dunstrc",
+          "dest": "/etc/skel/.config/dunst/dunstrc"
+        },
+        {
+          "src": "config/qt5ct/qt5ct.conf",
+          "dest": "/etc/skel/.config/qt5ct/qt5ct.conf"
+        },
+        {
+          "src": "config/qt6ct/qt6ct.conf",
+          "dest": "/etc/skel/.config/qt6ct/qt6ct.conf"
+        },
+        {
+          "src": "packaging/rpm/data/files/etc/environment.d/90-qt-dark-theme.conf",
+          "dest": "/etc/environment.d/90-qt-dark-theme.conf"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/lib/tmpfiles.d/cosmos-greeter-theme.conf",
+          "dest": "/usr/lib/tmpfiles.d/cosmos-greeter-theme.conf"
+        }
+      ],
+      "post": "dconf update 2>/dev/null || :",
+      "postun": "dconf update 2>/dev/null || :"
+    },
+    {
+      "name": "cosmos-plymouth",
+      "summary": "The CosmOS boot splash (plymouth theme)",
+      "description": "A plymouth theme with the CosmOS logo and a progress bar. Installing it only adds the theme; run `sudo cosmos-plymouth-enable` to make it the default and rebuild the initramfs.",
+      "requires": [
+        "plymouth",
+        "plymouth-plugin-script"
+      ],
+      "files": [
+        {
+          "glob": "config/plymouth/cosmos/*",
+          "dest_dir": "/usr/share/plymouth/themes/cosmos",
+          "mode": "0644"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/bin/cosmos-plymouth-enable",
+          "dest": "/usr/bin/cosmos-plymouth-enable",
+          "mode": "0755"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-gamebox",
+      "summary": "GameBox: the game and emulator frontend (code and session)",
+      "description": "GameBox, the full-screen game frontend: the launcher, library, stores (Epic, GOG, Steam, itch), streaming, controller and on-screen keyboard support, and the GameBox session for the login screen. It runs from a writable copy of /usr/share/gamebox (made on first use, refreshed when this package updates). The emulators, Wine, the streaming binaries and the music come in the cosmos-gamebox-* packages; cosmos-gamebox-full installs them all. A few optional GameBox features use Python libraries Fedora does not package (python-vlc, panda3d, webdavclient3, internetarchive): install them with pip if you want those features.",
+      "requires": [
+        "cosmos-common",
+        "cosmos-shell",
+        "cosmos-input",
+        "cosmos-controllers",
+        "cosmos-theme",
+        "python3",
+        "python3-gobject",
+        "python3-cairo",
+        "python3-pillow",
+        "python3-requests",
+        "python3-cryptography",
+        "python3-pyyaml",
+        "python3-evdev",
+        "python3-psutil",
+        "python3-pyudev",
+        "python3-qrcode",
+        "python3-beautifulsoup4",
+        "python3-paramiko",
+        "python3-tomli-w",
+        "gtk3",
+        "xorg-x11-server-Xephyr",
+        "libnotify",
+        "cosmos-firewall",
+        "xdotool",
+        "xset",
+        "xrandr",
+        "xprop",
+        "pulseaudio-utils"
+      ],
+      "recommends": [
+        "cosmos-gamebox-wm",
+        "legendary",
+        "vlc",
+        "yt-dlp"
+      ],
+      "build": "packaging/rpm/build-gamebox.sh",
+      "files": [
+        {
+          "tree": "gamebox",
+          "dest_dir": "/usr/share/gamebox",
+          "exclude": [
+            "wine",
+            "bgm",
+            "emulators/bin",
+            "streaming/bin",
+            "wm",
+            "test_*",
+            "deploy_gui",
+            "skyscraper/bin",
+            "packaging/millennium_installer/millennium-installer"
+          ]
+        },
+        {
+          "src": "@WORK@/build/gamebox-stamp",
+          "dest": "/usr/share/gamebox/.cosmos-image-stamp"
+        },
+        {
+          "src": "config/scripts/gamebox-dir",
+          "dest": "/usr/lib/cosmos/gamebox-dir",
+          "mode": "0755"
+        },
+        {
+          "src": "config/scripts/gamebox-nested",
+          "dest": "/usr/lib/cosmos/gamebox-nested",
+          "mode": "0755",
+          "replace": [
+            [
+              "/usr/local/bin/cosmos_wm_ipc.py",
+              "/usr/lib/cosmos/cosmos_wm_ipc.py"
+            ],
+            [
+              "/usr/local/bin/",
+              "/usr/bin/"
+            ]
+          ]
+        },
+        {
+          "src": "config/scripts/gamebox-session",
+          "dest": "/usr/lib/cosmos/gamebox-session",
+          "mode": "0755",
+          "replace": [
+            [
+              "/usr/local/bin/cosmos_wm_ipc.py",
+              "/usr/lib/cosmos/cosmos_wm_ipc.py"
+            ],
+            [
+              "/usr/local/bin/",
+              "/usr/bin/"
+            ]
+          ]
+        },
+        {
+          "src": "config/scripts/launch-gamebox.sh",
+          "dest": "/usr/lib/cosmos/launch-gamebox",
+          "mode": "0755",
+          "replace": [
+            [
+              "/usr/local/bin/",
+              "/usr/bin/"
+            ]
+          ]
+        },
+        {
+          "src": "config/scripts/gamebox-fetch-assets.py",
+          "dest": "/usr/lib/cosmos/gamebox-fetch-assets.py",
+          "mode": "0755"
+        },
+        {
+          "src": "config/wayland-sessions/gamebox.desktop",
+          "dest": "/usr/share/wayland-sessions/gamebox.desktop",
+          "replace": [
+            [
+              "/usr/local/bin/gamebox-session",
+              "/usr/bin/gamebox-session"
+            ]
+          ]
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/share/applications/gamebox.desktop",
+          "dest": "/usr/share/applications/gamebox.desktop"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/share/applications/gamebox-fetch-assets.desktop",
+          "dest": "/usr/share/applications/gamebox-fetch-assets.desktop"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/lib/tmpfiles.d/cosmos-gamebox.conf",
+          "dest": "/usr/lib/tmpfiles.d/cosmos-gamebox.conf"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/gamebox-dir",
+          "target": "/usr/lib/cosmos/gamebox-dir"
+        },
+        {
+          "dest": "/usr/bin/gamebox-nested",
+          "target": "/usr/lib/cosmos/gamebox-nested"
+        },
+        {
+          "dest": "/usr/bin/gamebox-session",
+          "target": "/usr/lib/cosmos/gamebox-session"
+        },
+        {
+          "dest": "/usr/bin/launch-gamebox",
+          "target": "/usr/lib/cosmos/launch-gamebox"
+        },
+        {
+          "dest": "/usr/bin/gamebox-fetch-assets",
+          "target": "/usr/lib/cosmos/gamebox-fetch-assets.py"
+        }
+      ],
+      "post": "systemd-tmpfiles --create /usr/lib/tmpfiles.d/cosmos-gamebox.conf 2>/dev/null || :\ngrep -qF '# cosmos-gamebox: game disc (added by the cosmos-gamebox package; safe to edit or remove)' /etc/fstab 2>/dev/null || printf '\\n%s\\n%s\\n' '# cosmos-gamebox: game disc (added by the cosmos-gamebox package; safe to edit or remove)' '/dev/sr0  /mnt/console-os-disc  auto  noauto,user,ro  0  0' >> /etc/fstab\n",
+      "postun": "grep -vF '# cosmos-gamebox: game disc (added by the cosmos-gamebox package; safe to edit or remove)' /etc/fstab | grep -vF '/dev/sr0  /mnt/console-os-disc  auto  noauto,user,ro  0  0' > /etc/fstab.cosmos-gamebox-new 2>/dev/null && mv /etc/fstab.cosmos-gamebox-new /etc/fstab || :"
+    },
+    {
+      "name": "cosmos-gamebox-wm",
+      "arch": "x86_64",
+      "summary": "GameBox's own small X window manager (consolewm)",
+      "description": "consolewm, built from GameBox's source, for GameBox's nested X session.",
+      "requires": [
+        "cosmos-gamebox",
+        "libX11"
+      ],
+      "build": "packaging/rpm/build-gamebox.sh",
+      "files": [
+        {
+          "src": "@WORK@/build/consolewm",
+          "dest": "/usr/share/gamebox/wm/consolewm",
+          "mode": "0755"
+        }
+      ],
+      "dirs": [
+        "/usr/share/gamebox/wm"
+      ]
+    },
+    {
+      "name": "cosmos-gamebox-bundled-emulators",
+      "arch": "x86_64",
+      "summary": "RetroArch, Dolphin, PCSX2 and MKXP-Z as GameBox bundles them",
+      "description": "The prebuilt emulators GameBox launches: RetroArch, Dolphin (nogui), PCSX2 and MKXP-Z with their data. RetroArch, Dolphin and PCSX2 are GPL software; their source is available from their projects.",
+      "requires": [
+        "cosmos-gamebox",
+        "SDL2",
+        "mesa-libGL",
+        "mesa-libEGL",
+        "vulkan-loader",
+        "alsa-lib",
+        "pulseaudio-libs",
+        "libusb1",
+        "libzip",
+        "libcurl",
+        "libpcap",
+        "libsamplerate",
+        "libsndfile",
+        "libslirp",
+        "libepoxy",
+        "openssl-libs",
+        "libatomic"
+      ],
+      "files": [
+        {
+          "tree": "gamebox/emulators/bin",
+          "dest_dir": "/usr/share/gamebox/emulators/bin"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-gamebox-streaming",
+      "arch": "x86_64",
+      "summary": "GameBox streaming: Sunshine and Moonlight binaries",
+      "description": "The Sunshine host and Moonlight client binaries GameBox uses for Play Together and game streaming.",
+      "requires": [
+        "cosmos-gamebox"
+      ],
+      "recommends": [
+        "cosmos-firewall"
+      ],
+      "files": [
+        {
+          "tree": "gamebox/streaming/bin",
+          "dest_dir": "/usr/share/gamebox/streaming/bin"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-gamebox-wine",
+      "arch": "x86_64",
+      "summary": "The Wine build GameBox runs Windows games with",
+      "description": "The Wine build (with its libraries and data) that GameBox uses for Windows games.",
+      "requires": [
+        "cosmos-gamebox"
+      ],
+      "files": [
+        {
+          "tree": "gamebox/wine",
+          "dest_dir": "/usr/share/gamebox/wine"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-gamebox-music-1",
+      "summary": "GameBox menu music, part 1 of 2",
+      "description": "Background music tracks 1 to 9 for GameBox (split in two packages to keep each download small).",
+      "requires": [
+        "cosmos-gamebox"
+      ],
+      "files": [
+        {
+          "glob": "gamebox/bgm/Track 0*.mp3",
+          "dest_dir": "/usr/share/gamebox/bgm"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-gamebox-music-2",
+      "summary": "GameBox menu music, part 2 of 2",
+      "description": "Background music tracks 10 to 18 for GameBox.",
+      "requires": [
+        "cosmos-gamebox"
+      ],
+      "files": [
+        {
+          "glob": "gamebox/bgm/Track 1*.mp3",
+          "dest_dir": "/usr/share/gamebox/bgm"
+        }
+      ]
+    },
+    {
+      "name": "cosmos-gamebox-music",
+      "summary": "GameBox menu music (all tracks)",
+      "description": "Installs both parts of the GameBox background music.",
+      "requires": [
+        "cosmos-gamebox-music-1",
+        "cosmos-gamebox-music-2"
+      ]
+    },
+    {
+      "name": "cosmos-gamebox-emulators",
+      "arch": "x86_64",
+      "summary": "xemu, Flycast and extract-xiso, built from source",
+      "description": "xemu (Xbox), Flycast (Dreamcast, Naomi, Atomiswave) and extract-xiso, built unattended from pinned upstream source releases (both emulators are GPL). GameBox launches them from /opt/cosmos-emulators. Needs your own Xbox BIOS files for xemu.",
+      "requires": [
+        "cosmos-gamebox",
+        "alsa-lib",
+        "glib2",
+        "libatomic",
+        "libcurl",
+        "libepoxy",
+        "libpcap",
+        "libsamplerate",
+        "libslirp",
+        "libusb1",
+        "libzip",
+        "openssl-libs",
+        "pulseaudio-libs",
+        "sdl2-compat",
+        "vulkan-loader",
+        "mesa-vulkan-drivers",
+        "mesa-libGL",
+        "mesa-libEGL"
+      ],
+      "build": "packaging/rpm/build-emulators.sh",
+      "files": [
+        {
+          "src": "@WORK@/build/emulators/xemu/xemu",
+          "dest": "/opt/cosmos-emulators/xemu/xemu",
+          "mode": "0755"
+        },
+        {
+          "src": "@WORK@/build/emulators/flycast/flycast",
+          "dest": "/opt/cosmos-emulators/flycast/flycast",
+          "mode": "0755"
+        },
+        {
+          "src": "@WORK@/build/emulators/tools/extract-xiso",
+          "dest": "/opt/cosmos-emulators/tools/extract-xiso",
+          "mode": "0755"
+        }
+      ],
+      "dirs": [
+        "/opt/cosmos-emulators",
+        "/opt/cosmos-emulators/xemu",
+        "/opt/cosmos-emulators/flycast",
+        "/opt/cosmos-emulators/tools"
+      ]
+    },
+    {
+      "name": "cosmos-gamebox-full",
+      "summary": "GameBox with everything: emulators, Wine, streaming and music",
+      "description": "Installs GameBox and every cosmos-gamebox-* package.",
+      "requires": [
+        "cosmos-gamebox",
+        "cosmos-gamebox-wm",
+        "cosmos-gamebox-bundled-emulators",
+        "cosmos-gamebox-emulators",
+        "cosmos-gamebox-streaming",
+        "cosmos-gamebox-wine",
+        "cosmos-gamebox-music",
+        "cosmos-gamebox-tools"
+      ]
+    },
+    {
+      "name": "cosmos-desktop",
+      "summary": "The CosmOS desktop for a normal Fedora",
+      "description": "The CosmOS desktop and its apps: the compositor and shell, Shop, Files (and the file dialog for other apps), controllers and input, Game Packs, updates, Remote Access, the firewall zone and the theme. It changes nothing about how you sign in or how admin rights work: the opt-in system parts (cosmos-login, cosmos-kronos, cosmos-recovery, cosmos-sudo-shims, cosmos-theme-defaults, cosmos-files-udisks, cosmos-plymouth) are separate packages, and cosmos-image installs them all.",
+      "requires": [
+        "cosmos-common",
+        "cosmos-wm",
+        "cosmos-shell",
+        "cosmos-shop",
+        "cosmos-files",
+        "cosmos-portal",
+        "cosmos-controllers",
+        "cosmos-input",
+        "cosmos-winpack",
+        "cosmos-updates",
+        "cosmos-remote",
+        "cosmos-firewall",
+        "cosmos-theme",
+        "cosmos-settings"
+      ],
+      "recommends": [
+        "cosmos-gamebox-full",
+        "cosmos-android",
+        "cosmos-vm-manager"
+      ]
+    },
+    {
+      "name": "cosmos-image",
+      "summary": "Everything the CosmOS image contains",
+      "description": "The whole CosmOS system as one package: cosmos-desktop plus the system-level parts (login screen, Kronos admin service, recovery, sudo shims, theme defaults, udisks rule, boot splash) and GameBox with all its packages. The image is built by installing this.",
+      "requires": [
+        "cosmos-desktop",
+        "cosmos-login",
+        "cosmos-kronos",
+        "cosmos-recovery",
+        "cosmos-sudo-shims",
+        "cosmos-theme-defaults",
+        "cosmos-files-udisks",
+        "cosmos-plymouth",
+        "cosmos-gamebox-full",
+        "cosmos-android",
+        "cosmos-vm-manager"
+      ]
+    },
+    {
+      "name": "cosmos-gamebox-tools",
+      "arch": "x86_64",
+      "summary": "Compiled helpers for GameBox: Skyscraper (game art scraper) and the Millennium installer",
+      "description": "Skyscraper, the artwork and metadata scraper GameBox uses for its library, and the Millennium (Steam skin) installer.",
+      "requires": [
+        "cosmos-gamebox"
+      ],
+      "files": [
+        {
+          "tree": "gamebox/skyscraper/bin",
+          "dest_dir": "/usr/share/gamebox/skyscraper/bin"
+        },
+        {
+          "src": "gamebox/packaging/millennium_installer/millennium-installer",
+          "dest": "/usr/share/gamebox/packaging/millennium_installer/millennium-installer",
+          "mode": "0755"
+        }
+      ],
+      "dirs": [
+        "/usr/share/gamebox/packaging/millennium_installer"
+      ]
+    },
+    {
+      "name": "cosmos-settings",
+      "summary": "CosmOS Settings: every setting in one place",
+      "description": "One Settings app with a sidebar: Controllers (with a submenu for lights, player lights, rumble, motion, triggers, haptics and the button remapper), Display (resolution and size of everything), Wallpaper, Updates, Remote access, Android, Game packs, Game downloads, Admin activity and About. Most pages are the existing CosmOS apps shown inside Settings, so a page appears only when its package is installed.",
+      "requires": [
+        "cosmos-common",
+        "cosmos-shell",
+        "python3-gobject",
+        "gtk3"
+      ],
+      "recommends": [
+        "cosmos-controllers",
+        "cosmos-updates",
+        "cosmos-remote",
+        "cosmos-android",
+        "cosmos-winpack",
+        "cosmos-kronos"
+      ],
+      "files": [
+        {
+          "src": "config/scripts/cosmos-settings.py",
+          "dest": "/usr/lib/cosmos/cosmos-settings.py",
+          "mode": "0755"
+        },
+        {
+          "glob": "config/scripts/cosmos_settings_pages.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "glob": "config/scripts/cosmos_display_settings.py",
+          "dest_dir": "/usr/lib/cosmos"
+        },
+        {
+          "src": "packaging/rpm/data/files/usr/share/applications/cosmos-settings.desktop",
+          "dest": "/usr/share/applications/cosmos-settings.desktop"
+        }
+      ],
+      "links": [
+        {
+          "dest": "/usr/bin/cosmos-settings",
+          "target": "/usr/lib/cosmos/cosmos-settings.py"
+        }
+      ]
+    }
+  ]
+}

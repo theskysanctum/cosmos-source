@@ -1,0 +1,11 @@
+[Unit]
+Description=Cosmochat Telegram message relay
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 @@APP_ROOT@@/notifications/telegram_listener.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

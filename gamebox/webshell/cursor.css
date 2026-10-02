@@ -1,0 +1,12 @@
+/* Ported verbatim from the old browser/dot_cursor_extension/cursor.css
+(content only - the MV3-extension loading mechanism it used to ship
+under is gone, see preload.js). Chromium/Electron keeps re-asserting its
+own context-appropriate cursor as you hover different elements (I-beam
+over text, pointer over links, etc.) - a one-time X11-level cursor
+override on the window wouldn't survive that, so this has to fight it
+the same way, on every element, for the life of the page. cursor.js
+draws the actual visible dot; this just hides the real cursor
+everywhere so the dot is the only one shown. */
+* {
+	cursor: none !important;
+}

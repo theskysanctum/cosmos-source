@@ -1,0 +1,9 @@
+build/
+!gamebox/emulators/build/
+*.qcow2
+*.iso
+__pycache__/
+
+# A private developer copy of GameBox's API keys, if you ever make one (never baked into the image, never committed)
+secrets/gamebox.env
+packaging/rpm-repo/

@@ -1,0 +1,14 @@
+{
+    "name": "Tail",
+    "description": "The built-in furry/anthro tail feature (12 species).",
+    "fields": [
+        {
+            "category": "Body", "key": "tail", "label": "Tail", "kind": "choice",
+            "options": ["none", "cat", "fox", "wolf", "bunny", "dog", "bear", "deer", "horse", "pig", "raccoon", "lizard", "dragon", "demon"],
+            "default": "none"
+        },
+        {"category": "Body", "key": "tail_scale", "label": "Tail size", "kind": "slider", "range": [0.5, 2.0, 0.1], "default": 1.0},
+        {"category": "Body", "key": "tail_thickness", "label": "Tail thickness", "kind": "slider", "range": [0.5, 2.0, 0.1], "default": 1.0},
+        {"category": "Body", "key": "tail_depth", "label": "Tail depth", "kind": "slider", "range": [0.5, 2.0, 0.1], "default": 1.0}
+    ]
+}

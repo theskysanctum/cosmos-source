@@ -1,0 +1,51 @@
+# Environment shared by every CosmOS session (sourced by cosmos-session and gamebox-session).
+#
+# The session is Wayland-only: cosmos-wm is a wlroots compositor and everything CosmOS
+# ships (bar, launcher, on-screen keyboard, lock screen, greeter) is a native Wayland
+# client. Third-party X11 programs (Wine, Steam, JetBrains IDEs, GameBox) run through
+# the compositor's lazy XWayland shim, which sets DISPLAY itself when it starts.
+
+export XDG_SESSION_TYPE=wayland
+export XDG_CURRENT_DESKTOP=CosmOS
+
+# Flatpak apps (the sandboxed versions of KDE/Qt apps, and anything installed from the Shop) put their
+# menu entries in the two exports directories; nothing else adds them to the search path in this
+# session, so without this the launcher would not list them.
+for d in "$HOME/.local/share/flatpak/exports/share" /var/lib/flatpak/exports/share; do
+    case ":${XDG_DATA_DIRS:-/usr/local/share:/usr/share}:" in *":$d:"*) ;; *) XDG_DATA_DIRS="${XDG_DATA_DIRS:-/usr/local/share:/usr/share}:$d" ;; esac
+done
+export XDG_DATA_DIRS
+
+# GTK apps (and Chromium-based browsers) open their file dialogs through xdg-desktop-portal, which
+# CosmOS answers with the scoped one (cosmos-portal-filechooser) - not a dialog that can browse /.
+export GTK_USE_PORTAL=1
+
+# Text scale for the screen the compositor chose (1 up to 1080p logical, larger on a bigger logical screen): GTK apps then size their text the way
+# cosmos_display.py sizes their layouts. The compositor's own output scale (2x on a 4K TV) is already applied by GTK and is not counted twice, because
+# the size asked for here is the logical one. Nothing is exported when there is no compositor to ask.
+_cosmos_here=$(dirname "$(readlink -f "${BASH_SOURCE[0]:-$0}")")
+_cosmos_dpi=$(python3 "$_cosmos_here/cosmos_display.py" dpi-scale 2>/dev/null) && [ -n "$_cosmos_dpi" ] && [ "$_cosmos_dpi" != "1.00" ] && export GDK_DPI_SCALE="$_cosmos_dpi"
+unset _cosmos_here _cosmos_dpi
+
+# The cursor theme for both Wayland clients (XCURSOR_*) and, through XWayland, X ones.
+export XCURSOR_THEME=Bibata-Modern-Classic
+export XCURSOR_SIZE=24
+
+# Prefer Wayland where a toolkit supports both, fall back to X (XWayland) otherwise.
+export QT_QPA_PLATFORM="wayland;xcb"
+export MOZ_ENABLE_WAYLAND=1
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+export SDL_VIDEODRIVER="wayland,x11"
+# JetBrains IDEs (X11/XWayland) misplace their windows under a non-reparenting
+# manager unless told the manager is one.
+export _JAVA_AWT_WM_NONREPARENTING=1
+
+# The lock screen the compositor starts on "lock".
+export COSMOS_LOCK_CMD="cosmos-lockscreen --locked"
+
+# A session bus, if the login didn't already provide one (pam_systemd normally does).
+if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ] && [ ! -S "${XDG_RUNTIME_DIR:-/nonexistent}/bus" ] \
+        && [ -z "${COSMOS_IN_DBUS_SESSION:-}" ] && command -v dbus-run-session >/dev/null 2>&1; then
+    export COSMOS_IN_DBUS_SESSION=1
+    exec dbus-run-session -- "$0" "$@"
+fi

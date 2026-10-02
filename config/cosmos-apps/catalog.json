@@ -1,0 +1,993 @@
+{
+  "_about": "The curated list of what can be installed on CosmOS. Only these Flatpaks and packages are visible in the Shop, allowed through Kronos and the command-line wrappers, and let through the Flathub remote filter. An entry has a name, a category, and a `flatpak` id and/or `rpm` package names (exact; anything else is refused). `pack` ties an entry to an Expansion Pack (every pack member must be here). `why` is a note for whoever edits this file. Which packaging of an app is used is decided by app-policy.json; anything in `blocked` there stays blocked. To add an app: add an entry, run `cosmos_catalog.py verify`, rebuild.",
+  "flatpak_families": [
+    "org.freedesktop.Platform",
+    "org.freedesktop.Sdk",
+    "org.gnome.Platform",
+    "org.kde.Platform",
+    "org.gtk.Gtk3theme",
+    "org.freedesktop.LinuxAudio",
+    "org.kde.KStyle"
+  ],
+  "apps": [
+    {
+      "name": "0 A.D.",
+      "category": "Games",
+      "flatpak": "com.play0ad.zeroad",
+      "why": "Full ancient-warfare strategy game"
+    },
+    {
+      "name": "Cataclysm: Dark Days Ahead",
+      "category": "Games",
+      "flatpak": "org.cataclysmdda.CataclysmDDA",
+      "why": "Deep survival roguelike"
+    },
+    {
+      "name": "Endless Sky",
+      "category": "Games",
+      "flatpak": "io.github.endless_sky.endless_sky",
+      "why": "Space trading and combat"
+    },
+    {
+      "name": "Hedgewars",
+      "category": "Games",
+      "flatpak": "org.hedgewars.Hedgewars",
+      "why": "Worms-style party game"
+    },
+    {
+      "name": "Luanti",
+      "category": "Games",
+      "flatpak": "org.luanti.luanti",
+      "why": "Voxel sandbox engine (formerly Minetest)"
+    },
+    {
+      "name": "Mindustry",
+      "category": "Games",
+      "flatpak": "com.github.Anuken.Mindustry",
+      "why": "Factory and tower-defence game"
+    },
+    {
+      "name": "OpenRA",
+      "category": "Games",
+      "flatpak": "net.openra.OpenRA",
+      "why": "Classic real-time strategy engines"
+    },
+    {
+      "name": "OpenRCT2",
+      "category": "Games",
+      "appimage": [
+        "openrct2"
+      ],
+      "why": "RollerCoaster Tycoon 2, reimplemented and extended"
+    },
+    {
+      "name": "OpenTTD",
+      "category": "Games",
+      "flatpak": "org.openttd.OpenTTD",
+      "why": "Transport Tycoon, open source"
+    },
+    {
+      "name": "Prism Launcher",
+      "category": "Games",
+      "flatpak": "org.prismlauncher.PrismLauncher",
+      "why": "Minecraft launcher with instance management"
+    },
+    {
+      "name": "SuperTux",
+      "category": "Games",
+      "flatpak": "org.supertuxproject.SuperTux",
+      "why": "Free platformer"
+    },
+    {
+      "name": "SuperTuxKart",
+      "category": "Games",
+      "flatpak": "net.supertuxkart.SuperTuxKart",
+      "why": "Free kart racer, a good local multiplayer game"
+    },
+    {
+      "name": "The Battle for Wesnoth",
+      "category": "Games",
+      "flatpak": "org.wesnoth.Wesnoth",
+      "why": "Turn-based fantasy strategy"
+    },
+    {
+      "name": "VCMI",
+      "category": "Games",
+      "appimage": [
+        "vcmi"
+      ],
+      "why": "Heroes of Might and Magic III engine"
+    },
+    {
+      "name": "Veloren",
+      "category": "Games",
+      "flatpak": "net.veloren.airshipper",
+      "why": "Multiplayer voxel RPG (its launcher)"
+    },
+    {
+      "name": "Warzone 2100",
+      "category": "Games",
+      "flatpak": "net.wz2100.wz2100",
+      "why": "Real-time tactics, open source"
+    },
+    {
+      "name": "Xonotic",
+      "category": "Games",
+      "flatpak": "org.xonotic.Xonotic",
+      "why": "Fast arena shooter"
+    },
+    {
+      "name": "Azahar",
+      "category": "Emulators",
+      "appimage": [
+        "azahar"
+      ],
+      "why": "Nintendo 3DS emulator"
+    },
+    {
+      "name": "Cemu",
+      "category": "Emulators",
+      "appimage": [
+        "cemu"
+      ],
+      "why": "Wii U emulator"
+    },
+    {
+      "name": "DuckStation",
+      "category": "Emulators",
+      "appimage": [
+        "duckstation"
+      ],
+      "why": "PlayStation 1 emulator with upscaling"
+    },
+    {
+      "name": "melonDS",
+      "category": "Emulators",
+      "appimage": [
+        "melonds"
+      ],
+      "why": "Nintendo DS emulator"
+    },
+    {
+      "name": "mGBA",
+      "category": "Emulators",
+      "appimage": [
+        "mgba"
+      ],
+      "why": "Game Boy Advance emulator"
+    },
+    {
+      "name": "PPSSPP",
+      "category": "Emulators",
+      "appimage": [
+        "ppsspp"
+      ],
+      "why": "PSP emulator"
+    },
+    {
+      "name": "RPCS3",
+      "category": "Emulators",
+      "appimage": [
+        "rpcs3"
+      ],
+      "why": "PlayStation 3 emulator"
+    },
+    {
+      "name": "Lutris",
+      "category": "Game stores",
+      "rpm": [
+        "lutris"
+      ],
+      "why": "Open gaming platform for Wine games and emulators"
+    },
+    {
+      "name": "Minigalaxy",
+      "category": "Game stores",
+      "rpm": [
+        "minigalaxy"
+      ],
+      "why": "GOG client"
+    },
+    {
+      "name": "Steam",
+      "category": "Game stores",
+      "rpm": [
+        "steam"
+      ],
+      "why": "Valve's store and launcher (installed as a package only)"
+    },
+    {
+      "name": "AntiMicroX",
+      "category": "Game tools",
+      "flatpak": "io.github.antimicrox.antimicrox",
+      "why": "Map controller buttons to keyboard and mouse"
+    },
+    {
+      "name": "Controller udev rules",
+      "category": "Game tools",
+      "rpm": [
+        "steam-devices"
+      ],
+      "why": "Permissions so games can see gamepads"
+    },
+    {
+      "name": "evtest and jstest",
+      "category": "Game tools",
+      "rpm": [
+        "evtest",
+        "linuxconsoletools",
+        "jstest-gtk"
+      ],
+      "why": "Test controllers and input devices"
+    },
+    {
+      "name": "GameMode",
+      "category": "Game tools",
+      "rpm": [
+        "gamemode"
+      ],
+      "why": "Feral's on-demand performance tuning"
+    },
+    {
+      "name": "gamescope",
+      "category": "Game tools",
+      "rpm": [
+        "gamescope"
+      ],
+      "why": "Valve's micro-compositor: upscaling and frame limiting per game"
+    },
+    {
+      "name": "MangoHud",
+      "category": "Game tools",
+      "rpm": [
+        "mangohud"
+      ],
+      "why": "In-game performance overlay"
+    },
+    {
+      "name": "Moonlight",
+      "category": "Game tools",
+      "flatpak": "com.moonlight_stream.Moonlight",
+      "why": "Stream games from a PC running Sunshine or GeForce Experience"
+    },
+    {
+      "name": "OpenRGB",
+      "category": "Game tools",
+      "flatpak": "org.openrgb.OpenRGB",
+      "why": "One tool for RGB lighting on any brand"
+    },
+    {
+      "name": "Piper",
+      "category": "Game tools",
+      "flatpak": "org.freedesktop.Piper",
+      "why": "Configure gaming mice"
+    },
+    {
+      "name": "ProtonPlus",
+      "category": "Game tools",
+      "flatpak": "com.vysp3r.ProtonPlus",
+      "why": "Installs and manages Proton-GE and other compatibility tools"
+    },
+    {
+      "name": "ProtonUp-Qt",
+      "category": "Game tools",
+      "flatpak": "net.davidotek.pupgui2",
+      "why": "Manages Proton-GE and Wine-GE for Steam and Lutris"
+    },
+    {
+      "name": "Sunshine",
+      "category": "Game tools",
+      "flatpak": "dev.lizardbyte.app.Sunshine",
+      "why": "Game streaming host: play this machine's games elsewhere"
+    },
+    {
+      "name": "Vulkan tools",
+      "category": "Game tools",
+      "rpm": [
+        "vulkan-tools",
+        "mesa-demos"
+      ],
+      "why": "vulkaninfo, vkcube, glxinfo for diagnosing graphics"
+    },
+    {
+      "name": "Celluloid",
+      "category": "Video",
+      "flatpak": "io.github.celluloid_player.Celluloid",
+      "why": "Simple GTK front end for mpv"
+    },
+    {
+      "name": "FreeTube",
+      "category": "Video",
+      "flatpak": "io.freetubeapp.FreeTube",
+      "why": "Private YouTube client"
+    },
+    {
+      "name": "Haruna",
+      "category": "Video",
+      "flatpak": "org.kde.haruna",
+      "why": "mpv-based video player"
+    },
+    {
+      "name": "Jellyfin Media Player",
+      "category": "Video",
+      "flatpak": "org.jellyfin.JellyfinDesktop",
+      "why": "Desktop client for a Jellyfin media server"
+    },
+    {
+      "name": "Kodi",
+      "category": "Video",
+      "rpm": [
+        "kodi"
+      ],
+      "why": "Media center"
+    },
+    {
+      "name": "LosslessCut",
+      "category": "Video",
+      "appimage": [
+        "lossless-cut"
+      ],
+      "why": "Cut video and audio without re-encoding"
+    },
+    {
+      "name": "MKVToolNix",
+      "category": "Video",
+      "appimage": [
+        "mkvtoolnix"
+      ],
+      "why": "Edit and repack Matroska files"
+    },
+    {
+      "name": "mpv",
+      "category": "Video",
+      "rpm": [
+        "mpv"
+      ],
+      "why": "Minimal, scriptable player"
+    },
+    {
+      "name": "OBS Studio",
+      "category": "Video",
+      "flatpak": "com.obsproject.Studio",
+      "why": "Recording and live streaming"
+    },
+    {
+      "name": "Plex",
+      "category": "Video",
+      "flatpak": "tv.plex.PlexDesktop",
+      "why": "Desktop client for Plex"
+    },
+    {
+      "name": "Shotcut",
+      "category": "Video",
+      "appimage": [
+        "shotcut"
+      ],
+      "why": "Video editor"
+    },
+    {
+      "name": "Stremio",
+      "category": "Video",
+      "flatpak": "com.stremio.Stremio",
+      "why": "Streaming hub"
+    },
+    {
+      "name": "VLC",
+      "category": "Video",
+      "rpm": [
+        "vlc"
+      ],
+      "why": "Plays nearly anything"
+    },
+    {
+      "name": "Amberol",
+      "category": "Music",
+      "flatpak": "io.bassi.Amberol",
+      "why": "Small, simple music player"
+    },
+    {
+      "name": "Audacious",
+      "category": "Music",
+      "rpm": [
+        "audacious"
+      ],
+      "why": "Lightweight player"
+    },
+    {
+      "name": "Lollypop",
+      "category": "Music",
+      "flatpak": "org.gnome.Lollypop",
+      "why": "Local music library"
+    },
+    {
+      "name": "Spotify",
+      "category": "Music",
+      "flatpak": "com.spotify.Client",
+      "why": "Music streaming"
+    },
+    {
+      "name": "TIDAL HiFi",
+      "category": "Music",
+      "flatpak": "com.mastermindzh.tidal-hifi",
+      "why": "TIDAL desktop client"
+    },
+    {
+      "name": "EasyEffects",
+      "category": "Audio",
+      "flatpak": "com.github.wwmm.easyeffects",
+      "why": "Equalizer and effects for system audio"
+    },
+    {
+      "name": "qpwgraph",
+      "category": "Audio",
+      "flatpak": "org.rncbc.qpwgraph",
+      "why": "PipeWire patchbay"
+    },
+    {
+      "name": "Volume Control",
+      "category": "Audio",
+      "flatpak": "org.pulseaudio.pavucontrol",
+      "why": "Per-app volume and devices"
+    },
+    {
+      "name": "Discord",
+      "category": "Social",
+      "rpm": [
+        "discord"
+      ],
+      "why": "Voice and text chat"
+    },
+    {
+      "name": "Element",
+      "category": "Social",
+      "flatpak": "im.riot.Riot",
+      "why": "Matrix chat"
+    },
+    {
+      "name": "Mumble",
+      "category": "Social",
+      "flatpak": "info.mumble.Mumble",
+      "why": "Low-latency voice chat for gaming"
+    },
+    {
+      "name": "Pidgin",
+      "category": "Social",
+      "flatpak": "im.pidgin.Pidgin",
+      "pack": "communication"
+    },
+    {
+      "name": "Signal",
+      "category": "Social",
+      "flatpak": "org.signal.Signal",
+      "why": "Private messaging"
+    },
+    {
+      "name": "Telegram Desktop",
+      "category": "Social",
+      "flatpak": "org.telegram.desktop",
+      "pack": "communication"
+    },
+    {
+      "name": "Thunderbird",
+      "category": "Social",
+      "flatpak": "org.mozilla.thunderbird",
+      "pack": "communication"
+    },
+    {
+      "name": "Vesktop",
+      "category": "Social",
+      "flatpak": "dev.vencord.Vesktop",
+      "why": "Discord client with better screen sharing on Linux"
+    },
+    {
+      "name": "Zoom",
+      "category": "Social",
+      "flatpak": "us.zoom.Zoom",
+      "why": "Video calls"
+    },
+    {
+      "name": "Calibre",
+      "category": "Reading",
+      "flatpak": "com.calibre_ebook.calibre",
+      "why": "E-book library and converter"
+    },
+    {
+      "name": "Foliate",
+      "category": "Reading",
+      "flatpak": "com.github.johnfactotum.Foliate",
+      "why": "E-book reader"
+    },
+    {
+      "name": "Komikku",
+      "category": "Reading",
+      "flatpak": "info.febvre.Komikku",
+      "why": "Manga and comics reader"
+    },
+    {
+      "name": "Okular",
+      "category": "Reading",
+      "flatpak": "org.kde.okular",
+      "why": "PDF and document viewer"
+    },
+    {
+      "name": "Papers",
+      "category": "Reading",
+      "flatpak": "org.gnome.Papers",
+      "why": "Document viewer"
+    },
+    {
+      "name": "Baobab",
+      "category": "Utilities",
+      "flatpak": "org.gnome.baobab",
+      "why": "See what is using disk space"
+    },
+    {
+      "name": "Bitwarden",
+      "category": "Utilities",
+      "flatpak": "com.bitwarden.desktop",
+      "why": "Password manager"
+    },
+    {
+      "name": "Calculator",
+      "category": "Utilities",
+      "flatpak": "org.gnome.Calculator",
+      "why": "Calculator"
+    },
+    {
+      "name": "File Roller",
+      "category": "Utilities",
+      "flatpak": "org.gnome.FileRoller",
+      "why": "Archive manager"
+    },
+    {
+      "name": "Flatseal",
+      "category": "Utilities",
+      "flatpak": "com.github.tchx84.Flatseal",
+      "why": "See and change what a Flatpak app is allowed to do"
+    },
+    {
+      "name": "Joplin",
+      "category": "Utilities",
+      "appimage": [
+        "joplin"
+      ],
+      "why": "Notes and to-do lists with sync"
+    },
+    {
+      "name": "KeePassXC",
+      "category": "Utilities",
+      "flatpak": "org.keepassxc.KeePassXC",
+      "why": "Local password manager"
+    },
+    {
+      "name": "LocalSend",
+      "category": "Utilities",
+      "appimage": [
+        "localsend"
+      ],
+      "why": "Send files to nearby devices, like AirDrop"
+    },
+    {
+      "name": "Logseq",
+      "category": "Utilities",
+      "appimage": [
+        "logseq"
+      ],
+      "why": "Outliner and notes"
+    },
+    {
+      "name": "Loupe",
+      "category": "Utilities",
+      "flatpak": "org.gnome.Loupe",
+      "why": "Image viewer"
+    },
+    {
+      "name": "Obsidian",
+      "category": "Utilities",
+      "appimage": [
+        "obsidian"
+      ],
+      "why": "Markdown notes"
+    },
+    {
+      "name": "qBittorrent",
+      "category": "Utilities",
+      "flatpak": "org.qbittorrent.qBittorrent",
+      "why": "Torrent client"
+    },
+    {
+      "name": "Text Editor",
+      "category": "Utilities",
+      "flatpak": "org.gnome.TextEditor",
+      "why": "Simple text editor"
+    },
+    {
+      "name": "Transmission",
+      "category": "Utilities",
+      "flatpak": "com.transmissionbt.Transmission",
+      "why": "Light torrent client"
+    },
+    {
+      "name": "Ventoy",
+      "category": "Utilities",
+      "appimage": [
+        "ventoy"
+      ],
+      "why": "Make a bootable USB drive from ISO files"
+    },
+    {
+      "name": "Warehouse",
+      "category": "Utilities",
+      "flatpak": "io.github.flattool.Warehouse",
+      "why": "Manage installed Flatpaks and their data"
+    },
+    {
+      "name": "yt-dlp",
+      "category": "Utilities",
+      "appimage": [
+        "yt-dlp"
+      ],
+      "why": "Download video and audio from many sites"
+    },
+    {
+      "name": "Bluetooth tools",
+      "category": "System",
+      "rpm": [
+        "bluez-tools"
+      ],
+      "why": "Command-line Bluetooth helpers"
+    },
+    {
+      "name": "btop",
+      "category": "System",
+      "rpm": [
+        "btop"
+      ],
+      "why": "Resource monitor"
+    },
+    {
+      "name": "CoreCtrl",
+      "category": "System",
+      "rpm": [
+        "corectrl"
+      ],
+      "why": "AMD GPU and CPU control"
+    },
+    {
+      "name": "Everyday command-line tools",
+      "category": "System",
+      "rpm": [
+        "ripgrep",
+        "fd-find",
+        "jq",
+        "tree",
+        "rsync",
+        "wget2-wget",
+        "unzip",
+        "zip",
+        "7zip"
+      ],
+      "why": "Small tools other programs and scripts expect"
+    },
+    {
+      "name": "fastfetch",
+      "category": "System",
+      "rpm": [
+        "fastfetch"
+      ],
+      "why": "System summary"
+    },
+    {
+      "name": "htop",
+      "category": "System",
+      "rpm": [
+        "htop"
+      ],
+      "why": "Process viewer"
+    },
+    {
+      "name": "Intel GPU tools",
+      "category": "System",
+      "rpm": [
+        "igt-gpu-tools"
+      ],
+      "why": "Intel GPU monitoring"
+    },
+    {
+      "name": "lm_sensors",
+      "category": "System",
+      "rpm": [
+        "lm_sensors"
+      ],
+      "why": "Temperature and fan sensors"
+    },
+    {
+      "name": "Mission Center",
+      "category": "System",
+      "flatpak": "io.missioncenter.MissionCenter",
+      "why": "Task manager with GPU graphs"
+    },
+    {
+      "name": "nvtop",
+      "category": "System",
+      "rpm": [
+        "nvtop"
+      ],
+      "why": "GPU monitor"
+    },
+    {
+      "name": "radeontop",
+      "category": "System",
+      "rpm": [
+        "radeontop"
+      ],
+      "why": "AMD GPU monitor"
+    },
+    {
+      "name": "Resources",
+      "category": "System",
+      "flatpak": "net.nokyan.Resources",
+      "why": "System monitor"
+    },
+    {
+      "name": "smartmontools",
+      "category": "System",
+      "rpm": [
+        "smartmontools"
+      ],
+      "why": "Disk health"
+    },
+    {
+      "name": "Solaar",
+      "category": "System",
+      "rpm": [
+        "solaar"
+      ],
+      "why": "Logitech receivers and devices"
+    },
+    {
+      "name": "Video acceleration tools",
+      "category": "System",
+      "rpm": [
+        "libva-utils",
+        "vdpauinfo"
+      ],
+      "why": "Check hardware video decoding"
+    },
+    {
+      "name": "Fonts",
+      "category": "Fonts",
+      "rpm": [
+        "fira-code-fonts",
+        "jetbrains-mono-fonts",
+        "liberation-fonts-all",
+        "google-noto-emoji-fonts",
+        "google-noto-sans-cjk-fonts",
+        "adobe-source-code-pro-fonts",
+        "google-roboto-fonts"
+      ],
+      "why": "Common fonts"
+    },
+    {
+      "name": "Audacity",
+      "category": "Creative",
+      "flatpak": "org.audacityteam.Audacity",
+      "pack": "creative"
+    },
+    {
+      "name": "Blender",
+      "category": "Creative",
+      "flatpak": "org.blender.Blender",
+      "pack": "creative"
+    },
+    {
+      "name": "darktable",
+      "category": "Creative",
+      "flatpak": "org.darktable.Darktable",
+      "pack": "creative"
+    },
+    {
+      "name": "Flameshot",
+      "category": "Creative",
+      "flatpak": "org.flameshot.Flameshot",
+      "pack": "creative"
+    },
+    {
+      "name": "GIMP",
+      "category": "Creative",
+      "flatpak": "org.gimp.GIMP",
+      "pack": "creative"
+    },
+    {
+      "name": "HandBrake",
+      "category": "Creative",
+      "flatpak": "fr.handbrake.ghb",
+      "pack": "creative"
+    },
+    {
+      "name": "Inkscape",
+      "category": "Creative",
+      "flatpak": "org.inkscape.Inkscape",
+      "pack": "creative"
+    },
+    {
+      "name": "Kdenlive",
+      "category": "Creative",
+      "flatpak": "org.kde.kdenlive",
+      "pack": "creative"
+    },
+    {
+      "name": "Krita",
+      "category": "Creative",
+      "flatpak": "org.kde.krita",
+      "pack": "creative"
+    },
+    {
+      "name": "Carla",
+      "category": "Music production",
+      "flatpak": "studio.kx.carla",
+      "pack": "music-studio"
+    },
+    {
+      "name": "Hydrogen",
+      "category": "Music production",
+      "flatpak": "org.hydrogenmusic.Hydrogen",
+      "pack": "music-studio"
+    },
+    {
+      "name": "LMMS",
+      "category": "Music production",
+      "flatpak": "io.lmms.LMMS",
+      "pack": "music-studio"
+    },
+    {
+      "name": "MuseScore",
+      "category": "Music production",
+      "flatpak": "org.musescore.MuseScore",
+      "pack": "music-studio"
+    },
+    {
+      "name": "Qtractor",
+      "category": "Music production",
+      "flatpak": "org.rncbc.qtractor",
+      "pack": "music-studio"
+    },
+    {
+      "name": "LibreOffice",
+      "category": "Office",
+      "flatpak": "org.libreoffice.LibreOffice",
+      "pack": "office"
+    },
+    {
+      "name": "Android Studio",
+      "category": "Developer tools",
+      "flatpak": "com.google.AndroidStudio",
+      "pack": "developer-tools"
+    },
+    {
+      "name": "DBeaver",
+      "category": "Developer tools",
+      "flatpak": "io.dbeaver.DBeaverCommunity",
+      "pack": "developer-tools"
+    },
+    {
+      "name": "Developer Tools (packages)",
+      "category": "Developer tools",
+      "rpm": [
+        "git-gui",
+        "gitk",
+        "vim-enhanced"
+      ],
+      "pack": "developer-tools"
+    },
+    {
+      "name": "Eclipse",
+      "category": "Developer tools",
+      "flatpak": "org.eclipse.Java",
+      "pack": "developer-tools"
+    },
+    {
+      "name": "gitg",
+      "category": "Developer tools",
+      "flatpak": "org.gnome.gitg",
+      "pack": "developer-tools"
+    },
+    {
+      "name": "IntelliJ IDEA Community",
+      "category": "Developer tools",
+      "flatpak": "com.jetbrains.IntelliJ-IDEA-Community",
+      "pack": "developer-tools"
+    },
+    {
+      "name": "Neovim",
+      "category": "Developer tools",
+      "flatpak": "io.neovim.nvim",
+      "pack": "developer-tools"
+    },
+    {
+      "name": "Sublime Text",
+      "category": "Developer tools",
+      "flatpak": "com.sublimehq.SublimeText",
+      "pack": "developer-tools"
+    },
+    {
+      "name": "Visual Studio Code",
+      "category": "Developer tools",
+      "flatpak": "com.visualstudio.code",
+      "pack": "developer-tools"
+    },
+    {
+      "name": "Language Toolchains (packages)",
+      "category": "Language toolchains",
+      "rpm": [
+        "cargo",
+        "golang",
+        "java-latest-openjdk-devel",
+        "ruby",
+        "rust"
+      ],
+      "pack": "language-toolchains"
+    },
+    {
+      "name": "Godot",
+      "category": "Game development",
+      "flatpak": "org.godotengine.Godot",
+      "pack": "game-development"
+    },
+    {
+      "name": "LOVE",
+      "category": "Game development",
+      "flatpak": "org.love2d.love2d",
+      "pack": "game-development"
+    },
+    {
+      "name": "Tiled",
+      "category": "Game development",
+      "flatpak": "org.mapeditor.Tiled",
+      "pack": "game-development"
+    },
+    {
+      "name": "Wine (packages)",
+      "category": "Compatibility",
+      "rpm": [
+        "wine"
+      ],
+      "pack": "wine"
+    },
+    {
+      "name": "Virtualization (packages)",
+      "category": "Virtualization",
+      "rpm": [
+        "edk2-ovmf",
+        "qemu-audio-pa",
+        "qemu-audio-pipewire",
+        "qemu-device-usb-host",
+        "qemu-system-x86",
+        "qemu-ui-gtk",
+        "waydroid"
+      ],
+      "pack": "virtualization"
+    },
+    {
+      "name": "Robotics (packages)",
+      "category": "Robotics",
+      "rpm": [
+        "libphidget22",
+        "opencv",
+        "python3-catkin_lint",
+        "python3-catkin_pkg",
+        "python3-catkin_tools",
+        "python3-rosdep",
+        "python3-rosdistro",
+        "python3-rosinstall_generator",
+        "python3-rospkg",
+        "python3-vcstool",
+        "rcssmonitor",
+        "rcssserver",
+        "rcssserver-gui",
+        "rcssserver3d"
+      ],
+      "pack": "robotics"
+    }
+  ]
+}

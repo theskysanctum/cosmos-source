@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Theme Studio
+Exec=python3 /opt/astronar-studio/launcher/theme_studio.py
+Comment=Visually edit GameBox launcher color themes
+Icon=preferences-desktop-theme
+Categories=Graphics;Development;
+Terminal=false

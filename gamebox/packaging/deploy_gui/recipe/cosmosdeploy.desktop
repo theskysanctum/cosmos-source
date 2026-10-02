@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=CosmOS Deploy
+Exec=cosmosdeploy
+Comment=Build, test, install, roll back, and push CosmOS.AppImage live
+Icon=cosmosdeploy
+Categories=Development;
+Terminal=false

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+JSON_FILE="$1"
+BASE="/cosmos/roms"
+
+# Extract all platform IDs safely
+IDS=$(jq -r '
+    .categories[]?                      # categories may exist or not
+    | .manufacturers[]?                 # manufacturers may exist or not
+    | ( .platforms // [] )[]?           # platforms may be null or missing
+    | .id                               # extract id
+' "$JSON_FILE")
+
+echo "Creating ROM folders under $BASE"
+
+for id in $IDS; do
+    mkdir -p "$BASE/$id"
+    echo "Created: $BASE/$id"
+done
+
+echo "Done."
+

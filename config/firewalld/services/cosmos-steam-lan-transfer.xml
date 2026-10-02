@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>CosmOS Steam local network game transfers</short>
+  <description>The ports other computers use to copy an installed game from this one over the local network with Steam ("Local Network Game Transfers": TCP 27040 and UDP 27036, as Valve documents them - recalled from Valve's support page, which could not be re-read here). Never open by default: once you switch it on in Settings > Remote Access, cosmos-steam-door opens it only while Steam is running (running firewall only, never saved, one-hour timeout that it renews) and closes it when Steam quits or you switch it off.</description>
+  <port protocol="tcp" port="27040"/>
+  <port protocol="udp" port="27036"/>
+</service>

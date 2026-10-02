@@ -1,0 +1,53 @@
+{
+  "theme": "dark",
+  "inputNeededNotifEnabled": false,
+  "agentPushNotifEnabled": true,
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(podman rm:*) in /home/user/os",
+      "Bash(podman rmi:*) in /home/user/os",
+      "Bash(buildah rm:*) in /home/user/os"
+    ],
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: private (theskysanctum/Cosmoplex, via gh)",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured",
+      "**Default / protected branches**: default branch unknown (origin/HEAD unset); no protected branches listed (rulesets not queryable here — absence not confirmed)",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Source control**: The trusted repo (theskysanctum/Cosmoplex) and its origin remote only (no additional orgs configured)",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: None configured",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: settings/igdb_credentials.json, launcher/ra_credentials.ini (credential files; keep to project-local audience only)",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development (retro-gaming/emulation platform, per repo tooling: mame, libretro, qemu, buildah/podman)",
+      "**Trusted repo**: /home/user/os (github.com/theskysanctum/Cosmoplex, private) and its origin remote",
+      "**Org-specific CLIs**: None configured",
+      "routine under theskysanctum/Cosmoplex prefix: git and build operations (podman, dnf, buildah, mame, qemu-system-x86_64) scoped to this repo's working tree"
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "MultiEdit",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "WebSearch"
+    ],
+    "deny": []
+  }
+}

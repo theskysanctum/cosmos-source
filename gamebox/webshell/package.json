@@ -1,0 +1,7 @@
+{
+	"name": "cosmos-webshell",
+	"version": "1.0.0",
+	"private": true,
+	"description": "CosmOS's Electron-based kiosk app interface - single-URL fullscreen content for quick-launch shortcuts and Gaming News article links, replacing Brave.",
+	"main": "main.js"
+}

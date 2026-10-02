@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=CosmOS
+Description=CosmOS boot splash - logo, wordmark, spinning bar
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/cosmos
+ScriptFile=/usr/share/plymouth/themes/cosmos/cosmos.script

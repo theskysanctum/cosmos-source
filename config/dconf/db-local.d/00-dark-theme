@@ -1,0 +1,16 @@
+# System-wide default, not user override (a plain user-db:user profile
+# with no prior settings means every GTK4/libadwaita app - nautilus,
+# loupe, papers - reads straight through to this local system db).
+# Legacy GTK3 apps don't read dconf for theming at all - they get the
+# equivalent gtk-application-prefer-dark-theme setting from
+# etc/skel's own .config/gtk-3.0/settings.ini instead.
+[org/gnome/desktop/interface]
+color-scheme='prefer-dark'
+gtk-theme='Adwaita'
+icon-theme='Papirus'
+cursor-theme='Bibata-Modern-Classic'
+
+# Same reason as gtk-decoration-layout in gtk-3.0/gtk-4.0 settings.ini: no window buttons
+# (libadwaita reads this key rather than settings.ini on some versions).
+[org/gnome/desktop/wm/preferences]
+button-layout=''

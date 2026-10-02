@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+"""find-uncurated - find installed Flatpaks and AppImages that are not in the curated catalog (catalog.json).
+
+Every install path refuses what the catalog doesn't list (the Flathub remote filter, Kronos, the Shop, cosmos-priv). This finds what got in another
+way: installed before the catalog existed, or through a command run by its full path, or a user-level install that no filter sees.
+
+  find-uncurated              list them (exit 1 if there are any)
+  find-uncurated --json
+  find-uncurated --purge      uninstall the user-level Flatpaks and the AppImages found; system-wide ones are only reported (removing those
+                              takes an admin request: kronos run flatpak uninstall ...). Apps' data in ~/.var is kept, so reinstalling brings it back.
+
+Layered packages are not checked here (they can only be added through Kronos, which checks the catalog).
+"""
+import argparse
+import json
+import os
+import subprocess
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import cosmos_catalog as catalog  # noqa: E402
+import cosmos_updates as updates  # noqa: E402
+
+
+def default_run(cmd, **kw):
+    return subprocess.run(cmd, capture_output=True, text=True, timeout=120, **kw)
+
+
+def installed_flatpaks(run=default_run):
+    """[(app id, "user"|"system")] of every installed Flatpak *app* (runtimes come and go with the apps that need them)."""
+    try:
+        done = run(["flatpak", "list", "--app", "--columns=application,installation"])
+    except (OSError, subprocess.SubprocessError):
+        return []
+    found = []
+    for line in done.stdout.splitlines():
+        parts = line.split("\t") if "\t" in line else line.split()
+        if len(parts) >= 2 and parts[0] and "." in parts[0]:
+            found.append((parts[0].strip(), parts[1].strip()))
+    return found
+
+
+def installed_appimages(run=default_run):
+    for tool in ("appman", "am"):
+        try:
+            done = run([tool, "-f"])
+        except (OSError, subprocess.SubprocessError):
+            continue
+        if done.returncode == 0:
+            return updates.parse_am_installed(done.stdout), tool
+    return [], None
+
+
+def scan(run=default_run, cat=None):
+    """[{"kind": "flatpak"|"appimage", "id": ..., "where": "user"|"system"}] that the catalog does not list."""
+    cat = catalog.load() if cat is None else cat
+    if not catalog.apps(cat):
+        return []                                     # no catalog installed: nothing is curated
+    found = []
+    for ident, where in installed_flatpaks(run):
+        if not catalog.flatpak_allowed(ident, cat):
+            found.append({"kind": "flatpak", "id": ident, "where": "system" if where.startswith("system") else "user"})
+    names, _tool = installed_appimages(run)
+    for name in names:
+        if not catalog.appimage_allowed(name, cat):
+            found.append({"kind": "appimage", "id": name, "where": "user"})
+    return found
+
+
+def purge(findings, run=default_run):
+    """Removes the user-level Flatpaks and AppImages in `findings`; returns (removed ids, left ids)."""
+    removed, left = [], []
+    tool = installed_appimages(run)[1] or "appman"
+    for f in findings:
+        if f["kind"] == "flatpak" and f["where"] == "user":
+            cmd = ["flatpak", "uninstall", "--user", "-y", "--noninteractive", f["id"]]
+        elif f["kind"] == "appimage":
+            cmd = [tool, "-r", f["id"]]
+        else:
+            left.append(f["id"])
+            continue
+        try:
+            ok = run(cmd).returncode == 0
+        except (OSError, subprocess.SubprocessError):
+            ok = False
+        (removed if ok else left).append(f["id"])
+    return removed, left
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--json", action="store_true")
+    ap.add_argument("--purge", action="store_true")
+    args = ap.parse_args(argv)
+    found = scan()
+    if args.purge and found:
+        removed, left = purge(found)
+        for ident in removed:
+            print(f"removed {ident}")
+        found = [f for f in found if f["id"] in left]
+        for f in found:
+            print(f"couldn't remove {f['id']} ({f['where']}): system-wide installs need an admin request", file=sys.stderr)
+    if args.json:
+        print(json.dumps(found, indent=2))
+    else:
+        for f in found:
+            print(f"{f['kind']:9} {f['where']:7} {f['id']}")
+    return 1 if found else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

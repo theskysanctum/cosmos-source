@@ -1,0 +1,101 @@
+// CosmOS Plymouth boot splash: logo, "STUDIO" wordmark (Rajdhani,
+// the same font GameBox's own launcher splash uses -
+// launcher/run.py's .cosmos-splash-title CSS), and a spinning bar
+// loading indicator, all centered as one vertical block on a solid
+// black background (matching this spin's own no-wallpaper desktop).
+//
+// Frame filenames are spelled out explicitly (not built via a loop +
+// string padding) - this runs once, early in boot, where a script
+// syntax mistake means a blank screen instead of a visible error, so
+// this favors the most certain, least clever syntax throughout.
+
+Plymouth.SetBackgroundTopColor(0, 0, 0);
+Plymouth.SetBackgroundBottomColor(0, 0, 0);
+Plymouth.SetRefreshRate(30);
+
+global.screen_width = Window.GetWidth();
+global.screen_height = Window.GetHeight();
+
+global.logo_image = Image("logo.png");
+global.wordmark_image = Image("wordmark.png");
+
+global.logo_width = global.logo_image.GetWidth();
+global.logo_height = global.logo_image.GetHeight();
+global.studio_width = global.wordmark_image.GetWidth();
+global.studio_height = global.wordmark_image.GetHeight();
+
+global.gap_logo_to_studio = 40;
+global.gap_studio_to_spinner = 50;
+global.spinner_size = 120;
+global.spinner_frame_count = 36;
+
+global.total_height = global.logo_height + global.gap_logo_to_studio + global.studio_height + global.gap_studio_to_spinner + global.spinner_size;
+global.top_y = global.screen_height / 2 - global.total_height / 2;
+
+global.logo_sprite = Sprite(global.logo_image);
+global.logo_sprite.SetX(global.screen_width / 2 - global.logo_width / 2);
+global.logo_sprite.SetY(global.top_y);
+global.logo_sprite.SetZ(10);
+
+global.studio_sprite = Sprite(global.wordmark_image);
+global.studio_sprite.SetX(global.screen_width / 2 - global.studio_width / 2);
+global.studio_sprite.SetY(global.top_y + global.logo_height + global.gap_logo_to_studio);
+global.studio_sprite.SetZ(10);
+
+global.spinner_y = global.top_y + global.logo_height + global.gap_logo_to_studio + global.studio_height + global.gap_studio_to_spinner;
+
+global.spinner_images[0] = Image("bar-00.png");
+global.spinner_images[1] = Image("bar-01.png");
+global.spinner_images[2] = Image("bar-02.png");
+global.spinner_images[3] = Image("bar-03.png");
+global.spinner_images[4] = Image("bar-04.png");
+global.spinner_images[5] = Image("bar-05.png");
+global.spinner_images[6] = Image("bar-06.png");
+global.spinner_images[7] = Image("bar-07.png");
+global.spinner_images[8] = Image("bar-08.png");
+global.spinner_images[9] = Image("bar-09.png");
+global.spinner_images[10] = Image("bar-10.png");
+global.spinner_images[11] = Image("bar-11.png");
+global.spinner_images[12] = Image("bar-12.png");
+global.spinner_images[13] = Image("bar-13.png");
+global.spinner_images[14] = Image("bar-14.png");
+global.spinner_images[15] = Image("bar-15.png");
+global.spinner_images[16] = Image("bar-16.png");
+global.spinner_images[17] = Image("bar-17.png");
+global.spinner_images[18] = Image("bar-18.png");
+global.spinner_images[19] = Image("bar-19.png");
+global.spinner_images[20] = Image("bar-20.png");
+global.spinner_images[21] = Image("bar-21.png");
+global.spinner_images[22] = Image("bar-22.png");
+global.spinner_images[23] = Image("bar-23.png");
+global.spinner_images[24] = Image("bar-24.png");
+global.spinner_images[25] = Image("bar-25.png");
+global.spinner_images[26] = Image("bar-26.png");
+global.spinner_images[27] = Image("bar-27.png");
+global.spinner_images[28] = Image("bar-28.png");
+global.spinner_images[29] = Image("bar-29.png");
+global.spinner_images[30] = Image("bar-30.png");
+global.spinner_images[31] = Image("bar-31.png");
+global.spinner_images[32] = Image("bar-32.png");
+global.spinner_images[33] = Image("bar-33.png");
+global.spinner_images[34] = Image("bar-34.png");
+global.spinner_images[35] = Image("bar-35.png");
+
+global.spinner_sprite = Sprite(global.spinner_images[0]);
+global.spinner_sprite.SetX(global.screen_width / 2 - global.spinner_size / 2);
+global.spinner_sprite.SetY(global.spinner_y);
+global.spinner_sprite.SetZ(10);
+
+global.tick = 0;
+
+fun refresh_callback() {
+    global.tick = global.tick + 1;
+    // advance one frame every 2 refreshes (30fps refresh -> ~2.4s per
+    // full spin, close to the built-in "spinner" theme's own throbber
+    // pace) rather than one frame per refresh, which would spin too
+    // fast to read as a bar rather than a blur.
+    global.frame_index = Math.Int(global.tick / 2) % global.spinner_frame_count;
+    global.spinner_sprite.SetImage(global.spinner_images[global.frame_index]);
+}
+
+Plymouth.SetRefreshFunction(refresh_callback);

@@ -1,0 +1,4 @@
+#EXTM3U
+
+#EXTINF:-1 tvg-id="Channel List" tvg-name="Channel List" group-title="All", Channel List
+https://i.mjh.nz/all/raw.m3u8

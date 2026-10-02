@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Set Wallpaper
+Comment=cosmos-wallpaper - pick your own desktop background
+Exec=cosmos-wallpaper
+Icon=preferences-desktop-wallpaper
+Categories=Settings;DesktopSettings;
+Terminal=false
+NoDisplay=true

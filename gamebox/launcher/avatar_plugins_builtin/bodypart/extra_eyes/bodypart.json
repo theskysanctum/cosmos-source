@@ -1,0 +1,7 @@
+{
+    "name": "Extra Eye",
+    "description": "The built-in third-eye mythical/alien feature.",
+    "fields": [
+        {"category": "Face", "key": "extra_eyes", "label": "Extra eye", "kind": "bool", "default": false}
+    ]
+}

@@ -1,0 +1,79 @@
+/* CosmOS's own GTK3 override - GameBox's real palette
+(launcher/themes/console_collision.css's exact @define-color values).
+Redefining just the named colors (theme_selected_bg_color/accent_color/
+etc, the original version of this file) turned out NOT to be enough -
+confirmed live via pixel-sampling a real greeter screendump that the
+login box/entry/button/dropdown stayed plain Adwaita-dark gray
+(#2d2d2d/#333333/#232323) even with those variables redefined, because
+Adwaita-dark's own stylesheet hardcodes literal gray values for most
+widget backgrounds instead of drawing them from those variables - only
+text-selection highlighting actually used theme_selected_bg_color.
+Explicit widget-selector rules below (window/entry/button/combobox and
+their focus/hover states) are needed to actually recolor the chrome
+regardless of what the base theme's own CSS does internally. */
+@define-color theme_selected_bg_color #ff0090;
+@define-color theme_selected_fg_color #ffffff;
+@define-color accent_color #ff0090;
+@define-color accent_bg_color #ff0090;
+@define-color accent_fg_color #ffffff;
+
+*:selected,
+selection {
+	background-color: #ff0090;
+	color: #ffffff;
+}
+
+window,
+.background {
+	background-color: #0d1220;
+	color: #e8ecf4;
+	font-family: "Rajdhani Medium", "Rajdhani", "Noto Sans", sans-serif;
+}
+
+entry {
+	background-color: #0a0e16;
+	color: #e8ecf4;
+	border-color: #2a3a56;
+	box-shadow: none;
+}
+
+entry:focus {
+	border-color: #ff0090;
+	box-shadow: none;
+}
+
+button {
+	background-color: #16233d;
+	background-image: none;
+	color: #e8ecf4;
+	border-color: #2a3a56;
+}
+
+button:hover,
+button:focus {
+	background-color: #ff0090;
+	background-image: none;
+	color: #0a0e16;
+	border-color: #ff0090;
+}
+
+combobox button,
+combobox box,
+combobox {
+	background-color: #0d1220;
+	background-image: none;
+	color: #e8ecf4;
+	border-color: #2a3a56;
+}
+
+menu,
+.menu,
+menuitem {
+	background-color: #0d1220;
+	color: #e8ecf4;
+}
+
+menuitem:hover {
+	background-color: #ff0090;
+	color: #0a0e16;
+}

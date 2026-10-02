@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=itch
+Exec=/opt/itch/itch
+Comment=itch.io desktop app - browse, buy, and play indie games
+Icon=/opt/itch/resources/app/src/static/images/window/itch/icon.png
+Categories=Game;
+Terminal=false

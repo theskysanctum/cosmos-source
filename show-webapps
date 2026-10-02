@@ -1,0 +1,110 @@
+#!/bin/bash
+# Live preview of the "Web Apps" tab (cosmos-launcher.py) without needing a
+# full image rebuild - direct request ("make a script so I can always create
+# my own and have it deleted on close"). Every tile this script draws comes
+# from the exact same source of truth the real build uses: the "name|url"
+# list inside the Containerfile's own default-web-apps loop, parsed fresh
+# every run rather than duplicated here - add/remove/rename an entry in the
+# Containerfile and this preview picks it up automatically, nothing to keep
+# in sync by hand.
+#
+# Icon per tile, same priority order the real build effectively has:
+#   1. config/webapp-icons/<slug>.png - a real custom override (the several
+#      built this same session: AllTheFallen, Danbooru, FurAffinity,
+#      Gelbooru, Gmail, Paramount+, Pluto TV, TikTok) - copied straight in,
+#      matching the Containerfile's own COPY-after-the-loop overrides.
+#   2. Google's public favicon-resolution service, live - the same
+#      https://www.google.com/s2/favicons endpoint the Containerfile's own
+#      build-time loop calls, so a plain rebuild's default icon is what you
+#      see here too for anything not overridden.
+#   3. A plain fallback glyph if both of those come up empty (offline, a
+#      genuinely broken domain, etc.) - so one bad fetch never blanks the
+#      whole preview.
+#
+# Slug computed the same way the Containerfile's own loop computes it
+# (lowercase, non-alnum runs collapsed to a single hyphen, trimmed) - has to
+# match exactly, since that's the filename config/webapp-icons/ overrides
+# are keyed on.
+#
+# Entirely ephemeral: everything this script creates lives under one
+# mktemp -d directory, opened with xdg-open (async - it hands off to
+# whatever the desktop's default image viewer is and returns immediately,
+# so there's no single blocking viewer process to wait on), then this
+# script itself waits on an explicit Enter press before cleaning up - "have
+# it deleted on close" means closing the viewer WHENEVER, on your own time,
+# not the instant xdg-open's own launcher command exits.
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONTAINERFILE="$REPO_ROOT/Containerfile"
+ICON_DIR="$REPO_ROOT/config/webapp-icons"
+
+for tool in convert montage identify curl xdg-open; do
+	command -v "$tool" >/dev/null || { echo "$tool not found - install it and retry" >&2; exit 1; }
+done
+
+WORK_DIR="$(mktemp -d /tmp/cosmos-webapp-preview.XXXXXX)"
+cleanup() {
+	rm -rf "$WORK_DIR"
+}
+trap cleanup EXIT INT TERM
+
+# Same BG/FG/ACCENT this whole project's own dark theme uses everywhere
+# else (cosmos-bar.py, cosmos-launcher.py, ...) - not re-derived, just
+# the same three literal hex values.
+BG="#0a0e16"
+FG="#e8ecf4"
+
+slugify() {
+	# Bash equivalent of the Containerfile loop's own:
+	#   tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//;s/-*$//'
+	echo "$1" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//;s/-*$//'
+}
+
+echo "== Reading the default web app list from $CONTAINERFILE =="
+# Sorted by name (case-insensitive) here, not left in Containerfile order -
+# matches cosmos-launcher.py's own `apps.sort(key=lambda pair: ...lower())`
+# for its Web Apps tab, so this preview's tile order actually matches the
+# real grid's.
+mapfile -t ENTRIES < <(grep -oE '"[^"]+\|https://[^"]+"' "$CONTAINERFILE" | sed 's/^"//;s/"$//' | sort -f)
+[ "${#ENTRIES[@]}" -gt 0 ] || { echo "No web app entries found - did the Containerfile's own list move/change shape?" >&2; exit 1; }
+echo "Found ${#ENTRIES[@]} entries."
+
+echo "== Building each tile (custom icon if one exists, otherwise a live favicon fetch) =="
+TILES=()
+for entry in "${ENTRIES[@]}"; do
+	name="${entry%%|*}"
+	url="${entry##*|}"
+	slug="$(slugify "$name")"
+	domain="$(echo "$url" | sed -E 's#^[a-zA-Z]+://##; s#/.*##')"
+	icon_path="$WORK_DIR/icon-$slug.png"
+
+	if [ -f "$ICON_DIR/$slug.png" ]; then
+		cp "$ICON_DIR/$slug.png" "$icon_path"
+	elif ! curl -fsSL "https://www.google.com/s2/favicons?domain=$domain&sz=128" -o "$icon_path" || [ ! -s "$icon_path" ]; then
+		rm -f "$icon_path"
+		convert -size 96x96 xc:none -fill "$FG" -gravity center \
+			-font DejaVu-Sans-Bold -pointsize 48 -annotate +0+0 "?" \
+			"$icon_path"
+	fi
+
+	tile="$WORK_DIR/tile-$slug.png"
+	convert "$icon_path" -resize 96x96 -background none -gravity center -extent 96x96 \
+		"$WORK_DIR/icon96-$slug.png"
+	convert -size 130x150 "xc:$BG" \
+		"$WORK_DIR/icon96-$slug.png" -geometry +17+8 -composite \
+		-gravity south -fill "$FG" -pointsize 13 -annotate +0+8 "$name" \
+		"$tile"
+	TILES+=("$tile")
+done
+
+echo "== Assembling the grid (alphabetical, same sort cosmos-launcher.py itself uses) =="
+PREVIEW="$WORK_DIR/webapp_grid_preview.png"
+montage "${TILES[@]}" -tile 6x -geometry 130x150+2+2 -background "$BG" "$PREVIEW"
+
+echo "== Opening $PREVIEW =="
+xdg-open "$PREVIEW" >/dev/null 2>&1 &
+
+echo
+echo "Preview open. This is all temporary, under $WORK_DIR."
+read -r -p "Press Enter once you're done looking at it to delete the preview and exit... "

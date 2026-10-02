@@ -1,0 +1,5 @@
+{
+  "image_tag": "localhost/cosmos:latest",
+  "pre_build": "packaging/rpm/prepare-image.sh",
+  "target_imgref": "ghcr.io/theskysanctum/cosmos:latest"
+}

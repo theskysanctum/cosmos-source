@@ -1,0 +1,21 @@
+[Unit]
+Description=CosmOS admin service (kronos)
+Requires=kronos.socket
+After=local-fs.target
+
+[Service]
+User=kronos
+Group=kronos
+ExecStart=/usr/bin/python3 /usr/local/lib/kronos/kronosd.py
+# NoNewPrivileges must stay off: kronosd's only way to root is `sudo -n /usr/libexec/kronos/act`. The helper is a child of this unit and
+# so inherits any sandboxing set here (no network for flatpak, no /home, no modules for modprobe), which is why there is little of it;
+# see docs/kronos-design.md section 3 for the per-action transient-unit option that would allow more.
+NoNewPrivileges=no
+# CAP_SYS_PTRACE only so the daemon can read /proc/PID/exe of the account's programs: the kernel refuses that across accounts, and the
+# program's real name (not what it calls itself) is what the prompt shows and the audit log records.
+AmbientCapabilities=CAP_SYS_PTRACE
+PrivateTmp=yes
+Restart=on-failure
+RestartSec=2
+# a request is one small line; the log and the journal are the record
+LimitNOFILE=256

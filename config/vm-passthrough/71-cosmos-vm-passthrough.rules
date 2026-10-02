@@ -1,0 +1,7 @@
+# Host-device passthrough for cosmos-vm-manager (see config/scripts/vm_passthrough.py).
+# The desktop user is in the kvm group; these give that group the device nodes qemu
+# opens for a passed-through device, so the VM manager does not need root:
+#   /dev/vfio/*        - VFIO groups (GPU / NIC / NVMe passthrough)
+#   USB device nodes   - usb-host passthrough (controllers, headsets, ...)
+SUBSYSTEM=="vfio", GROUP="kvm", MODE="0660"
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GROUP="kvm", MODE="0660"

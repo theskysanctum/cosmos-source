@@ -1,0 +1,774 @@
+/* CosmOS's shared structural stylesheet - layout, spacing, borders,
+animations, and every selector this app actually uses, but never a
+literal color. Every color is a @define-color name instead (bg_primary,
+accent_1, ...) - a theme is just a separate small CSS file defining
+that same set of names to different values (see launcher/themes/ and
+theme.py's own load_theme()), loaded before this file so the names
+already resolve by the time these rules apply. launcher/themes/
+console_collision.css is the original/default theme (also where the
+window{} background-image rule itself lives now, since that's a real
+per-theme asset, not a color this file could hold) - see its own
+docstring for the four-stop magenta gradient this was all designed
+around. Nothing in this file's own selectors is theme-specific; adding
+a new theme never means touching this file. */
+
+* {
+	/* Rajdhani: a geometric, technical Google Font used a lot in gaming/
+	esports UI - bundled as TTFs in launcher/fonts/ and registered by
+	install_fonts.sh (run.py calls it at startup), not a system-installed
+	assumption. Falls back cleanly if that install ever hasn't run yet. */
+	font-family: "Rajdhani", "Noto Sans", "DejaVu Sans", sans-serif;
+	/* 10-foot-interface sizing: everything in this file runs well above a
+	normal desktop UI's numbers (this base included) so it stays readable
+	from a couch/TV distance, not just up close on a monitor. Raised
+	again (24px -> 30px base, every other size bumped to match) after a
+	direct report the whole UI read as too small on a real TV - several
+	per-class overrides below (menu-icon-label in particular, used on
+	nearly every tile in the app) had drifted BELOW this base over time
+	as they were each tuned in isolation; keep every new label at or
+	above this base rather than assuming a smaller size still reads fine
+	from a couch. */
+	font-size: 30px;
+	border-radius: 0;
+}
+
+label {
+	color: @text_primary;
+	text-shadow: none;
+}
+
+/* Every Gtk.Entry in this app (GameGrubber's own game search box
+included) - previously unstyled entirely, so it fell back to the stock
+GTK theme's plain white-on-black look, clashing hard with everything
+else here being deliberately console-themed. bg_deep/text_bright are
+already this theme's own near-black/pure-white tokens (see console_
+collision.css) - real black-on-white would fail the same "no literal
+color in this file" rule every other selector already follows. */
+entry {
+	background-color: @bg_deep;
+	background-image: none;
+	color: @text_bright;
+	caret-color: @text_bright;
+	border: 2px solid @border_panel;
+	border-radius: 8px;
+	padding: 8px 12px;
+}
+
+entry selection {
+	background-color: @accent_3;
+	color: @text_bright;
+}
+
+label.title {
+	font-weight: 900;
+	font-size: 48px;
+	color: @text_bright;
+	text-shadow:
+		2px 0 0 alpha(@accent_1, 0.6),
+		-2px 0 0 alpha(@accent_2, 0.6),
+		0 2px 0 alpha(@accent_3, 0.5),
+		0 -2px 0 alpha(@accent_4, 0.5);
+}
+
+label.dim-label {
+	color: @text_dim;
+}
+
+/* The banner under every heading - the four collision colors blended
+smoothly into each other, not hard-edged quarters. */
+box.header-stripe {
+	min-height: 8px;
+	background-image: linear-gradient(to right, @accent_1, @accent_2, @accent_3, @accent_4);
+	box-shadow: 0 0 12px 1px alpha(@text_bright, 0.3);
+}
+
+list, scrolledwindow, viewport {
+	background-color: transparent;
+	background-image: none;
+}
+
+row {
+	padding: 14px 17px;
+	color: @text_primary;
+	background-color: transparent;
+	/* Every Gtk.ListBox-based screen in the whole app shares this one
+	selector (make_row() in app.py), so a selection fading in/out here
+	instead of snapping applies everywhere at once, with no per-page
+	code. Only background-color/color/opacity below - not box-shadow,
+	already confirmed elsewhere in this file (see .row-focused's own
+	comment) that GTK's CSS engine parses an animated box-shadow without
+	error but never actually plays it. */
+	transition: background-color 150ms ease;
+}
+
+row label {
+	transition: color 150ms ease;
+}
+
+row:selected {
+	background-color: @bg_row_selected;
+	background-image: linear-gradient(
+		120deg,
+		alpha(@accent_1, 0.32) 0%,
+		alpha(@accent_2, 0.32) 35%,
+		alpha(@accent_3, 0.28) 65%,
+		alpha(@accent_4, 0.32) 100%
+	);
+}
+
+row:selected label {
+	color: @text_bright;
+	text-shadow: 0 0 8px alpha(@text_bright, 0.6);
+}
+
+/* The row accent bar: plain, dim at rest, full brightness with a glow
+when the row is selected - see make_row()/install_carets() in app.py
+for how it's built and toggled. The four-color collision motif stays on
+the header stripe (see .header-stripe above); this one's solid on
+purpose. */
+box.collision-bar {
+	min-width: 14px;
+	background-color: @text_bright;
+	opacity: 0.35;
+	transition: opacity 150ms ease;
+}
+
+row:selected box.collision-bar {
+	opacity: 1;
+	box-shadow: 0 0 22px 4px alpha(@text_bright, 0.6);
+}
+
+paned > separator {
+	background-color: @border_muted;
+	min-width: 3px;
+	min-height: 3px;
+}
+
+flowbox {
+	background-color: transparent;
+}
+
+flowboxchild {
+	background-color: transparent;
+	padding: 0;
+}
+
+/* :selected specifically - the plain rule above never touches this
+state, so the system GTK theme's own default selected-child background
+(a soft grey rounded rect) was still winning for it. Never visible
+before now - every one of this app's own tile styles painted an opaque
+bordered box exactly over the same area, hiding it completely - but
+removing a tile's own border (see .utility-icon-tile below) uncovers
+it, confirmed live via a real screenshot showing it on the utility
+cluster's always-selected first tile. */
+flowboxchild:selected {
+	background-color: transparent;
+	background-image: none;
+	box-shadow: none;
+}
+
+/* Main menu header icon bar: same collision-gradient CSS border-image
+trick as the old grid tiles (a real transparent center via border-image,
+not a nested-box fake) - just smaller, since these sit beside the title
+in the header instead of filling the page. See make_menu_icon() in
+app.py. */
+box.menu-icon-tile {
+	background-color: transparent;
+	border-style: solid;
+	border-width: 4px;
+	border-image-source: linear-gradient(135deg, @accent_1, @accent_2, @accent_3, @accent_4);
+	border-image-slice: 1;
+	padding: 6px 9px;
+	opacity: 0.75;
+	/* Shared by the header icon bar, the quick-launch row, and the
+	confirm dialog's Yes/No tiles (see make_menu_icon()/
+	make_quick_launch_tile()/_make_confirm_tile() in app.py) - fading
+	instead of snapping here covers all three. Just opacity, not the
+	border-image/border-color swap .row-focused's selected state below
+	does - border-image isn't something GTK's CSS engine transitions
+	cleanly (same border-image quirks noted elsewhere in this file), so
+	that swap stays instant; opacity alone still reads as a real fade. */
+	transition: opacity 150ms ease;
+}
+
+label.menu-icon-label {
+	font-weight: 600;
+	font-size: 24px;
+	color: @text_muted;
+}
+
+/* The shared bottom-right utility cluster (Settings, File Manager, ...
+- see app.py's utility_entries) reuses .menu-icon-tile for everything
+except its border - two classes beats .menu-icon-tile's own one-class
+border-style/border-width/border-image-source rule regardless of
+selected/focused state (those don't re-set border-style/border-width at
+all, just border-image/opacity/animation - CSS resolves each property
+from whichever matching rule for THAT property has the highest
+specificity, not "whichever whole rule wins"), so this stays borderless
+in every state. The focused-tile label glow (below) is untouched since
+it targets label.menu-icon-label directly, not scoped to the tile's own
+border - still a legible focus indicator without a border box. */
+box.menu-icon-tile.utility-icon-tile {
+	border-style: none;
+	border-image: none;
+}
+
+/* .row-focused, not just :selected - Gtk.SelectionMode.BROWSE forces
+every FlowBox to always keep exactly one child "selected" even when
+that FlowBox isn't the one currently receiving keyboard input, and the
+main menu has two of these side by side (the header icon bar and the
+quick-launch row) - without some extra condition, whichever tile was
+last selected in the *other* FlowBox stayed highlighted forever, e.g.
+the quick-launch row's Add tile glowing while you were actually
+navigating the header icons. Confirmed directly against a real report
+of exactly that.
+
+.row-focused is a plain class, toggled from Python (see app.py's
+on_menu_row_focus_child()) via each FlowBox's own "set-focus-child"
+signal - not CSS :focus-within or :focus, both tried first and
+confirmed (by screenshotting an isolated repro, not just reasoning
+about it) to not actually track real keyboard focus here: :focus-within
+never toggled at all, and :focus left a stale glow on whichever child
+was the window's original default-focused widget even after focus
+visibly moved elsewhere. */
+@keyframes selected-tile-breathe {
+	/* GTK's CSS keyframes parser doesn't accept a comma-separated
+	selector list like standard CSS3 (confirmed directly: "0%, 100% {"
+	failed to parse) - 0% and 100% are spelled out as separate blocks
+	instead. animates border-color, not box-shadow - also confirmed
+	directly (two screenshots ~1s apart, pixel-diffed, zero difference)
+	that GTK's CSS engine parses an animated box-shadow without error but
+	never actually plays it; border-color really animates. */
+	0% {
+		border-color: alpha(@text_bright, 0.45);
+	}
+	50% {
+		border-color: alpha(@text_bright, 1);
+	}
+	100% {
+		border-color: alpha(@text_bright, 0.45);
+	}
+}
+
+/* A plain solid border here, not the default gradient border-image - a
+real report that the quick-launch row's "+" tile only looked
+highlighted on half the button pointed straight at border-image's own
+known quirks (see this file's earlier comment on it ignoring
+border-radius); dropping to a plain border-color for just the selected+
+focused state sidesteps that rather than chasing it further, and doubles
+as the base for a soft "breathing" glow (animated above) instead of a
+static one. No box-shadow here any more - a real report that it was
+buggy and broke the UI, so it's gone rather than tuned further; the
+breathing border-color alone is the whole highlight now. */
+flowbox.row-focused flowboxchild:selected box.menu-icon-tile {
+	opacity: 1;
+	border-image: none;
+	animation: selected-tile-breathe 2.2s ease-in-out infinite;
+}
+
+flowbox.row-focused flowboxchild:selected label.menu-icon-label {
+	color: @text_bright;
+	text-shadow: 0 0 6px alpha(@text_bright, 0.6);
+}
+
+/* GtkFlowBoxChild draws its OWN default border/background from the base
+system GTK theme, underneath/around whatever a tile's own Box already
+draws - every other tile in this app hides it completely just by being
+fully opaque (a real background-color + a thick border-image filling
+the same area), so nobody had ever needed to touch it before. The
+Astronar badge is the first genuinely transparent-at-rest tile, which
+is exactly what exposed it - confirmed live: a bare Gtk.Image in a
+plain Box (no FlowBoxChild at all) rendered with zero border, but the
+identical image inside a FlowBoxChild picked up a visible gray frame
+from nowhere in this file's own CSS. Stripped here, scoped to just this
+one flow (not every flowboxchild in the app, which might rely on
+whatever this default normally does elsewhere). */
+/* GtkFlowBoxChild draws its OWN default border/background from the base
+system GTK theme, underneath/around whatever a tile's own Box already
+draws - every other tile in this app hides it completely just by being
+fully opaque (a real background-color + a thick border-image filling
+the same area), so nobody had ever needed to touch it before. The
+Astronar badge (App._build_astronar_badge()) is the first genuinely
+transparent-at-rest tile, which is exactly what exposed it - confirmed
+live: a bare Gtk.Image in a plain Box (no FlowBoxChild at all) rendered
+with zero border, but the identical image inside a FlowBoxChild picked
+up a visible gray frame from nowhere in this file's own CSS, at rest.
+Stripped here, scoped to just this one flow (not every flowboxchild in
+the app, which might rely on whatever this default normally does
+elsewhere). The badge's own FOCUSED look is painted directly via Cairo
+instead (see App._draw_astronar_badge_ring()) - CSS never actually won
+that fight: GtkFlowBoxChild's own native keyboard-focus rendering kept
+painting a plain gray frame regardless of every border/background/
+outline reset tried here, so this file only needs to handle the resting
+state, not the focused one at all. */
+flowbox.astronar-badge-flow flowboxchild {
+	border: none;
+	background: none;
+	box-shadow: none;
+}
+
+/* Dashboard widget tiles (see make_widget_tile() in app.py) - a real
+filled info card (dark translucent panel + soft drop shadow + rounded
+corners), not a stretched-out copy of the small square icon tiles used
+for the header/quick-launch rows: a plain border-color (not the icon
+tiles' border-image gradient) is what makes border-radius actually work
+here - GTK's CSS engine ignores border-radius on a border-image, same
+quirk noted on .confirm-card's own border below, but respects it on a
+plain border. This replaced a pair of massive full-height cards that
+used to fill the rest of the home screen - the actual RetroAchievements/
+Gaming News content now lives on each widget's own full page (see
+label.dashboard-line below), reached by activating its tile. */
+box.dashboard-widget-tile {
+	background-color: @bg_panel;
+	border: 2px solid @border_panel;
+	border-radius: 14px;
+	padding: 22px 26px;
+	box-shadow: 0 4px 16px 0 alpha(@shadow_color, 0.35);
+	transition: background-color 150ms ease;
+}
+
+/* Sized above the base (30px - see theme.css's opening comment) to
+read as a real card heading rather than body text. */
+label.dashboard-widget-title {
+	font-weight: 700;
+	font-size: 32px;
+	color: @text_bright;
+}
+
+/* The Platforms page's right-hand info pane (see app.py's
+build_platforms_page()/_update_platform_info_pane()) - same filled-card
+treatment as .dashboard-widget-tile above, just for a taller, narrower
+panel (platform logo + metadata + controller art + a scrolling history
+blurb) rather than a square dashboard tile. */
+box.platform-info-pane {
+	background-color: @bg_panel;
+	border: 2px solid @border_panel;
+	border-radius: 14px;
+	padding: 22px 26px;
+	box-shadow: 0 4px 16px 0 alpha(@shadow_color, 0.35);
+}
+
+label.platform-info-meta {
+	font-size: 24px;
+	color: @text_summary;
+}
+
+label.platform-info-description {
+	font-size: 24px;
+	color: @text_muted;
+}
+
+label.dashboard-widget-summary {
+	font-size: 26px;
+	color: @text_summary;
+}
+
+/* .row-focused breathing glow, same idea (and the same keyframes) as
+the icon tiles' own - just a border-color animation plus a soft
+box-shadow bloom instead of swapping away a border-image. */
+flowbox.row-focused flowboxchild:selected box.dashboard-widget-tile {
+	background-color: @bg_panel_active;
+	box-shadow: 0 0 22px 2px alpha(@text_bright, 0.25);
+	animation: selected-tile-breathe 2.2s ease-in-out infinite;
+}
+
+flowbox.row-focused flowboxchild:selected label.dashboard-widget-title,
+flowbox.row-focused flowboxchild:selected label.dashboard-widget-summary {
+	color: @text_bright;
+	text-shadow: 0 0 6px alpha(@text_bright, 0.6);
+}
+
+/* RetroAchievements / Gaming News widgets' own full pages (see
+build_retroachievements_page()/build_gaming_news_page() in app.py) -
+plain content lines, no card framing needed now that each has a whole
+page to itself. */
+label.dashboard-line {
+	font-size: 27px;
+	color: @text_line;
+}
+
+/* File manager's two Double Commander-style panes (see
+build_filemanager_page() in app.py) - same filled-card language as
+.dashboard-widget-tile, just rectangular rather than a fixed small size
+since each pane fills half the page. .fm-pane-active is toggled from
+Python (see _on_fm_pane_focus()) via each pane's own "set-focus-child"
+signal - the same .row-focused-style real-focus tracking used everywhere
+else in this app, not CSS :focus-within (already confirmed elsewhere in
+this file not to reliably track real focus for this kind of layout). */
+box.fm-pane {
+	background-color: @bg_panel_light;
+	border: 2px solid @border_panel_light;
+	border-radius: 10px;
+	padding: 12px;
+	transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+box.fm-pane-active {
+	background-color: @bg_panel_light_active;
+	border-color: alpha(@text_bright, 0.7);
+	box-shadow: 0 0 18px 1px alpha(@text_bright, 0.2);
+}
+
+/* Astronar customize screen's own category tab row (see
+avatar3d_viewer.AvatarCustomizePage) - a real tab bar (Body/Face/
+Clothing/...) instead of the old plain "Category · N / Total" text
+line, same filled-pill language as .fm-pane-active above, just per-tab
+rather than per-pane. .avatar-tab-active is toggled from Python
+(_refresh_tabs()) every time the category changes. */
+label.avatar-tab {
+	padding: 6px 16px;
+	border-radius: 999px;
+	color: @text_dim;
+	transition: background-color 150ms ease, color 150ms ease;
+}
+
+label.avatar-tab-active {
+	background-color: @bg_panel_light_active;
+	color: @text_bright;
+	text-shadow: 0 0 6px alpha(@text_bright, 0.5);
+}
+
+label.fm-pane-heading {
+	font-weight: 700;
+	font-size: 24px;
+	color: @text_bright;
+}
+
+/* Shared Yes/No confirm dialog (see App.confirm() in app.py) - a real
+floating modal over whatever page is showing, not another full-page
+screen: a dimming scrim behind a small centered card. */
+box.confirm-scrim {
+	background-color: @bg_scrim;
+}
+
+box.confirm-card {
+	background-color: @bg_card;
+	border: 3px solid;
+	border-image-source: linear-gradient(135deg, @accent_1, @accent_2, @accent_3, @accent_4);
+	border-image-slice: 1;
+	padding: 28px 34px;
+	box-shadow: 0 14px 40px 0 alpha(@shadow_color, 0.75);
+}
+
+/* Update ceremony (see App.build_update_ceremony_overlay()/_show_ceremony()
+in app.py) - a full-screen takeover, not a small dialog like confirm-card:
+a near-opaque scrim (deliberately darker than confirm-scrim's - nothing
+of the page underneath should read as interactive while an OS
+update/rollback is actually in flight) behind one large centered card. */
+box.ceremony-scrim {
+	background-color: @bg_scrim_ceremony;
+}
+
+box.ceremony-card {
+	background-color: @bg_card;
+	border: 3px solid;
+	border-image-source: linear-gradient(135deg, @accent_1, @accent_2, @accent_3, @accent_4);
+	border-image-slice: 1;
+	padding: 40px 56px;
+	box-shadow: 0 14px 40px 0 alpha(@shadow_color, 0.75);
+	min-width: 640px;
+}
+
+label.ceremony-warning {
+	font-weight: 700;
+	font-size: 26px;
+	color: @text_warning;
+}
+
+/* Controller Help (see App.build_controller_help_overlay()/
+show_controller_help() in app.py) - a full-screen reference card, not a
+small dialog: same near-opaque "nothing underneath should read as
+interactive" scrim as the update ceremony, since this is a real
+full-screen takeover too, just one with nothing to wait on. */
+box.controller-help-scrim {
+	background-color: @bg_scrim_heavy;
+}
+
+box.controller-help-card {
+	background-color: @bg_card;
+	border: 3px solid;
+	border-image-source: linear-gradient(135deg, @accent_1, @accent_2, @accent_3, @accent_4);
+	border-image-slice: 1;
+	padding: 32px 48px;
+	box-shadow: 0 14px 40px 0 alpha(@shadow_color, 0.75);
+}
+
+scrollbar {
+	background-color: @bg_primary;
+}
+
+scrollbar slider {
+	background-color: @border_muted;
+	border-radius: 0;
+}
+
+/* Epic client's library grid (epic/epic_app.py) - tiles shaped like a
+physical DVD/Blu-ray case standing on a shelf: a thin colored spine
+(the collision-gradient thread, keeping this "Nebula Engine" rather than
+a plain media-poster grid) beside a tall face, cover art edge-to-edge,
+title captioned over the bottom of the art rather than floating in
+empty space above/below it, and a real drop shadow for shelf depth. See
+_make_tile() in epic_app.py for the case/spine/face/caption structure
+this styles. */
+box.dvd-case {
+	box-shadow: 8px 14px 25px 0 alpha(@shadow_color, 0.65);
+	opacity: 0.82;
+	/* Shared by Epic's and GOG's own library grids too (both reuse this
+	theme directly - see epic_app.py/gog_app.py's own comments), not just
+	the launcher. */
+	transition: opacity 150ms ease;
+}
+
+box.dvd-spine {
+	min-width: 20px;
+	background-image: linear-gradient(180deg, @accent_1, @accent_2, @accent_3, @accent_4);
+}
+
+box.dvd-face {
+	background-color: @bg_card;
+}
+
+box.dvd-caption {
+	background-color: @bg_caption;
+	padding: 11px 14px;
+}
+
+label.dvd-title {
+	font-weight: 700;
+	font-size: 26px;
+	color: @text_bright;
+}
+
+flowboxchild:selected box.dvd-case {
+	opacity: 1;
+	box-shadow: 0 0 0 4px @text_bright, 11px 20px 34px 0 alpha(@shadow_color, 0.8);
+}
+
+/* App.build_profile_picker_page() - a real console-style user-select
+screen (PS4/Xbox 360 - big portrait tiles side by side, the active
+profile called out) replacing what used to be a plain Gtk.ListBox of
+names. Every tile here keeps a real, dim panel at all times
+(.dashboard-widget-tile's own "always a real card" language) so the row
+reads as one connected lineup rather than a floating avatar next to bare
+text - confirmed live via screenshot that leaving unselected tiles fully
+transparent looked disconnected from the selected one. The selected
+tile brightens (background + border-color + glow + breathing
+animation), same idea as .dashboard-widget-tile's own selected state. */
+box.profile-picker-cell {
+	background-color: @bg_panel;
+	border: 3px solid @border_panel;
+	border-radius: 18px;
+	padding: 14px;
+	box-shadow: 0 4px 16px 0 alpha(@shadow_color, 0.35);
+	transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+/* No CSS transform here - confirmed live (a real GtkCssProvider parse
+error, "'transform' is not a valid property name") that this GTK3
+version doesn't support it at all, unlike web CSS. The actual "zoom up
+on highlight" effect (see App._animate_profile_tile()) is a real, smooth
+stepped resize of the avatar image itself, driven from Python the same
+way _platform_desc_scroll_tick() already animates the Platforms page's
+description text - the tile's own card size never changes (avoids any
+FlowBox layout reflow), just what's drawn inside it. */
+flowboxchild:selected box.profile-picker-cell {
+	background-color: @bg_panel_active;
+	border-color: alpha(@text_bright, 0.45);
+	box-shadow: 0 0 22px 2px alpha(@text_bright, 0.25);
+	animation: selected-tile-breathe 2.2s ease-in-out infinite;
+}
+
+label.profile-picker-name {
+	font-weight: 700;
+	font-size: 28px;
+	color: @text_muted;
+}
+
+flowboxchild:selected label.profile-picker-name {
+	color: @text_bright;
+	text-shadow: 0 0 6px alpha(@text_bright, 0.6);
+}
+
+/* The small "Current" tag under whichever profile is active right now -
+distinct from the selected/focused tile above, since the user could be
+browsing to a DIFFERENT profile than the one currently active. */
+label.profile-picker-current-badge {
+	font-weight: 600;
+	font-size: 20px;
+	color: @accent_3;
+}
+
+/* CosmOS's own made-up controller button badges (see
+launcher/controller_glyphs.py) - small round labels meant to sit inline
+in a hint row next to plain text, styled like a physical button the same
+way the OSK keys below are, just round instead of a rectangular key. */
+label.button-badge {
+	/* Plain solid border, not the usual gradient border-image - confirmed
+	elsewhere in this file that border-image doesn't respect
+	border-radius (it stays rectangular regardless), which would look
+	broken on a small round badge like this one. */
+	background-color: @bg_input;
+	border: 2px solid @accent_2;
+	border-radius: 999px;
+	min-width: 14px;
+	padding: 2px 10px;
+	font-weight: 700;
+	color: @text_bright;
+	text-shadow: none;
+}
+
+/* Shoulder/bumper badges (BL/BR) - deliberately not round like the face-
+button badges above: a real shoulder trigger reads as a wider, flatter
+control, not just another face button, so this shape is wide with a
+rounded top and a near-flat bottom rather than a pill, evoking a
+bumper's actual silhouette instead of matching the confirm/back/delete
+badges. */
+label.button-badge-trigger {
+	background-color: @bg_input;
+	border: 2px solid @accent_2;
+	border-radius: 10px 10px 3px 3px;
+	min-width: 22px;
+	padding: 2px 8px;
+	font-weight: 700;
+	color: @text_bright;
+	text-shadow: none;
+}
+
+/* PS3-style on-screen keyboard: raised, rounded key tiles (a deliberate
+exception to the sharp-corners rule above - a modal keyboard reads as a
+keyboard when its keys look like physical buttons). Selected key picks
+up the accent color as its own highlight, rather than repeating the
+full gradient stripe on every keypress. */
+label.osk-key {
+	background-color: @bg_input;
+	border: 3px solid @border_muted;
+	border-radius: 10px;
+	padding: 8px 14px;
+	color: @text_primary;
+	text-shadow: none;
+	transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+label.osk-key-selected {
+	background-color: @accent_2;
+	border-color: @accent_2_bright;
+	color: @text_bright;
+	text-shadow: none;
+	box-shadow: 0 0 25px 4px alpha(@accent_2, 0.85);
+}
+
+label.osk-preview {
+	background-color: @bg_deep;
+	border: 3px solid @border_muted;
+	border-radius: 6px;
+	padding: 11px 17px;
+	font-size: 36px;
+	color: @text_bright;
+}
+
+/* Video/Music player's own transport bar (see media/vlc_player.py's
+PlayerPage) - a raised dark panel across the bottom (same translucent-
+card language as .dashboard-widget-tile/.fm-pane above) holding the
+title and the control row together, so they read as one real HUD bar
+sitting over the video rather than unstyled controls floating with no
+visual grouping. */
+box.player-controls {
+	background-color: @bg_panel_solid;
+	border-top: 2px solid @border_panel;
+	padding: 14px 20px;
+}
+
+/* Not label.title (48px, all-caps-weight page-heading glow) - that
+reads as a full-page banner, wildly oversized for a compact "Now
+Playing" line sharing a slim bar with buttons. Its own dedicated class
+instead, sized like the other panel headings in this file
+(.dashboard-widget-title/.fm-pane-heading). */
+label.player-title {
+	font-weight: 700;
+	font-size: 28px;
+	color: @text_bright;
+}
+
+/* Transport buttons (Play/Pause, Vol-/Vol+, Back) - the OSK's own
+raised-key language (label.osk-key above): a plain solid border, not
+the gradient border-image the card/tile styles elsewhere in this file
+use (already confirmed repeatedly in this file that border-image
+ignores border-radius, which would look broken on a small rectangular
+button). Scoped to its own class rather than a bare `button` selector,
+so this doesn't restyle every Gtk.Button in the app - there's no
+generic button convention established yet outside this player. */
+button.player-button {
+	background-color: @bg_input;
+	border: 3px solid @border_muted;
+	border-radius: 10px;
+	padding: 10px 20px;
+	color: @text_primary;
+	transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+button.player-button:hover,
+button.player-button:focus {
+	border-color: @accent_2;
+	box-shadow: 0 0 18px 2px alpha(@accent_2, 0.5);
+}
+
+button.player-button:active {
+	background-color: @accent_2;
+	border-color: @accent_2_bright;
+	color: @text_bright;
+}
+
+/* A real "do this" action button (see App.build_avatar_picker_page()'s
+own "Generate New Set of 9") - not .player-button's own deliberately
+understated convention above (invisible border until hovered/focused,
+matching the OSK's plain raised-key look). A real report that button
+read as off-theme sitting on a screen full of tiles that all carry a
+visible accent border from the moment they appear - this needed the
+same always-visible accent, not something that only reveals itself
+once interacted with. Border-radius, so a plain solid color, not the
+gradient border-image those tiles use - already confirmed elsewhere in
+this file that border-image ignores border-radius outright. */
+button.action-button {
+	background-color: @bg_input;
+	border: 3px solid @accent_2;
+	border-radius: 10px;
+	padding: 10px 20px;
+	color: @text_bright;
+	font-weight: 600;
+	transition: background-color 150ms ease, box-shadow 150ms ease;
+}
+
+button.action-button:hover,
+button.action-button:focus {
+	box-shadow: 0 0 18px 2px alpha(@accent_2, 0.6);
+}
+
+button.action-button:active {
+	background-color: @accent_2;
+}
+
+/* Seek bar - the collision gradient (the same four stops as
+.header-stripe/.confirm-card's own border, this app's own signature
+accent) as the filled/progress portion, a plain dark trough, and a
+solid bright handle matching make_row()'s own collision-bar accent
+(bright, glowing) - not GTK's default grey Scale styling. */
+scale.player-seek trough {
+	background-color: @bg_card;
+	border: 1px solid @border_muted;
+	border-radius: 6px;
+	min-height: 10px;
+}
+
+scale.player-seek trough highlight {
+	background-image: linear-gradient(to right, @accent_1, @accent_2, @accent_3, @accent_4);
+	border-radius: 6px;
+	min-height: 10px;
+}
+
+scale.player-seek slider {
+	background-color: @text_bright;
+	border-radius: 999px;
+	min-width: 18px;
+	min-height: 18px;
+	box-shadow: 0 0 10px 2px alpha(@text_bright, 0.5);
+}

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=GameBox Add-on Studio
+Exec=python3 /opt/cosmos-tools/gamebox_addon_studio.py
+Comment=Build Music/Photos content-source add-ons for GameBox, no Python required
+Icon=folder-templates
+Categories=Development;
+Terminal=false

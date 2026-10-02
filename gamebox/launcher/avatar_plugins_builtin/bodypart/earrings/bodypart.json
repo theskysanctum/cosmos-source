@@ -1,0 +1,11 @@
+{
+    "name": "Earrings",
+    "description": "The built-in earrings accessory.",
+    "fields": [
+        {"category": "Accessories", "key": "accessories", "item": "earrings", "label": "Earrings", "kind": "multi_bool"},
+        {
+            "category": "Accessories", "key": "earrings_color", "label": "Earrings color", "kind": "color",
+            "options": ["#ffd700", "#c0c0c0", "#b76e79", "#1a1a1a"], "default": "#ffd700"
+        }
+    ]
+}

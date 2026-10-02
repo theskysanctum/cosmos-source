@@ -1,0 +1,72 @@
+/* CosmOS's own GTK4 override - GameBox's real palette
+(launcher/themes/console_collision.css's exact @define-color values).
+Kept identical to config/gtk-3.0/gtk.css (see that file's own comment
+for why the plain named-color redefinition alone wasn't enough) -
+GTK4 apps aren't the greeter itself (lightdm-gtk-greeter is GTK3), but
+keeping both in sync means any GTK4 app in this spin matches too. */
+@define-color theme_selected_bg_color #ff0090;
+@define-color theme_selected_fg_color #ffffff;
+@define-color accent_color #ff0090;
+@define-color accent_bg_color #ff0090;
+@define-color accent_fg_color #ffffff;
+
+*:selected,
+selection {
+	background-color: #ff0090;
+	color: #ffffff;
+}
+
+window,
+.background {
+	background-color: #0d1220;
+	color: #e8ecf4;
+	font-family: "Rajdhani Medium", "Rajdhani", "Noto Sans", sans-serif;
+}
+
+entry {
+	background-color: #0a0e16;
+	color: #e8ecf4;
+	border-color: #2a3a56;
+	box-shadow: none;
+}
+
+entry:focus {
+	border-color: #ff0090;
+	box-shadow: none;
+}
+
+button {
+	background-color: #16233d;
+	background-image: none;
+	color: #e8ecf4;
+	border-color: #2a3a56;
+}
+
+button:hover,
+button:focus {
+	background-color: #ff0090;
+	background-image: none;
+	color: #0a0e16;
+	border-color: #ff0090;
+}
+
+combobox button,
+combobox box,
+combobox {
+	background-color: #0d1220;
+	background-image: none;
+	color: #e8ecf4;
+	border-color: #2a3a56;
+}
+
+menu,
+.menu,
+menuitem {
+	background-color: #0d1220;
+	color: #e8ecf4;
+}
+
+menuitem:hover {
+	background-color: #ff0090;
+	color: #0a0e16;
+}

@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+"""D-Bus-activated xdg-desktop-portal FileChooser backend - see cosmos_portal_filechooser.py."""
+import sys
+
+import cosmos_portal_filechooser
+
+sys.exit(cosmos_portal_filechooser.main())

@@ -1,0 +1,44 @@
+/**
+ * CosmOS's own Big Picture Mode theme (Millennium).
+ *
+ * STATUS: infrastructure only - the actual component-level selectors
+ * below are NOT yet written, on purpose, not by oversight. Real,
+ * verified community Millennium/CSS-Loader themes (inspected directly
+ * before writing this file) confirmed Steam's Big Picture UI is a
+ * React app using CSS-Modules class names with a build-specific hash
+ * suffix, e.g. `.basicgamecarousel_BasicGameCarousel_3MdH5` - there is
+ * no stable, documented selector API to write against blind, and every
+ * real theme author who publishes working CSS for this explicitly
+ * verified it against one specific, currently-running Steam build
+ * first. Millennium's own README describes its CSS editor as having
+ * "live-edit capability" for exactly this reason - that's the real,
+ * intended workflow, not writing CSS offline and hoping it still
+ * matches whatever Steam build happens to be installed.
+ *
+ * The real, safe starting point CosmOS's own palette gives you (see
+ * launcher/themes/console_collision.css) is below as plain reference
+ * values, not yet wired to anything - copy these into whatever the
+ * live editor confirms are Steam's real color variables/selectors for
+ * your exact installed version, rather than trusting hash-suffixed
+ * class names copied from someone else's build.
+ *
+ * CosmOS palette reference (hex, from console_collision.css):
+ *   Background:       #0a0e16 (bg_primary)   #0d1220 (bg_card)
+ *   Text:             #e8ecf4 (text_primary)  #ffffff (text_bright)
+ *   Dim text:         #7690b3 (text_dim)
+ *   Accent gradient:  #d6006f -> #ff0090 -> #c400ff -> #ff6bea
+ *                     (accent_1 -> accent_2 -> accent_3 -> accent_4)
+ *   Borders:          #2a3a56 (border_muted)
+ *
+ * Workflow to actually finish this file:
+ *   1. Settings > "Theme Steam (Millennium)" in CosmOS, install
+ *      Millennium against your real Steam path.
+ *   2. Copy this whole cosmos_theme/ folder into Millennium's own
+ *      skins directory (Millennium's Settings page shows you exactly
+ *      where that is for your install).
+ *   3. Launch Steam, enable the "CosmOS" theme in Millennium's own
+ *      Settings, open Big Picture Mode.
+ *   4. Use Millennium's own in-app CSS editor (real, built-in,
+ *      live-reloading) to find the actual real selectors for whatever
+ *      you want to recolor, pasting values from the palette above.
+ */

@@ -1,0 +1,82 @@
+name: Build and push CosmOS image
+# Publishes the real Fedora Atomic/bootc image (atomic/Containerfile) to
+# GHCR - this is the actual "download an update from GitHub" mechanism
+# this project's re-platform onto bootc was for in the first place
+# (`bootc upgrade` on a running system just pulls whatever tag this
+# workflow last pushed here). Structured after ublue-os/image-template's
+# own real build.yml (the project this whole bootc approach is modeled
+# on), simplified to this repo's own shape: no `just` recipe framework,
+# no rpm-ostree rechunking/Cosign signing yet (both genuinely optional -
+# see the upstream template's own comments on each), since this is the
+# first working version of this pipeline, not a port of every feature
+# the template has.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - "atomic/**"
+      - "launcher/**"
+      - "packaging/**"
+      - "wm/**"
+      - "**.py"
+      - "**.sh"
+
+env:
+  IMAGE_NAME: cosmos
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-push:
+    name: Build and push image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Maximize build space
+        uses: ublue-os/remove-unwanted-software@695eb75bc387dbcd9685a8e72d23439d8686cba6
+
+      # CosmOS is no longer packaged as an AppImage at all (per direct
+      # request) - packaging/stage_build.sh just needs git+gcc+libX11
+      # (already on ubuntu-latest, or a plain apt install) to stage the
+      # tracked source tree, no separate Fedora container detour needed
+      # any more (every real Fedora-specific dependency - GTK3/PyGObject/
+      # pip deps - now installs straight inside atomic/Containerfile's own
+      # build instead, where build-time and run-time are the same image).
+      - name: Stage the tracked source tree
+        run: |
+          sudo apt-get update && sudo apt-get install -y libx11-dev
+          bash packaging/stage_build.sh build/bootc-stage
+
+      - name: Build container image
+        run: podman build -t localhost/${{ env.IMAGE_NAME }}:build -f atomic/Containerfile .
+
+      # Only push from a real merge to the default branch, never from a
+      # pull request - same gate the upstream template uses, for the
+      # same reason: a PR from anyone shouldn't be able to publish a
+      # package under this repo owner's name without them knowing.
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | podman login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Tag and push image
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        run: |
+          set -euo pipefail
+          # Lowercase - ghcr.io rejects an uppercase repository_owner
+          # (confirmed by the upstream template's own same comment/fix).
+          registry="ghcr.io/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          date_tag="$(date -u +%Y%m%d)"
+          podman tag "localhost/${{ env.IMAGE_NAME }}:build" "${registry}/${{ env.IMAGE_NAME }}:latest"
+          podman tag "localhost/${{ env.IMAGE_NAME }}:build" "${registry}/${{ env.IMAGE_NAME }}:${date_tag}"
+          podman push "${registry}/${{ env.IMAGE_NAME }}:latest"
+          podman push "${registry}/${{ env.IMAGE_NAME }}:${date_tag}"

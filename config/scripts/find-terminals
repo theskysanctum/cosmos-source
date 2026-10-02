@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+"""find-terminals - find any terminal emulator (or remote-shell client) on this system or in an image root.
+
+CosmOS has no terminal. The install paths refuse the known ones (app-policy.json "blocked", the group with scan "terminal": dnf excludepkgs,
+the Flathub remote filter, the Shop, cosmos-priv, kronos); this is the check that does not depend on a list of names being complete. It
+reports anything that
+
+  * has a desktop entry in the freedesktop category TerminalEmulator, or
+  * has a desktop entry whose command or Flatpak id is on the blocked list, or
+  * is a blocked program sitting in a bin directory without a desktop entry, or
+  * is the system's x-terminal-emulator alternative.
+
+  find-terminals                    scan this system (exit 1 if anything is found)
+  find-terminals --root DIR         scan a mounted image root
+  find-terminals --json
+  find-terminals --purge-flatpaks   uninstall every Flatpak terminal found (system and user), then rescan
+
+The image build runs it at the end and fails on a hit; cosmos-priv and the Shop run it after a Flatpak install. See cosmos_blocked_scan.py
+for how things are found, and find-blocked-apps for the other blocked programs (Heroic).
+Limits: an AppImage or a program in an unusual place with no desktop entry and an unlisted name is not seen, and a program with a terminal
+built into it (an IDE's terminal panel, an editor's :terminal) is not a terminal emulator app.
+"""
+import argparse
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import cosmos_app_policy as policy  # noqa: E402
+from cosmos_blocked_scan import (BIN_DIRS, APP_DIRS, USER_APP_DIRS, _matches, exec_command, parse_desktop,  # noqa: E402,F401
+                                 purge_flatpaks)
+from cosmos_blocked_scan import scan as _scan  # noqa: E402
+
+
+def terminal_groups(blocked=None):
+    blocked = policy.load_blocked() if blocked is None else blocked
+    return [g for g in blocked if g.get("scan", "terminal") == "terminal"]
+
+
+def scan(root="/", blocked=None):
+    return _scan(root, terminal_groups(blocked))
+
+
+def main(argv):
+    ap = argparse.ArgumentParser(description="Find terminal emulators.")
+    ap.add_argument("--root", default="/")
+    ap.add_argument("--json", action="store_true")
+    ap.add_argument("--purge-flatpaks", action="store_true")
+    args = ap.parse_args(argv)
+    found = scan(args.root)
+    if args.purge_flatpaks and found:
+        removed = purge_flatpaks(found)
+        if removed and not args.json:
+            print("Removed terminal Flatpak(s): " + ", ".join(removed) + " - CosmOS has no terminal.", file=sys.stderr)
+        found = scan(args.root)
+        if removed:
+            # what was removed is the point of the run: report it as a refusal even if nothing is left
+            if args.json:
+                print(json.dumps({"terminals": found, "removed": removed}, indent=1))
+            return 1
+    if args.json:
+        print(json.dumps({"terminals": found}, indent=1))
+    elif found:
+        print(f"{len(found)} terminal emulator(s) found - CosmOS has no terminal:")
+        for f in found:
+            print(f"  {f['kind']:8} {f['id']:40} {', '.join(f['why'])}" + (f"   ({f['desktop']})" if f["desktop"] else ""))
+    else:
+        print("No terminal emulators found.")
+    return 1 if found else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

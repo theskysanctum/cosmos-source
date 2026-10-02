@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=CosmOS Shop
+Comment=Curated apps, packages and Expansion Packs
+Exec=cosmos-shop
+TryExec=cosmos-shop
+Icon=system-software-install
+Categories=System;PackageManager;Settings;
+Terminal=false

@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+"""Watches Steam and opens/closes Steam Remote Play's firewall door - see cosmos_steam_door.py. Started by the session."""
+import sys
+
+import cosmos_steam_door
+
+sys.exit(cosmos_steam_door.main())

@@ -1,0 +1,15 @@
+# greetd, CosmOS's login manager. There is no Unix login screen: the default session is
+# cosmos-autologin, which logs the one account in (blank password, no questions) and
+# starts cosmos-session; the profile picker inside the session asks who is using the
+# machine. If PAM ever wants something (the account was given a password), cosmos-autologin
+# hands over to the full login screen - cosmos-greeter inside cosmos-wm, as the
+# unprivileged `greetd` user - so there is always a way in.
+#
+# Fallback if both break: switch to another VT (Ctrl+Alt+F3) and log in on the text console,
+# or point `command` below at "agreety" (greetd's own text greeter) and reboot.
+[terminal]
+vt = 1
+
+[default_session]
+command = "systemd-cat -t cosmos-autologin cosmos-autologin"
+user = "greetd"

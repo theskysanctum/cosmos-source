@@ -1,0 +1,13 @@
+// cosmos-files mounts a drive when you click it and unmounts it on Eject, as the desktop user.
+// udisks lets a local session do that for USB media by itself, but asks an administrator for the
+// machine's other internal drives ("system" devices). There is no password prompt in this session,
+// and the desktop account is not an administrator (kronos is the only route to admin work), so this
+// allows exactly that account, in its active local session, exactly those two actions - nothing
+// else, and no group membership involved. cosmos-files itself never offers the system disk.
+polkit.addRule(function(action, subject) {
+    if (subject.local && subject.active && subject.user == "user" &&
+        (action.id == "org.freedesktop.udisks2.filesystem-mount-system" ||
+         action.id == "org.freedesktop.udisks2.filesystem-unmount-others")) {
+        return polkit.Result.YES;
+    }
+});

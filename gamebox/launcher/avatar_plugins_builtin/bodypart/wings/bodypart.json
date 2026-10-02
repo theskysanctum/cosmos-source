@@ -1,0 +1,9 @@
+{
+    "name": "Wings",
+    "description": "The built-in wings feature (angel/bat/fairy/dragon).",
+    "fields": [
+        {"category": "Body", "key": "wings", "label": "Wings", "kind": "choice", "options": ["none", "angel", "bat", "fairy", "dragon"], "default": "none"},
+        {"category": "Body", "key": "wing_scale", "label": "Wing size", "kind": "slider", "range": [0.5, 2.0, 0.1], "default": 1.0},
+        {"category": "Body", "key": "wing_thickness", "label": "Wing thickness", "kind": "slider", "range": [0.5, 2.0, 0.1], "default": 1.0}
+    ]
+}

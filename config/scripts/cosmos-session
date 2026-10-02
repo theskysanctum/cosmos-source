@@ -1,0 +1,22 @@
+#!/bin/bash
+# CosmOS's session entry point - what the display manager runs for the "CosmOS"
+# session (wayland-sessions/cosmos.desktop). Sets the environment (cosmos-session-env)
+# and replaces itself with the compositor, which starts the desktop's own processes
+# (cosmos-session-apps) once it is listening. The display manager watches the
+# compositor process: when it exits - logout, or a crash - the session is over.
+
+# One-time carry-over of per-user state from before the "Cosmic Studio" -> CosmOS
+# rename (favorites, ...): the config dir was
+# ~/.config/cosmic-studio. Without this, every existing account would be sent back
+# through first-login onboarding and lose its pinned favorites.
+if [ -d "$HOME/.config/cosmic-studio" ] && [ ! -e "$HOME/.config/cosmos" ]; then
+    mv "$HOME/.config/cosmic-studio" "$HOME/.config/cosmos"
+fi
+
+# shellcheck source=/dev/null
+# find the files beside this script, wherever the package put them (the image's /usr/local/bin, or /usr/lib/cosmos behind a /usr/bin symlink)
+HERE=$(dirname "$(readlink -f "$0")")
+. "$HERE/cosmos-session-env"
+export COSMOS_SESSION_KIND=desktop
+
+exec systemd-cat -t cosmos-wm cosmos-wm -s "$HERE/cosmos-session-apps"

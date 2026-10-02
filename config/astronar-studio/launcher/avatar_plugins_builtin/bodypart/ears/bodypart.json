@@ -1,0 +1,4 @@
+{
+    "name": "Ears",
+    "description": "The built-in furry/fantasy ears feature (15+ species: upright fur ears, floppy dog/pig/goat, human, elf, lizard frill, alien antennae-style). No \"fields\" here - ears/ear_scale/ear_thickness/ear_depth stay real, core avatar3d_viewer.py CUSTOM_FIELDS entries (ears still drives the hairstyle-override check inside build_character()/build_rig() themselves), only the geometry moved out here. The single largest bodypart extraction in this project."
+}

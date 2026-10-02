@@ -1,0 +1,64 @@
+#!/bin/bash
+# Everything the CosmOS desktop starts once cosmos-wm is up - the autostart list the
+# old i3 config's `exec --no-startup-id` lines used to be. Run by the compositor
+# itself (cosmos-wm -s), so WAYLAND_DISPLAY is already set.
+
+# D-Bus-activated services (the portals - including the scoped file dialog - and anything else
+# the session bus starts on demand) need to know which Wayland display this is; without it a
+# file dialog would be started with nowhere to draw.
+dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE \
+    XCURSOR_THEME XCURSOR_SIZE GTK_USE_PORTAL 2>/dev/null || true
+
+# Bring the systemd user session's graphical-session.target up (see cosmos-session.target): xdg-desktop-portal refuses to start without it, so file dialogs and
+# the theme/dark-mode settings the portal serves did not work.
+systemctl --user start cosmos-session.target 2>/dev/null || true
+
+# Controller-only use - started FIRST so first-login setup below can be done with a pad too: turns a gamepad into keyboard + mouse for the whole desktop
+# (hold L2 = pointer, Select = on-screen keyboard) - see config/input/cosmos_input.py.
+# It stands down by itself while the launcher (which reads pads natively) has focus
+# and while GameBox's own input daemon is running. No controller plugged in = it
+# just idles.
+cosmos-input &
+
+# The prompt for the admin passphrase. The kronos daemon asks the person THROUGH this (so the passphrase never passes through the program that
+# asked); if it isn't running, passphrase actions are refused on the desktop. It reconnects by itself if kronos restarts.
+kronos-agent &
+
+# Who is using the machine? There is no login - the one Unix account is logged in
+# automatically - so the first thing on screen is the profile picker (cosmos-profiles):
+# choose or create a profile (name, picture, optional PIN). It runs blocking, before
+# anything else, and it is what the old first-login wizard was: on a fresh install there
+# are no profiles yet, so it opens straight on "create your profile". Its choice
+# decides whose favorites/wallpaper everything below uses; if it somehow fails, the
+# shared (pre-profiles) settings are used rather than leaving nothing on screen.
+if cosmos-profiles; then
+    eval "$(cosmos-profiles --env)"
+    export COSMOS_PROFILE COSMOS_PROFILE_DIR COSMOS_START_IN
+fi
+
+dunst &
+
+# The panels first, then the home screen: the compositor arranges layer surfaces in
+# creation order, so the bar's edges are reserved before the launcher fills the rest.
+cosmos-bar &
+sleep 0.5
+cosmos-launcher &
+
+# Tray applets - StatusNotifier items the bar's tray shows. nm-applet needs
+# --indicator to use StatusNotifier rather than the (X11-only) GtkStatusIcon.
+nm-applet --indicator &
+blueman-applet &
+# The updater's tray icon: checks Flatpak, AppImages and the system every few hours.
+cosmos-updates --tray &
+# Opens Steam Remote Play's firewall door only while Steam runs, and only if switched on in Remote Access; does nothing otherwise.
+cosmos-steam-door &
+# Puts each controller's saved light colour/effect on it as it connects (Controller Customizer).
+cosmos-controllers --daemon &
+# A profile can be set to start in GameBox: it opens once the desktop is up, and the bar and
+# launcher hide while it runs (launch-gamebox handles that), coming back when it exits.
+if [ "${COSMOS_START_IN:-desktop}" = "gamebox" ]; then
+    sleep 2
+    launch-gamebox &
+fi
+
+wait

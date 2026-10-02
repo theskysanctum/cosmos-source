@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Astronar Studio
+Exec=python3 /opt/astronar-studio/launcher/astronar_studio.py
+Comment=Visually create/pose/customize/manage everything an Astronar can be
+Icon=preferences-desktop-personal
+Categories=Graphics;Development;
+Terminal=false

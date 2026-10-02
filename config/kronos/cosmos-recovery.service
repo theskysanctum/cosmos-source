@@ -1,0 +1,27 @@
+[Unit]
+Description=CosmOS recovery (started only when the kernel command line has cosmos.recovery=1)
+ConditionKernelCommandLine=cosmos.recovery=1
+After=systemd-user-sessions.service plymouth-quit-wait.service
+Before=greetd.service
+# No Conflicts= here: systemd applies a Conflicts= when it builds the boot transaction, even for a unit whose condition then skips it, and that
+# silently dropped greetd (a black screen at every normal boot). greetd steps aside for recovery itself, see greetd-not-in-recovery.conf.
+
+[Service]
+# One window in cosmos-wm, on tty1, as root. The recovery app is not a shell and asks for no password (see cosmos_recovery.py).
+Type=simple
+ExecStart=/usr/local/bin/cosmos-wm -s /usr/local/bin/cosmos-recovery
+Environment=XDG_RUNTIME_DIR=/run/cosmos-recovery
+Environment=GDK_BACKEND=wayland
+RuntimeDirectory=cosmos-recovery
+RuntimeDirectoryMode=0700
+PAMName=login
+StandardInput=tty-fail
+StandardOutput=journal
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+UtmpIdentifier=tty1
+UtmpMode=user
+
+[Install]
+WantedBy=graphical.target

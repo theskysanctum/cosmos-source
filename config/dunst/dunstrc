@@ -1,0 +1,31 @@
+# CosmOS dunst config - dunst draws its own notification popups
+# directly (not GTK widgets), so it doesn't pick up the GTK/dconf dark
+# theme settings the rest of this spin uses - needs its own colors to
+# match "dark theme everything" instead of dunst's own default
+# (light/white) popup.
+#
+# Colors are GameBox's own real palette (launcher/themes/
+# console_collision.css's exact @define-color values) - bg_card/
+# text_primary/accent_2 for normal, accent_3 for low urgency, and
+# text_warning for critical, so a notification reads as part of the
+# same visual language as the greeter/rofi/i3 bar, not a separately
+# colored popup.
+[global]
+font = monospace 10
+frame_color = "#ff0090"
+separator_color = frame
+
+[urgency_low]
+background = "#0d1220"
+foreground = "#cdd6e6"
+frame_color = "#c400ff"
+
+[urgency_normal]
+background = "#0d1220"
+foreground = "#e8ecf4"
+frame_color = "#ff0090"
+
+[urgency_critical]
+background = "#0d1220"
+foreground = "#e8ecf4"
+frame_color = "#ff6b6b"

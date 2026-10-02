@@ -1,0 +1,53 @@
+#!/bin/bash
+# GameBox session - what the display manager runs when "GameBox" is picked on the
+# login screen (cosmos-greeter's mode switch; session entry generated in the
+# Containerfile) instead of the normal CosmOS desktop (cosmos-session).
+#
+# Same compositor as the desktop, but nothing else: no bar, no launcher, no tray.
+# GameBox (gamebox/ in this repo) runs full screen through gamebox-nested (see that
+# script for how and why nested) and the session ends when it does, back to the
+# login screen.
+#
+# Falls back to the normal desktop rather than leaving a black screen whenever
+# GameBox can't actually start (no profile created yet - that is a
+# desktop-session step - GameBox files missing, or Xephyr missing) and says why via
+# a notification once the desktop is up.
+
+# One-time carry-over of per-user state from before the "Cosmic Studio" -> CosmOS
+# rename (favorites, ...): the config dir was
+# ~/.config/cosmic-studio. Without this, every existing account would be sent back
+# through first-login onboarding and lose its pinned favorites.
+if [ -d "$HOME/.config/cosmic-studio" ] && [ ! -e "$HOME/.config/cosmos" ]; then
+    mv "$HOME/.config/cosmic-studio" "$HOME/.config/cosmos"
+fi
+
+# Same lookup as gamebox-nested (a pulled checkout, else the copy baked into the image).
+GAMEBOX_DIR="$(/usr/local/bin/gamebox-dir)"
+
+fall_back_to_desktop() {
+	local reason="$1"
+	# Background + exec: the desktop starts dunst itself, so give it a moment to be
+	# listening before the notification goes out.
+	( sleep 8; notify-send -u critical -i applications-games "GameBox" "$reason Started the desktop instead." ) &
+	exec /usr/local/bin/cosmos-session
+}
+
+if ! ls "$HOME"/.local/share/cosmos/profiles/*/profile.json >/dev/null 2>&1; then
+	fall_back_to_desktop "Create your profile on the desktop first."
+fi
+if [ ! -f "$GAMEBOX_DIR/launcher/run.py" ]; then
+	fall_back_to_desktop "No GameBox found at $GAMEBOX_DIR (this image should carry one)."
+fi
+if ! command -v Xephyr >/dev/null 2>&1; then
+	fall_back_to_desktop "Xephyr isn't installed."
+fi
+
+# shellcheck source=/dev/null
+. /usr/local/bin/cosmos-session-env
+eval "$(cosmos-profiles --env 2>/dev/null)" || true
+export COSMOS_SESSION_KIND=gamebox
+
+# cosmos-input is what makes the pad usable for anything outside GameBox's own UI;
+# GameBox's input daemon takes over from it while it runs (see cosmos_input.py).
+# The session ends when GameBox does: the compositor is asked to quit.
+exec systemd-cat -t cosmos-wm cosmos-wm -s 'cosmos-input & kronos-agent & gamebox-nested; python3 /usr/local/bin/cosmos_wm_ipc.py quit'

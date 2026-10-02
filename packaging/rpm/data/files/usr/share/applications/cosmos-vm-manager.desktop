@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Virtual Machines
+Comment=cosmos-vm-manager - this spin's own QEMU front end (comes with the Virtualization pack)
+Exec=cosmos-vm-manager
+TryExec=qemu-system-x86_64
+Icon=computer
+Categories=System;Emulator;
+Terminal=false
+NoDisplay=true

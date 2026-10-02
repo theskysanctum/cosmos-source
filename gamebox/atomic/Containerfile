@@ -1,0 +1,493 @@
+# Build from the REPO ROOT, not this directory - the COPY paths below
+# are repo-relative so this can reference the staged source tree (see
+# atomic/build_bootc_image.sh, which runs packaging/stage_build.sh
+# first) and launcher/startx.sh/debuglog.sh directly, rather than
+# keeping duplicate, driftable copies inside atomic/. Don't invoke this
+# Containerfile with a bare `podman build` by hand - always go through
+# atomic/build_bootc_image.sh, which stages build/bootc-stage/ first:
+#
+#   atomic/build_bootc_image.sh
+FROM quay.io/fedora/fedora-bootc:44
+
+# Real host runtime deps this project already tracks and has confirmed
+# for real against this exact dnf (packaging/host_deps.py's own
+# PACKAGES dict) - same list, just baked into the image build instead
+# of installed onto an already-running host. xorg-x11-xinit (startx)
+# is a real, confirmed-necessary addition found the hard way earlier in
+# this same porting effort. parted/dosfstools/e2fsprogs/util-linux:
+# this same image doubles as its own installer medium (see
+# install-to-filesystem.sh), needing real partitioning tools baked in.
+# NetworkManager/bluez/fuse3/dosfstools/e2fsprogs/util-linux/glib2
+# deliberately not listed - all already present in the fedora-bootc:44
+# base image, so there's no need to. (An earlier version of this comment
+# claimed dnf install refuses the WHOLE transaction over an "already
+# installed" entry - re-tested live against this same base image while
+# adding the firmware RUN block below, and that's no longer true on the
+# dnf5 version this image now ships: a transaction mixing new and
+# already-installed packages just installs the new ones and leaves the
+# rest alone, exit 0. Corrected here rather than left stale - not that
+# it changes this particular list, which is still fine to leave as
+# read-only-already-covered.) libgirepository-2.0-0 (PyGObject's own
+# runtime dependency) doesn't need listing separately on Fedora 44 -
+# confirmed live against this same Fedora version: girepository-2.0.so.0
+# is provided by glib2 now, already transitively pulled in.
+#
+# GTK3/PyGObject ARE real host packages here now - CosmOS is no
+# longer packaged as an AppImage at all (per direct request), so nothing
+# bundles its own copy of GTK3/GLib any more. gtk3 and gobject-
+# introspection (the runtime GI typelib/shared-lib layer) are listed in
+# this first RUN block since they're needed for the whole life of the
+# image; python3-pip is here too since it's needed for every real pip
+# install below (this project's own requirements.txt, legendary-gl/
+# gogdl via host_deps.py's own PIP_PACKAGES). The one-time build-only
+# devel headers PyGObject/pycairo need to compile from source
+# (gtk3-devel, gobject-introspection-devel, etc.) get installed,
+# used, and removed again further down (see the pip-install RUN block
+# below, right after the real source tree is staged in) - the same
+# install-use-strip pattern already used for the NVIDIA driver build
+# above.
+#
+# vlc-libs was missing from this list entirely (a real regression found
+# live via a full install+boot test of this exact image: App.__init__
+# unconditionally calls build_media_player_page() -> vlc.Instance() at
+# launcher startup, not lazily, so a missing libvlc crashed the WHOLE
+# launcher - not just Video/Music/Photos - in a tight restart loop on
+# every single boot). Confirmed live against this exact base image that
+# vlc-libs itself installs cleanly from Fedora's own base repos, no RPM
+# Fusion needed (host_deps.py's own PACKAGES dict already documented
+# this package - it just never made it into this Containerfile's own
+# list). vlc-libs alone only ships an EMPTY /usr/lib64/vlc/plugins/
+# directory though (confirmed live: zero real .so plugin modules) -
+# libvlc_new() loads fine with just this package (fixing the original
+# crash) but then returns NULL with no plugins to register, which
+# python-vlc surfaces as a second, different crash a step later
+# (AttributeError on the None instance) - the real plugin packages
+# (vlc-plugins-base/-video-out, RPM-Fusion's vlc-plugins-freeworld for
+# codecs) are installed further down, alongside the NVIDIA/Steam RPM
+# Fusion enablement, since they're not available until that repo exists.
+RUN dnf install -y \
+        xorg-x11-server-Xorg \
+        xorg-x11-xinit \
+        xdotool \
+        xset \
+        xprop \
+        picom \
+        xrandr \
+        vlc-libs \
+        git-core \
+        nodejs22-bin \
+        nodejs22-npm-bin \
+        pulseaudio-utils \
+        pipewire-pulse \
+        wireplumber \
+        parted \
+        gdisk \
+        gtk3 \
+        gobject-introspection \
+        python3-pip \
+        SDL3 \
+        alsa-lib \
+        bluez-libs \
+        fmt \
+        flac-libs \
+        libvorbis \
+        libogg \
+        opus \
+        gsm \
+        lame-libs \
+        mpg123-libs \
+        libsndfile \
+        libasyncns \
+        pulseaudio-libs \
+        hidapi \
+        libusb1 \
+        libevdev \
+        miniupnpc \
+        c4core \
+        rapidyaml \
+        spdlog \
+        double-conversion \
+        duktape \
+        libpcap \
+        libjpeg-turbo \
+        libwebp \
+        plutovg \
+        plutosvg \
+        kddockwidgets-qt6 \
+        qt6-qtbase \
+        qt6-qtbase-gui \
+        qt6-qtdeclarative \
+        libproxy \
+        libnl3 \
+        libibverbs \
+        libblkid \
+        libmount \
+        libbrotli \
+        libb2 \
+        libffi \
+        libgomp \
+        libxml2 \
+        dbus-libs \
+    && dnf clean all
+# Real runtime shared-lib dependencies for the standalone Dolphin/PCSX2
+# builds below (emulators/bin/dolphin-emu-nogui, emulators/bin/pcsx2-qt) -
+# derived the confirmed-live way, not guessed: `ldd` against the actual
+# built binaries, then `rpm -qf` each real linked library path to its
+# real owning package (the same methodology this project's own
+# host_deps.py docstring already commits to). Some overlap with base-
+# image/already-listed packages is expected and harmless (dnf installing
+# an already-satisfied package is a confirmed no-op, per this file's own
+# earlier correction on that) - not worth hand-pruning further.
+#
+# flatpak used to be here for Brave alone - Brave is gone (replaced by
+# webshell/, a first-party Electron app), and nothing else in this
+# codebase shells out to a bare `flatpak` command any more (confirmed by
+# grepping every subprocess.run/Popen call, the same way packaging/
+# host_deps.py's own PACKAGES dict is derived) - removed outright rather
+# than left installed with nothing using it, along with the Flatpak
+# install step below that used to install Brave itself.
+
+# Real hardware firmware for cross-machine bare-metal use (this image
+# had none at all before - only ever booted in qemu, where virtio-gpu/
+# -net need no vendor blobs) - confirmed live against this exact base
+# image (a real `podman run quay.io/fedora/fedora-bootc:44`, not
+# guessed) rather than assumed from package names:
+#
+# - `linux-firmware` alone already pulls in amd-gpu-firmware, amd-ucode-
+#   firmware, atheros-firmware, brcmfmac-firmware (real Broadcom
+#   Bluetooth .hcd files confirmed inside it too, not just Wi-Fi),
+#   cirrus-audio-firmware, intel-audio-firmware, intel-gpu-firmware,
+#   mt7xxx-firmware, nvidia-gpu-firmware (the open nouveau driver's own
+#   firmware, not the proprietary NVIDIA driver - that's a much bigger,
+#   licensing/akmods-shaped addition, deliberately out of scope here),
+#   nxpwireless-firmware, qcom-wwan-firmware, and realtek-firmware as
+#   real dnf Recommends - confirmed live with a real install that this
+#   base image's own dnf.conf doesn't disable weak deps, so this isn't
+#   relying on unverified default behavior. Intel Bluetooth (the real
+#   ibt-*.sfi/.ddc files) ships directly inside linux-firmware itself,
+#   no separate package.
+# - iwlwifi-dvm/mvm/mld-firmware (real Intel Wi-Fi, one of the most
+#   common chipsets on real laptops/mini-PCs) is the one real gap none
+#   of linux-firmware's own Recommends cover - confirmed live it's
+#   NOT pulled in by anything above, so it's listed explicitly.
+# - microcode_ctl (real Intel CPU microcode - AMD's own is already
+#   covered by amd-ucode-firmware above) wasn't present in a real, fresh
+#   `podman run` of this base image tested minutes before this comment
+#   was written - listed explicitly rather than assumed present, since
+#   `fedora-bootc:44` is a rolling tag and re-pulling it mid-session was
+#   independently observed to pick up newer package builds (harmless
+#   either way: installing an already-present package here is a
+#   confirmed no-op, not a failure - see this file's own corrected note
+#   on that near the top).
+#
+# mesa-dri-drivers/mesa-libGL/mesa-libEGL (real GPU *userspace* driver
+# libraries, not firmware) already come in transitively via picom's own
+# dependency chain - confirmed live, not re-listed here since they're a
+# different class of package (a driver library, not a firmware blob)
+# and already present either way.
+RUN dnf install -y \
+        linux-firmware \
+        iwlwifi-dvm-firmware \
+        iwlwifi-mvm-firmware \
+        iwlwifi-mld-firmware \
+        microcode_ctl \
+    && dnf clean all
+
+# Proprietary NVIDIA GPU driver, real build-and-bake-in verified live
+# against this exact base image (a real `podman run`, every step below
+# actually executed, not assumed from RPM Fusion's own docs) - the open
+# nouveau driver above is genuinely much slower on most modern NVIDIA
+# cards (it can't do dynamic clock/power management without extra
+# signed firmware it doesn't have, so it's often stuck at a low clock),
+# and this is a from-scratch image anyone might run on real NVIDIA
+# hardware, not just this project's own dev machine.
+#
+# RPM Fusion's own akmod-nvidia does NOT ship a build - it's real
+# akmods source, built against whatever kernel is actually running.
+# On a normal, mutable Fedora install that happens automatically via
+# a first-boot systemd service; on a bootc image, the "kernel that will
+# actually run" is exactly the one already baked into THIS image (`rpm
+# -q kernel-core`, not `uname -r` - confirmed live that `uname -r`
+# inside a build step reports the build HOST's kernel, not the image's
+# own, since a container never has a kernel of its own), so it's built
+# right here instead, once, matching the image's own real kernel build
+# exactly - not left for a runtime service that would need kernel-devel/
+# gcc permanently installed on a real deployed system to do the same job.
+#
+# Two real, confirmed-live gotchas along the way, not guessed:
+# - `dracut`'s own default file list tries to include /root, which is a
+#   real, dangling `/var`-backed ostree symlink at build time (the same
+#   class of issue already hit and fixed elsewhere in this file, for a
+#   different file) - `dracut-install: ERROR: installing '/root'` until
+#   `/var/roothome` (its real symlink target) exists as a plain
+#   directory first.
+# - nouveau is NOT blacklisted by anything RPM Fusion ships, and (this
+#   base image's own generated initramfs being a real --no-hostonly
+#   build, meant to boot on any hardware) nouveau really is baked into
+#   it by default - confirmed live via `lsinitrd` before vs. after: a
+#   plain modprobe.d blacklist alone doesn't help unless the initramfs
+#   is actually rebuilt afterward to pick it up, which is why dracut
+#   runs again here, after the blacklist file exists.
+#
+# The build toolchain (gcc/cpp/make/kernel-devel-<version>) and the
+# akmods framework package are real build-time-only weight (~400MB,
+# confirmed live via `rpm -q --qf %{SIZE}`) - removed in this same RUN
+# step (not a separate multi-stage build, which this project has
+# already decided isn't worth the complexity elsewhere in this file for
+# much smaller savings) so the layer's own final diff never carries
+# them. Confirmed live this removal cascades to uninstall akmod-nvidia
+# itself too (it depends on the akmods framework) without touching the
+# real driver output at all - nvidia.ko.xz, xorg-x11-drv-nvidia, and
+# xorg-x11-drv-nvidia-cuda all confirmed still present and intact
+# afterward, and confirmed separately that akmods already ran its own
+# real depmod as part of the build (modules.dep already has real nvidia
+# entries) - nothing else needs to trigger that by hand. Losing
+# akmod-nvidia's own presence from the rpm database is a non-issue for
+# this project specifically: a bootc system never patches its own
+# kernel in place, every kernel bump ships as a freshly-built image
+# through this exact same Containerfile, which would rebuild this
+# module fresh against whatever new kernel that build picks up anyway.
+RUN dnf install -y \
+        https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-44.noarch.rpm \
+        https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-44.noarch.rpm \
+    && KVER=$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}' kernel-core) \
+    && dnf install -y akmod-nvidia xorg-x11-drv-nvidia xorg-x11-drv-nvidia-cuda akmods "kernel-devel-$KVER" gcc make \
+    && /usr/sbin/akmods --kernels "$KVER" --force \
+    && printf 'blacklist nouveau\noptions nouveau modeset=0\n' > /etc/modprobe.d/blacklist-nouveau.conf \
+    && mkdir -p /var/roothome \
+    && dracut --reproducible --add ostree --force --no-hostonly --kver "$KVER" "/usr/lib/modules/$KVER/initramfs.img" \
+    && dnf remove -y gcc cpp make "kernel-devel-$KVER" akmods \
+    && dnf clean all \
+    && rm -rf /var/log/akmods /var/log/dnf5.log* /run/akmods /run/dnf
+# ^ confirmed live via `bootc container lint` this build produces
+# (exit 0, only warnings): stray akmods/dnf build-time logs and lock
+# files under /var/log and /run that the lint step correctly flags as
+# not belonging in a committed image layer - real cruft, not something
+# a later boot would need. The lint's other warnings (an `akmods`
+# system user with no matching sysusers.d entry, a few cache dirs with
+# no tmpfiles.d entry) are real but pre-existing RPM Fusion/akmods
+# packaging quirks outside this file's control, not something worth
+# hand-patching a third-party package's own sysusers/tmpfiles
+# integration for.
+
+# Flatpak has been removed from this image entirely - every real
+# dependency that used to be a Flatpak here is gone:
+# - Brave (the last real Flatpak dependency) was replaced outright by
+#   webshell/, a first-party Electron app fetched at deploy time
+#   (webshell/electron_runtime.py), not installed as a Flatpak at all.
+# - Kodi (then its replacement Stremio) was replaced outright by
+#   CosmOS's own native Video/Music/Photos apps - not a dependency
+#   of any kind any more.
+# - Steam moved to a native RPM Fusion package (packaging/
+#   steam_native.py) - Flatpak's sandboxing is a hard, structural block
+#   on Millennium's real Big Picture theming, not a bug that might get
+#   fixed later. See the real dnf-based install further down, right
+#   alongside the NVIDIA driver's own RPM Fusion enablement above -
+#   dnf installing an already-enabled release RPM twice in the same
+#   image is a confirmed no-op, not a conflict (see this file's own
+#   earlier correction on that).
+# - Wine ships built from source straight into the repo (wine/bin/,
+#   the exact same "committed binary, no install step" pattern as
+#   emulators/bin/retroarch) and is git-tracked like everything else in
+#   the staged source tree (see packaging/stage_build.sh) - it lands at
+#   the right place automatically via the COPY step below, no separate
+#   Flatpak or COPY needed for it at all. (Also fixed a real, separate
+#   bug found while confirming this: library/systems.json's own
+#   wine-based launch_templates called bare "wine" instead of the
+#   correct "{repo}/wine/bin/bin/wine" - meaning none of those
+#   platforms - PC, WOLF RPG, GameMaker, and three arcade board
+#   emulators - could have ever actually launched on any real
+#   deployment, bootc or otherwise.)
+
+# Steam, natively - see the comment above for why this replaced a
+# Flatpak install. Reuses the same RPM Fusion free+nonfree release RPMs
+# already enabled for the NVIDIA driver above (confirmed live: dnf
+# treats installing an already-enabled release RPM again as a no-op,
+# not an error - see this file's own corrected note on that near the
+# top), matching packaging/steam_native.py's own real, already-verified
+# install steps exactly (RPM Fusion enable, then a plain `dnf install
+# steam`) rather than inventing a separate mechanism for the image build
+# specifically.
+#
+# vlc-plugins-base/-video-out ride along here rather than in the first
+# dnf block above because they don't exist until RPM Fusion is enabled
+# (vlc-plugins-video-out itself pulls in RPM Fusion's own
+# vlc-plugins-freeworld as a real dependency, confirmed live - that's
+# the actual codec pack, not just an output driver). Without these,
+# vlc-libs alone leaves libvlc_new() with zero registered plugins and it
+# returns NULL - see the vlc-libs comment above for the exact crash this
+# caused (confirmed live: fixed after adding these, a real
+# vlc.Instance() + media_player_new() succeeded end to end in the booted
+# image).
+RUN dnf install -y \
+        https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-44.noarch.rpm \
+        https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-44.noarch.rpm \
+    && dnf install -y steam vlc-plugins-base vlc-plugins-video-out \
+    && dnf clean all
+
+# /cosmos used to be a real, system-partition-resident directory (the
+# now-retired Debian rootfs build) - on this platform / itself is
+# read-only, so it's now a plain symlink into /var (the one genuinely
+# persistent, writable area an ostree-based deployment has). This is the
+# ENTIRE fix needed to keep every existing hardcoded "/cosmos/..."
+# path (packaging/cosmos_install.py's own APP_ROOT/BACKUP_ROOT,
+# launcher/startx.sh, launcher/profiles.py's PROFILES_ROOT by way of
+# paths.py) working completely unmodified - confirmed live earlier that
+# content placed under /var at build time really does survive to the
+# real running system, so the source tree staged below into
+# /var/lib/cosmos/app/current really will be there as
+# /cosmos/app/current at runtime.
+RUN mkdir -p /var/lib/cosmos && ln -s /var/lib/cosmos /cosmos
+
+# paths.py's own real DATA_ROOT - a symlink into /var, same idea and
+# same reason as /cosmos just above (a real top-level mountpoint
+# isn't on bootc-image-builder's own customizations.filesystem
+# allowlist - confirmed live: "path \"/userdata\" is not allowed" - only
+# /var-rooted paths are). Confirmed separately that this is still safe
+# for install_to_filesystem.py's own real, separate-partition install
+# path: mounting a filesystem onto a symlinked target path resolves
+# through the symlink and lands on the real underlying directory (a
+# plain scratch mount --bind test against a symlink confirmed this
+# directly), so that script's own `Where=/userdata` systemd .mount unit
+# keeps working completely unmodified - the real partition just ends up
+# mounted at /var/userdata transparently either way. chmod 777 on the
+# real target matches paths.py's own documented reasoning (a fixed,
+# world-writable directory, not derived from any particular real user
+# account).
+RUN mkdir -p /var/userdata && chmod 777 /var/userdata && ln -s /var/userdata /userdata
+
+# The real installer for this platform - see its own module docstring
+# for why `bootc install to-disk` doesn't fit (always wipes the whole
+# target device) and `to-filesystem` plus this wrapper's own manual
+# partitioning does. Baked into the image itself so it doubles as its
+# own installer medium: `podman run --privileged <this image>
+# install-to-filesystem.py <device>` against real hardware, no separate
+# live ISO needed - install()/update_slot() from the superseded Debian
+# pipeline used the same "the image is its own installer" idea, just
+# via a live boot instead of a container run.
+COPY atomic/install_to_filesystem.py /var/lib/cosmos/boot/install_to_filesystem.py
+RUN chmod +x /var/lib/cosmos/boot/install_to_filesystem.py
+
+# The real CosmOS source tree - staged by atomic/build_bootc_image.sh
+# (which runs packaging/stage_build.sh first) into build/bootc-stage/,
+# a plain `git ls-files` copy of everything tracked, committed straight
+# into /var/lib/cosmos/app/current with no packaging step in between
+# at all (CosmOS is no longer an AppImage, per direct request).
+#
+# wm/consolewm.c is recompiled fresh here rather than trusting whatever
+# stage_build.sh may have already compiled on the host machine that ran
+# it - a host-compiled binary isn't safely assumed ABI-compatible with
+# THIS image's own libc/libX11, the same class of cross-environment risk
+# packaging/build_appimage_in_debian_chroot.sh used to exist to dodge
+# for PyGObject specifically. PyGObject/pycairo (and every other real
+# pip dependency - packaging/requirements.txt) are pip-installed here
+# too, straight onto this image's own system Python, built from source
+# against this exact image's own GTK/GObject-Introspection headers -
+# build-time and run-time are now the SAME image, so there's no ABI
+# mismatch to worry about at all (unlike the old AppImage build, which
+# ran on a separate Fedora dev/CI machine that could easily disagree
+# with the target). Devel headers/gcc/libX11-devel are install-use-strip
+# in this one RUN step, matching the NVIDIA driver build's own pattern
+# above.
+COPY build/bootc-stage /var/lib/cosmos/app/current
+RUN dnf install -y \
+        gcc \
+        gtk3-devel \
+        gobject-introspection-devel \
+        librsvg2-devel \
+        cairo-devel \
+        cairo-gobject-devel \
+        python3-devel \
+        pkgconf-pkg-config \
+        libX11-devel \
+    && pip3 install --no-cache-dir -r /var/lib/cosmos/app/current/packaging/requirements.txt \
+    && gcc -O2 -Wall -o /var/lib/cosmos/app/current/wm/consolewm /var/lib/cosmos/app/current/wm/consolewm.c -lX11 \
+    && dnf remove -y gcc gtk3-devel gobject-introspection-devel librsvg2-devel cairo-devel cairo-gobject-devel python3-devel pkgconf-pkg-config libX11-devel \
+    && dnf clean all
+
+# The stable boot chain - deliberately NOT part of the swappable app
+# tree above (see startx.sh's own docstring), same sibling-directory
+# layout the now-retired Debian rootfs build used too (its own sed
+# rewrites the debuglog.sh source path the same way).
+RUN mkdir -p /var/lib/cosmos/boot
+COPY launcher/startx.sh debuglog.sh /var/lib/cosmos/boot/
+RUN sed -i 's#\$SCRIPT_DIR/\.\./debuglog\.sh#$SCRIPT_DIR/debuglog.sh#' /var/lib/cosmos/boot/startx.sh \
+    && chmod +x /var/lib/cosmos/boot/startx.sh
+
+# Getty-autologin-into-X - tty1, the real convention for a standalone
+# OS image/VM (confirmed with the user: tty2 is only used on the real
+# dev machine itself, to test without disturbing its own already-
+# running tty1 desktop session - a real, from-scratch image like this
+# one owns the whole machine, so tty1 is correct here). The profile
+# content ships as a real /usr-resident template (direct build-time
+# writes into /root fail outright - it's a dangling /var-backed
+# symlink until boot) copied into place by ExecStartPre on every login
+# attempt, not the ambient tmpfiles-setup service - two real,
+# confirmed-live reasons, not one: it doesn't reliably run this rule on
+# its own on this image, AND (found via a real `bootc-image-builder`
+# raw-image boot, not the to-filesystem installer path this was first
+# proven against) that image's own first-boot seeding already creates
+# an EMPTY /root/.bash_profile before tmpfiles-setup ever runs - a
+# tmpfiles "C" line only copies when the destination is missing
+# entirely, so it silently no-ops against an existing empty file
+# either way. A plain `cp -f` sidesteps both failure modes at once by
+# not depending on "missing" semantics at all.
+COPY atomic/bash_profile.template /usr/share/cosmos/bash_profile.template
+
+RUN mkdir -p /etc/systemd/system/getty@tty1.service.d
+COPY atomic/getty-tty1-override.conf /etc/systemd/system/getty@tty1.service.d/override.conf
+
+# Debugging convenience only, never for a real shipped image: autologin
+# the serial getty too so this build's own boot can be interacted with
+# over qemu's -serial socket while porting is still in progress.
+RUN mkdir -p /etc/systemd/system/serial-getty@ttyS0.service.d
+COPY atomic/serial-getty-ttyS0-override.conf /etc/systemd/system/serial-getty@ttyS0.service.d/override.conf
+
+# A real, confirmed-live upstream bug (bootc-dev/bootc#2402 and its own
+# root cause): systemd-gpt-auto-generator discovers the ESP/boot
+# partition independently of ostree-system-generator's own real
+# `boot.mount` bind mount, and creates a COMPETING `boot.automount`
+# (120s idle timeout) targeting the exact same /boot mountpoint. Once
+# that automount re-triggers (any access to /boot more than ~2 minutes
+# after boot), it stacks an autofs pseudo-mount on TOP of the real ext4
+# one - confirmed live via `findmnt /boot` showing both. This isn't
+# just cosmetic: `ostree-finalize-staged.service` (the thing that
+# actually applies a staged `bootc upgrade` at shutdown) tries to
+# `mount -o remount,rw /boot`, which fails outright against the autofs
+# layer with "Remounting /boot read-write: Invalid argument" - so a
+# real `bootc upgrade --apply` reports "Queued for next boot" and
+# reboots, but the reboot lands back on the SAME old deployment with
+# the fetched update silently orphaned (no boot loader entry ever
+# written for it). Confirmed live, twice: first the failure exactly as
+# described (`journalctl -b -1 -u ostree-finalize-staged.service`
+# showing the exact error above), then the fix - `systemctl mask
+# boot.automount` - verified end to end with a real upgrade AND a real
+# rollback afterward, both landing on the correct, different digests.
+# ostree's own real `boot.mount` is the only thing that should ever
+# manage this mountpoint on an ostree/bootc system, so permanently
+# masking the competing generator-created unit is correct, not a
+# workaround for a specific test - not just a bandaid for the separate,
+# narrower bug (`opendir(boot): Operation not permitted` on a plain
+# `bootc status`/`upgrade --check` call under bootc's own `unshare -m`
+# re-exec) already worked around directly in launcher/app.py.
+RUN systemctl mask boot.automount
+
+# A single, real, confirmed-live-but-benign AVC denial hit on every
+# boot of the getty chain above: `login` sending a signal to the Xorg
+# process startx.sh spawns, as part of login's own normal session
+# teardown - denied under SELinux enforcing, but harmless (Xorg and the
+# real launcher kept running stably regardless, confirmed multiple
+# times). checkpolicy/policycoreutils are build-time-only - not removed
+# afterward since Steam/Wine/Kodi's own combined size already dominates
+# this image, not worth a multi-stage build just to shave a few MB.
+# checkmodule's own naming rule (the output basename must match the
+# module's declared name) is why this gets staged as /tmp/cosmos.te,
+# not atomic/cosmos-selinux.te's own filename.
+COPY atomic/cosmos-selinux.te /tmp/cosmos.te
+RUN dnf install -y checkpolicy policycoreutils \
+    && checkmodule -M -m -o /tmp/cosmos.mod /tmp/cosmos.te \
+    && semodule_package -o /tmp/cosmos.pp -m /tmp/cosmos.mod \
+    && semodule -i /tmp/cosmos.pp \
+    && rm -f /tmp/cosmos.te /tmp/cosmos.mod /tmp/cosmos.pp
+
+RUN bootc container lint

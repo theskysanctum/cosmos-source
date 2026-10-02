@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=GameBox: fetch assets
+Exec=cosmos-task --title "GameBox assets" -- gamebox-fetch-assets
+Comment=Download the emulator cores, engines and assets GameBox fetches at deploy time (hits the network)
+Icon=folder-download
+Categories=Development;
+Terminal=false

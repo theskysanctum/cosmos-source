@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+S1="$REPO_ROOT/build-bootc.sh"
+S2="$REPO_ROOT/make-test-disk.sh"
+S3="$REPO_ROOT/install_in_disposable_vm.sh"
+S4="$REPO_ROOT/test-boot.sh"
+S5="$REPO_ROOT/build-iso.sh"
+
+# clear fails with no usable $TERM, which set -e would turn into an exit
+cls() { clear 2>/dev/null || true; }
+
+run_step() {
+    cls
+    echo "=============================================="
+    echo "   CosmOS — Running Step"
+    echo "=============================================="
+    echo
+    # A failed step reports and returns to the menu rather than
+    # letting set -e kill the whole menu.
+    local status=0
+    bash "$@" || status=$?
+    echo
+    echo "=============================================="
+    if [ "$status" -eq 0 ]; then
+        echo "   Step Completed — Returning to Menu"
+    else
+        echo "   Step FAILED (exit $status) — see output above"
+    fi
+    echo "=============================================="
+    echo
+    read -rp "Press Enter to continue..."
+}
+
+while true; do
+    cls
+    echo "=============================================="
+    echo "        CosmOS Build Pipeline"
+    echo "=============================================="
+    echo
+    echo "1) Build bootc image"
+    echo "2) Create test disk"
+    echo "3) Install in disposable VM"
+    echo "4) Test boot (boot the disk from step 3)"
+    echo "5) Build installer ISO"
+    echo "6) Quit"
+    echo
+    read -rp "Select an option (1-6): " choice
+
+    case "$choice" in
+        1) run_step "$S1" ;;
+        2) run_step "$S2" ;;
+        3) run_step "$S3" ;;
+        4) run_step "$S4" --boot-only ;;
+        5) run_step "$S5" ;;
+        6) cls; exit 0 ;;
+        *) echo "Invalid option"; sleep 1 ;;
+    esac
+done
+

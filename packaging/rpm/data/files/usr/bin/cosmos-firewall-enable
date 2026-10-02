@@ -1,0 +1,19 @@
+#!/bin/bash
+# Makes the CosmOS firewall zone the default and enables firewalld: everything coming in from the network is rejected except the named doors. Run as root.
+# `cosmos-firewall-enable --undo` puts the "public" zone back as the default.
+set -euo pipefail
+[ "$(id -u)" = 0 ] || { echo "run as root: sudo cosmos-firewall-enable" >&2; exit 1; }
+ZONE=cosmos
+[ "${1:-}" = "--undo" ] && ZONE=public
+if systemctl is-active --quiet firewalld.service; then
+    firewall-cmd --reload >/dev/null
+    firewall-cmd --set-default-zone="$ZONE"
+else
+    firewall-offline-cmd --set-default-zone="$ZONE"
+fi
+if [ "$ZONE" = cosmos ]; then
+    systemctl enable firewalld.service
+    # start it now only on a running system (an image build has no systemd running)
+    [ -d /run/systemd/system ] && systemctl start firewalld.service || true
+fi
+echo "the default firewall zone is now $ZONE"

@@ -1,0 +1,276 @@
+#!/usr/bin/env python3
+"""find-qt-apps - list the graphical apps on this system (or in an image's root filesystem) that are built
+on Qt and are NOT Flatpaks, so a Qt app with its own unscoped file dialog can't slip into CosmOS unnoticed.
+
+  find-qt-apps                        scan this system
+  find-qt-apps --root /path/to/root   scan a mounted image root (e.g. from `podman image mount`)
+  find-qt-apps --all                  include entries that are hidden from menus (NoDisplay)
+  find-qt-apps --json                 machine-readable output
+  find-qt-apps --allow NAME ...       more exceptions (desktop id or command name)
+
+How it decides: every desktop entry (usr/share/applications and the Flatpak/user export folders) gives a
+command; the command's ELF file is read for the libraries it links (DT_NEEDED) and it is a Qt app if it
+links libQt5*/libQt6* (or KDE Frameworks, which are Qt). Launcher scripts are followed to the programs they
+mention. Flatpak entries (`flatpak run`) are the wanted state and reported as such. Exceptions come from
+qt-app-exceptions.txt (your hand-built Dolphin and PCSX2) and --allow.
+
+Limits: an AppImage bundles its own Qt inside a compressed image and can't be seen from here; a program that
+loads Qt only at run time (dlopen) is missed. The exit status is 1 when a Qt app that is neither a Flatpak
+nor an exception is found, so it can gate a build.
+"""
+import argparse
+import glob
+import json
+import os
+import re
+import shlex
+import struct
+import subprocess
+import sys
+
+QT_LIB = re.compile(r"^lib(Qt[56]|KF[56]|kf[56]|Qt)[A-Za-z0-9_+.-]*\.so")
+APP_DIRS = ("usr/share/applications", "usr/local/share/applications", "var/lib/flatpak/exports/share/applications")
+EXCEPTION_FILES = ("usr/share/cosmos/qt-app-exceptions.txt",)
+BIN_DIRS = ("usr/local/bin", "usr/bin", "usr/local/sbin", "usr/sbin", "bin", "sbin")
+
+
+# --------------------------------------------------------------------------- reading files inside a root
+
+def resolve(root, path):
+    """The real path of `path` inside `root`, following symlinks (absolute ones too) without ever leaving
+    it; None if it does not exist."""
+    parts = [p for p in path.split("/") if p]
+    cur, hops = [], 0
+    while parts:
+        part = parts.pop(0)
+        if part == ".":
+            continue
+        if part == "..":
+            if cur:
+                cur.pop()
+            continue
+        candidate = os.path.join(root, *cur, part)
+        if os.path.islink(candidate):
+            hops += 1
+            if hops > 40:
+                return None
+            target = os.readlink(candidate)
+            if target.startswith("/"):
+                cur = []
+            parts = [p for p in target.split("/") if p] + parts
+        else:
+            cur.append(part)
+    full = os.path.join(root, *cur)
+    return full if os.path.lexists(full) else None
+
+
+def which(root, command, path_dirs=BIN_DIRS):
+    if command.startswith("/"):
+        return resolve(root, command)
+    for d in path_dirs:
+        found = resolve(root, "/" + d + "/" + command)
+        if found and os.path.isfile(found):
+            return found
+    return None
+
+
+def elf_needed(path):
+    """The DT_NEEDED library names of an ELF file (64-bit, little-endian - everything CosmOS ships), or None."""
+    try:
+        with open(path, "rb") as fh:
+            head = fh.read(64)
+            if head[:4] != b"\x7fELF" or head[4] != 2 or head[5] != 1:
+                return None
+            e_phoff, = struct.unpack_from("<Q", head, 0x20)
+            e_phentsize, e_phnum = struct.unpack_from("<HH", head, 0x36)
+            fh.seek(e_phoff)
+            phdrs = [struct.unpack("<IIQQQQQQ", fh.read(e_phentsize)[:56]) for _ in range(e_phnum)]
+            loads = [(p[3], p[2], p[5]) for p in phdrs if p[0] == 1]          # vaddr, offset, filesz
+            dyn = next((p for p in phdrs if p[0] == 2), None)
+            if not dyn:
+                return []
+
+            def off(vaddr):
+                for va, fo, size in loads:
+                    if va <= vaddr < va + size:
+                        return vaddr - va + fo
+                return None
+            fh.seek(dyn[2])
+            data = fh.read(dyn[5])
+            needed, strtab = [], None
+            for i in range(0, len(data) - 15, 16):
+                tag, val = struct.unpack_from("<qQ", data, i)
+                if tag == 0:
+                    break
+                if tag == 1:
+                    needed.append(val)
+                elif tag == 5:
+                    strtab = val
+            base = off(strtab) if strtab is not None else None
+            if base is None:
+                return []
+            names = []
+            for n in needed:
+                fh.seek(base + n)
+                chunk = fh.read(256)
+                names.append(chunk.split(b"\0", 1)[0].decode("utf-8", "replace"))
+            return names
+    except (OSError, struct.error):
+        return None
+
+
+def qt_libs_of(root, path, seen=None, depth=0):
+    """Qt libraries the program at `path` links, following launcher scripts to the programs they name."""
+    seen = seen if seen is not None else set()
+    real = os.path.realpath(path) if root == "/" else path
+    if real in seen or depth > 3:
+        return []
+    seen.add(real)
+    needed = elf_needed(path)
+    if needed is not None:
+        return sorted({n for n in needed if QT_LIB.match(n)})
+    try:
+        with open(path, "rb") as fh:
+            head = fh.read(4096)
+            if not head.startswith(b"#!"):
+                return []
+            text = head + fh.read(200000)
+    except OSError:
+        return []
+    found = []
+    for m in re.finditer(rb"(/(?:usr|opt)/[A-Za-z0-9_./+-]+)", text):
+        target = resolve(root, m.group(1).decode())
+        if target and os.path.isfile(target) and target != path:
+            found += qt_libs_of(root, target, seen, depth + 1)
+    return sorted(set(found))
+
+
+# --------------------------------------------------------------------------- desktop entries
+
+def parse_desktop(path):
+    entry, in_main = {}, False
+    try:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            for line in fh:
+                line = line.strip()
+                if line.startswith("["):
+                    in_main = line == "[Desktop Entry]"
+                elif in_main and "=" in line and not line.startswith("#"):
+                    k, _, v = line.partition("=")
+                    entry.setdefault(k.strip(), v.strip())
+    except OSError:
+        pass
+    return entry
+
+
+def command_of(exec_line):
+    """(command, is_flatpak): the program an Exec= line really starts."""
+    try:
+        words = shlex.split(exec_line)
+    except ValueError:
+        words = exec_line.split()
+    words = [w for w in words if not re.fullmatch(r"%[A-Za-z%]", w)]
+    i = 0
+    while i < len(words) and (words[i] in ("env", "exec") or "=" in words[i].split("/")[0]):
+        i += 1
+    if i >= len(words):
+        return None, False
+    cmd = words[i]
+    if os.path.basename(cmd) == "flatpak":
+        return "flatpak", True
+    if os.path.basename(cmd) in ("sh", "bash") and "-c" in words[i:]:
+        inner = words[words.index("-c", i) + 1:]
+        return command_of(" ".join(inner)) if inner else (cmd, False)
+    return cmd, False
+
+
+def load_exceptions(root, extra):
+    names = set(extra)
+    for rel in EXCEPTION_FILES:
+        path = os.path.join(root, rel)
+        if os.path.isfile(path):
+            with open(path, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.split("#", 1)[0].strip()
+                    if line:
+                        names.add(line)
+    return {n.lower() for n in names}
+
+
+def package_of(root, path):
+    if root != "/":
+        return ""
+    try:
+        done = subprocess.run(["rpm", "-qf", "--qf", "%{NAME}", path], capture_output=True, text=True, timeout=20)
+        return done.stdout.strip() if done.returncode == 0 else ""
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
+def scan(root="/", include_hidden=False, allow=()):
+    root = root.rstrip("/") or "/"
+    exceptions = load_exceptions(root, allow)
+    rows = []
+    for rel in APP_DIRS:
+        for desktop in sorted(glob.glob(os.path.join(root, rel, "*.desktop"))):
+            entry = parse_desktop(desktop)
+            if entry.get("Type", "Application") != "Application":
+                continue
+            if not include_hidden and (entry.get("NoDisplay", "").lower() == "true" or entry.get("Hidden", "").lower() == "true"):
+                continue
+            desktop_id = os.path.basename(desktop)
+            cmd, is_flatpak = command_of(entry.get("Exec", ""))
+            row = {"desktop": desktop_id, "name": entry.get("Name", ""), "command": cmd, "path": None, "package": "", "qt": [], "status": "ok"}
+            if is_flatpak:
+                row["status"] = "flatpak"
+                rows.append(row)
+                continue
+            if not cmd:
+                continue
+            path = which(root, cmd)
+            row["path"] = path[len(root):] if path and root != "/" and path.startswith(root) else path
+            if not path:
+                row["status"] = "unresolved"
+                rows.append(row)
+                continue
+            row["qt"] = qt_libs_of(root, path)
+            if row["qt"]:
+                row["package"] = package_of(root, path)
+                allowed = {desktop_id.lower(), os.path.basename(cmd).lower(), desktop_id.lower().removesuffix(".desktop")}
+                row["status"] = "allowed" if allowed & exceptions else "PROBLEM"
+                rows.append(row)
+    return rows
+
+
+def main(argv):
+    ap = argparse.ArgumentParser(description="List Qt apps that are not Flatpaks.")
+    ap.add_argument("--root", default="/", help="scan this root filesystem instead of /")
+    ap.add_argument("--all", action="store_true", help="include entries hidden from menus")
+    ap.add_argument("--json", action="store_true")
+    ap.add_argument("--allow", nargs="*", default=[], help="extra exceptions (desktop id or command name)")
+    args = ap.parse_args(argv)
+    rows = scan(args.root, args.all, args.allow)
+    qt_rows = [r for r in rows if r["qt"]]
+    problems = [r for r in qt_rows if r["status"] == "PROBLEM"]
+    if args.json:
+        print(json.dumps({"qt_apps": qt_rows, "problems": [r["desktop"] for r in problems],
+                          "flatpaks": [r["desktop"] for r in rows if r["status"] == "flatpak"],
+                          "unresolved": [r["desktop"] for r in rows if r["status"] == "unresolved"]}, indent=1))
+    else:
+        flat = sum(1 for r in rows if r["status"] == "flatpak")
+        print(f"{len(rows)} graphical entries: {flat} Flatpak, {len(qt_rows)} Qt (not Flatpak), "
+              f"{sum(1 for r in rows if r['status'] == 'unresolved')} whose program was not found")
+        for r in qt_rows:
+            print(f"  {r['status']:8} {r['desktop']:38} {r['path'] or r['command']}"
+                  + (f"  [{r['package']}]" if r["package"] else "") + f"  links {', '.join(r['qt'][:3])}")
+        if problems:
+            print(f"\n{len(problems)} Qt app(s) that are neither Flatpaks nor exceptions: their file dialog is Qt's own and "
+                  "can browse anywhere. Make each a Flatpak (config/cosmos-apps/app-policy.json), remove it, or add it to "
+                  "config/cosmos-apps/qt-app-exceptions.txt.")
+        else:
+            print("\nNo Qt app outside Flatpak (apart from the listed exceptions).")
+    return 1 if problems else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

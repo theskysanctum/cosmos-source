@@ -1,0 +1,8 @@
+[Unit]
+Description=CosmOS graphical session
+# The CosmOS session is started by greetd and cosmos-wm, not by a display manager that knows about systemd, so nothing brings graphical-session.target up by
+# itself, and the desktop portal (xdg-desktop-portal.service Requisite=graphical-session.target) could never start. cosmos-session-apps starts this target once the
+# compositor is running; it pulls graphical-session.target up with it.
+BindsTo=graphical-session.target
+Wants=graphical-session-pre.target
+After=graphical-session-pre.target

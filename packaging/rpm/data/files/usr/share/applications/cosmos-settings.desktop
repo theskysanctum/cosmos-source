@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Settings
+Exec=cosmos-settings
+Comment=Controllers, display, wallpaper, updates, remote access and everything else you can change
+Icon=preferences-system
+Categories=Settings;
+Keywords=settings;controller;display;resolution;wallpaper;updates;remote;
+Terminal=false

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Remote Access
+Exec=cosmos-remote
+Comment=Turn SSH on or off and choose which computers can sign in
+Icon=network-server
+Categories=Settings;Network;
+Terminal=false
+NoDisplay=true

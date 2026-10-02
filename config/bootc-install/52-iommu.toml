@@ -1,0 +1,7 @@
+# Turns the IOMMU on so cosmos-vm-manager can hand whole PCI devices (a GPU, a NIC, an
+# NVMe drive) to a VM through VFIO; iommu=pt keeps host devices out of translation, so
+# there is no measurable cost when nothing is passed through. (AMD's IOMMU is on by
+# default; intel_iommu=on is what Intel machines need. The firmware's VT-d/AMD-Vi
+# setting must also be enabled - the VM manager says so if it is not.)
+[install]
+kargs = ["intel_iommu=on", "iommu=pt"]

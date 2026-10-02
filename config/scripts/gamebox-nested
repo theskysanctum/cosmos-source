@@ -1,0 +1,47 @@
+#!/bin/bash
+# Runs the GameBox launcher (gamebox/ in this repo) nested in a full-screen Xephyr.
+#
+# GameBox is built to OWN a whole X server on a VT - its own run.py starts Xorg
+# itself. CosmOS is a Wayland session now: cosmos-wm holds the display, so a second
+# X server can't take it over. run.main() is parameterized for the other case
+# (x_binary/use_vt_args/screen_size, there for its own headless UI testing), so
+# this runs it inside Xephyr, which cosmos-wm's XWayland shim shows as one ordinary
+# window sized to the screen. The launcher's own consolewm and the games run
+# inside that display; controller input goes through GameBox's own evdev/UInput
+# daemon (input/run.py), so it doesn't depend on any X or Wayland input routing.
+#
+# Known limitation of nesting: launcher entries that run "console mode"
+# (DRM-direct, on the VT one over from the launcher - see run.py's own
+# runtime_vt comment) can't take over a display from inside a nested X server.
+# Everything that runs as an ordinary X client inside the launcher's own display
+# (nearly everything - see graphical.run_graphical()'s own docstring) is unaffected.
+#
+# Usage: gamebox-nested            (GAMEBOX_REPO_DIR overrides the location)
+# Exit status: the launcher's; 3 = no checkout, 4 = Xephyr missing.
+
+# Where GameBox lives (a pulled checkout, else the copy baked into the image) - see gamebox-dir.
+GAMEBOX_DIR="$(/usr/local/bin/gamebox-dir)"
+
+[ -f "$GAMEBOX_DIR/launcher/run.py" ] || { echo "gamebox-nested: no GameBox checkout at $GAMEBOX_DIR" >&2; exit 3; }
+command -v Xephyr >/dev/null 2>&1 || { echo "gamebox-nested: Xephyr isn't installed" >&2; exit 4; }
+
+SIZE="$(python3 /usr/local/bin/cosmos_wm_ipc.py output 2>/dev/null | tr -d '[:space:]')"
+case "$SIZE" in [0-9]*x[0-9]*) ;; *) SIZE=1920x1080 ;; esac
+
+cd "$GAMEBOX_DIR/launcher" || exit 3
+exec python3 - "$SIZE" <<'PY'
+import os
+import sys
+
+sys.path.insert(0, os.getcwd())
+import run  # launcher/run.py
+
+run.main(
+    display=":8",
+    x_binary="Xephyr",
+    use_vt_args=False,
+    start_wm=True,
+    vt=int(os.environ.get("XDG_VTNR", "7")),
+    screen_size=sys.argv[1],
+)
+PY

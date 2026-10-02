@@ -1,0 +1,16 @@
+PyGObject
+pycairo
+beautifulsoup4
+evdev
+psutil
+pyudev
+qrcode
+Pillow
+pyyaml
+tomli-w
+requests
+cryptography
+python-vlc
+panda3d
+paramiko
+webdavclient3

@@ -1,0 +1,5 @@
+# The proprietary NVIDIA driver only supports a Wayland compositor's KMS use with
+# kernel modesetting turned on - without this cosmos-wm cannot take the display on
+# NVIDIA hardware. Harmless on machines without an NVIDIA GPU.
+[install]
+kargs = ["nvidia-drm.modeset=1"]

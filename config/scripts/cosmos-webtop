@@ -1,0 +1,56 @@
+#!/bin/bash
+# cosmos-webtop [open|start|stop|status] - the Webtop, a development desktop in a container (see config/webtop/).
+#
+#   open (default)  start it if it isn't running (the first time this downloads the image, shown in a task window),
+#                   wait until it answers, then open it in its own browser window
+#   start           the same without opening a window
+#   stop            stop it (its files in ~/.local/share/cosmos-webtop are kept)
+#   status          print "running" or "stopped" (exit 0 / 1)
+UNIT=cosmos-webtop.service
+URL=http://localhost:3000
+IMAGE=lscr.io/linuxserver/webtop:ubuntu-xfce
+AUTH="$HOME/.config/cosmos-webtop/auth.env"     # written by Settings > Remote Access when a password is set
+
+# With a password set the Webtop asks for it on this machine too, so the local window signs in for you (the browser hides the
+# credentials from the address bar).
+CURL_AUTH=(); OPEN_URL=$URL
+if [ -r "$AUTH" ]; then
+    u=$(sed -n 's/^CUSTOM_USER=//p' "$AUTH" | head -1); pw=$(sed -n 's/^PASSWORD=//p' "$AUTH" | head -1)
+    if [ -n "$u" ] && [ -n "$pw" ]; then
+        CURL_AUTH=(-u "$u:$pw")
+        OPEN_URL=$(python3 -c 'import sys, urllib.parse as p; print("http://%s:%s@localhost:3000" % (p.quote(sys.argv[1], safe=""), p.quote(sys.argv[2], safe="")))' "$u" "$pw")
+    fi
+fi
+
+running() { systemctl --user is-active --quiet "$UNIT"; }
+answers() { curl -sS -o /dev/null --max-time 2 -f "${CURL_AUTH[@]}" "$URL" 2>/dev/null; }
+notify() { notify-send -i computer "Webtop" "$1" 2>/dev/null || true; }
+
+start_it() {
+    running && return 0
+    systemctl --user daemon-reload 2>/dev/null || true
+    if ! command -v podman >/dev/null 2>&1; then notify "Podman isn't installed."; return 1; fi
+    if podman image exists "$IMAGE" 2>/dev/null; then
+        systemctl --user start "$UNIT"
+    else
+        # first start: pulling the image takes minutes - show it in a task window with live output
+        cosmos-task --title "Setting up the Webtop (first start downloads about 1.5 GB)" -- systemctl --user start "$UNIT"
+    fi
+    running || { notify "The Webtop couldn't start. Look in the Admin activity / system log."; return 1; }
+    local i
+    for i in $(seq 1 90); do answers && return 0; sleep 1; done
+    notify "The Webtop started but isn't answering yet - try again in a moment."
+    return 1
+}
+
+case "${1:-open}" in
+    status) running && { echo running; exit 0; } || { echo stopped; exit 1; } ;;
+    stop) systemctl --user stop "$UNIT" ;;
+    start) start_it ;;
+    open)
+        start_it || exit 1
+        # its own window, not a tab in the everyday browser
+        if command -v brave-browser >/dev/null 2>&1; then exec brave-browser --app="$OPEN_URL" --class=cosmos-webtop; fi
+        exec xdg-open "$OPEN_URL" ;;
+    *) echo "usage: cosmos-webtop [open|start|stop|status]" >&2; exit 2 ;;
+esac

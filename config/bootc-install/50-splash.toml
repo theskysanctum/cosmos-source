@@ -1,0 +1,8 @@
+# Fedora Workstation's own real convention (what Anaconda's GUI-install
+# kickstarts add) - without this, the kernel never shows the Plymouth
+# splash at all, confirmed live: plymouthd's own boot-time check
+# explicitly requires "rhgb" or "splash" on the kernel command line
+# before it will show anything by default, splash theme configured or
+# not.
+[install]
+kargs = ["rhgb", "quiet"]

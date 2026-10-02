@@ -1,0 +1,9 @@
+{
+	"name": "CosmOS",
+	"author": "CosmOS",
+	"description": "Recolors Steam's Big Picture Mode to match CosmOS's own console theme (see launcher/themes/console_collision.css) - the magenta/violet four-stop gradient and dark background used throughout the rest of the system.",
+	"tags": ["Big Picture", "Console", "Dark"],
+	"version": "0.1.0",
+
+	"UseDefaultPatches": true
+}

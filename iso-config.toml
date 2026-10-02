@@ -1,0 +1,26 @@
+# Customizes the Anaconda-based installer ISO (build_installer_iso.sh)
+# so it does NOT prompt for a new account during install. The one real
+# account this image ships, `user`, is already baked into the container
+# image itself (Containerfile's own useradd step) - Anaconda's normal
+# interactive "create a user" spoke would only add a redundant second
+# account, not personalize the one that's already there. That account
+# has no password on purpose and is logged in automatically (see README.md's
+# note on this); the profile picker (cosmos-profiles) that appears at the start of
+# every session is where a person's name, picture and optional PIN are set, not
+# Anaconda's installer GUI.
+#
+# `unattended = true` is bootc-image-builder's own real config.toml key
+# for exactly this: skip the interactive account/password spokes rather
+# than hard-require the installer GUI to set one, letting Anaconda just
+# deploy the container image as-is (confirmed via the actual
+# bootc-image-builder binary this repo already has cached locally -
+# `customizations.installer.unattended`, toml tag `unattended`). It's
+# ONLY invalid when also supplying custom kickstart content
+# ("installer.unattended is not supported when adding custom kickstart
+# content", confirmed via the same binary) - this file adds none, so
+# it's safe here.
+#
+# Anaconda's other real GUI steps (disk partitioning, etc.) still run
+# normally - this only removes the redundant account-creation prompt.
+[customizations.installer]
+unattended = true

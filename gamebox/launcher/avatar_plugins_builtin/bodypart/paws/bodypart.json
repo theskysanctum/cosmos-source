@@ -1,0 +1,12 @@
+{
+    "name": "Paws",
+    "description": "The built-in animal paws feature (poke-out-to-override paw-pad + toe-bump shape on hands and feet). `paws` the boolean stays a real, resolved avatar3d_rig.py value even though it's not a named parameter of anything anymore - build_rig() still needs it to decide whether finger/thumb pivots get built at all (real animal paws have no separate articulated digits), see that function's own docstring.",
+    "fields": [
+        {"category": "Body", "key": "paws", "label": "Paws", "kind": "bool", "default": false},
+        {
+            "category": "Body", "key": "paw_color", "label": "Paw color", "kind": "color_opt",
+            "options": ["#ffe0bd", "#f1c27d", "#e0ac69", "#c68642", "#8d5524", "#4a2c17"],
+            "none_label": "match skin", "default": null
+        }
+    ]
+}

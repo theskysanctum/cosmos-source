@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=CosmOS
+Comment=cosmos-wm + cosmos-bar + cosmos-launcher, this spin's own desktop
+Exec=/usr/local/bin/cosmos-session
+Type=Application
+DesktopNames=CosmOS

@@ -1,0 +1,80 @@
+#!/bin/bash
+# cosmos-sudo-shims - (re)build the symlink farm /usr/libexec/cosmos-sudo/bin that makes
+# cosmos-priv answer to every ordinary command. Run at image build, after everything is installed.
+#
+# A command gets NO shim (it always runs as you, untouched) if it is:
+#   - in the fixed list below: shells and interpreters, compilers, version control, containers,
+#     ssh, package managers of *user* scope, and the wrappers that start other commands
+#     (env, xargs, time, ... - their children still see the shims);
+#   - the command of any desktop entry (every graphical app, so a browser is never run as root);
+#   - a CosmOS program (cosmos-*, gamebox-*, launch-gamebox, ...).
+set -eu
+SHIMS=${SHIMS:-/usr/libexec/cosmos-sudo/bin}
+DISPATCHER=${DISPATCHER:-/usr/libexec/cosmos-sudo/cosmos-priv}
+APPS=${APPS:-/usr/share/applications}
+DIRS=${BIN_DIRS:-"/usr/bin /usr/sbin /usr/local/bin /usr/local/sbin"}
+
+NEVER=" sudo su doas pkexec sudoedit bash sh dash zsh fish tcsh ksh env xargs time nohup watch timeout nice ionice setsid script stdbuf parallel exec strace ltrace gdb
+python python3 perl ruby node nodejs npm npx pnpm yarn pip pip3 pipx uv java javac lua php go gofmt cargo rustc rustup gcc g++ cc c++ clang make cmake ninja meson ld as ar
+git gh ssh scp sftp ssh-keygen ssh-add ssh-agent podman buildah skopeo docker flatpak distrobox toolbox code codium nvim-qt
+tmux screen dbus-launch dbus-run-session dbus-daemon systemd-run gio gsettings dconf xdg-open xdg-mime notify-send
+kill killall pkill pgrep ps top htop btop id whoami tty true false test [ echo printf sleep yes seq
+raw cosmos-autosudo "
+
+declare -A skip
+for n in $NEVER; do skip[$n]=1; done
+# every desktop entry's command
+for f in "$APPS"/*.desktop; do
+    [ -r "$f" ] || continue
+    exec_line=$(grep -m1 '^Exec=' "$f" 2>/dev/null | cut -d= -f2-) || continue
+    for word in $exec_line; do
+        case $word in env|*=*|-*|%*) continue ;; esac
+        skip[$(basename -- "${word//\"/}")]=1
+        break
+    done
+done
+
+# Every command of a package that ships a desktop entry is a graphical app's (brave-browser,
+# brave-browser-stable, its helper binaries ...): never wrapped, so a permission error inside an
+# app can never get it re-run as root. (Skipped where rpm is not available.)
+declare -A gui_pkg
+if command -v rpm >/dev/null 2>&1; then
+    while IFS= read -r pkg; do [ -n "$pkg" ] && gui_pkg[$pkg]=1; done < <(
+        rpm -qf --qf '%{NAME}\n' "$APPS"/*.desktop 2>/dev/null | sort -u)
+fi
+
+rm -rf "$SHIMS"; mkdir -p "$SHIMS"
+count=0
+for dir in $DIRS; do
+    [ -d "$dir" ] || continue
+    for path in "$dir"/*; do
+        [ -x "$path" ] || continue
+        [ -d "$path" ] && continue
+        n=${path##*/}
+        case $n in .*|cosmos-*|gamebox-*|launch-gamebox|*-session|*-session-*) continue ;; esac
+        [ -n "${skip[$n]:-}" ] && continue
+        if [ ${#gui_pkg[@]} -gt 0 ]; then
+            owner=$(rpm -qf --qf '%{NAME}' "$path" 2>/dev/null || true)
+            [ -n "$owner" ] && [ -n "${gui_pkg[$owner]:-}" ] && continue
+        fi
+        { [ -e "$SHIMS/$n" ] || [ -L "$SHIMS/$n" ]; } && continue
+        ln -s "$DISPATCHER" "$SHIMS/$n"
+        count=$((count + 1))
+    done
+done
+# AM/AppMan are installed later, in the user's home, so their shims are made whether or not they exist yet: the dispatcher finds the real one
+# in PATH when it runs. cosmos-priv checks the AppImage name against the catalog and runs it as you, never as root.
+for n in am appman; do
+    [ -e "$SHIMS/$n" ] || [ -L "$SHIMS/$n" ] || { ln -s "$DISPATCHER" "$SHIMS/$n"; count=$((count + 1)); }
+done
+# Commands that get a shim even though they are otherwise left alone: cosmos-priv only checks them
+# against the curated catalog and the app policy (one packaging per app) and then runs them as you.
+for n in flatpak; do
+    for dir in $DIRS; do
+        if [ -x "$dir/$n" ]; then
+            [ -e "$SHIMS/$n" ] || [ -L "$SHIMS/$n" ] || { ln -s "$DISPATCHER" "$SHIMS/$n"; count=$((count + 1)); }
+            break
+        fi
+    done
+done
+echo "cosmos-sudo-shims: $count commands wrapped in $SHIMS"

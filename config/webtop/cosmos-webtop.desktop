@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Webtop
+GenericName=Development desktop
+Comment=A full development desktop in a container: terminal, IDEs and tools, isolated from CosmOS
+Exec=cosmos-webtop
+Icon=computer
+Categories=Development;Network;
+Terminal=false
+Actions=Stop;
+
+[Desktop Action Stop]
+Name=Stop Webtop
+Exec=cosmos-webtop stop

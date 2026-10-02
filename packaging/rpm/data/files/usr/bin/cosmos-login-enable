@@ -1,0 +1,18 @@
+#!/bin/bash
+# Makes greetd use the CosmOS login screen: puts CosmOS's greetd configuration in place (keeping the one that was there as config.toml.before-cosmos)
+# and enables greetd as the display manager. Run as root. `cosmos-login-enable --undo` puts the old configuration back.
+set -euo pipefail
+[ "$(id -u)" = 0 ] || { echo "run as root: sudo cosmos-login-enable" >&2; exit 1; }
+SRC=/usr/share/cosmos/login/greetd-config.toml
+DST=/etc/greetd/config.toml
+if [ "${1:-}" = "--undo" ]; then
+    [ -f "$DST.before-cosmos" ] && mv -f "$DST.before-cosmos" "$DST" && echo "restored $DST"
+    exit 0
+fi
+[ -f "$SRC" ] || { echo "$SRC is missing: is cosmos-login installed?" >&2; exit 1; }
+mkdir -p /etc/greetd
+[ -f "$DST" ] && [ ! -f "$DST.before-cosmos" ] && cp -a "$DST" "$DST.before-cosmos"
+install -m 0644 "$SRC" "$DST"
+systemctl set-default graphical.target
+systemctl enable greetd.service
+echo "greetd now runs the CosmOS login screen. Reboot, or: systemctl restart greetd"

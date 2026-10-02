@@ -1,0 +1,12 @@
+{
+    "name": "Fur Pattern",
+    "description": "The built-in face/arm fur-pattern overlay (spots/stripes/patches), painted only on already-exposed skin.",
+    "fields": [
+        {"category": "Face", "key": "fur_pattern", "label": "Face pattern", "kind": "choice", "options": ["solid", "spots", "stripes", "patches"], "default": "solid", "thumbnail_crop": "head"},
+        {
+            "category": "Face", "key": "pattern_color", "label": "Pattern color", "kind": "color_opt",
+            "options": ["#1a1a1a", "#3b2417", "#6b4423", "#c99b4a", "#e8c840", "#a83232", "#e8e8e8", "#3355cc", "#cc3388"],
+            "none_label": "match hair", "default": null, "thumbnail_crop": "head"
+        }
+    ]
+}

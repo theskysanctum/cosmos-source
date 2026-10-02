@@ -1,0 +1,18 @@
+module cosmos 1.0;
+
+require {
+	type local_login_t;
+	type xserver_t;
+	class process signal;
+}
+
+# A real, confirmed-live-but-benign AVC denial hit on every boot of this
+# image's own getty->bash_profile->startx->Xorg chain (see the getty
+# override files this same directory ships): `login` sends a signal to
+# the Xorg process startx.sh spawned as part of its own normal session
+# teardown, denied under SELinux enforcing. Confirmed harmless multiple
+# times this session - Xorg and the real CosmOS launcher kept
+# running stably regardless, denied or not - but worth allowing
+# explicitly rather than leaving a permanent AVC denial on every real
+# boot of a shipped image.
+allow local_login_t xserver_t:process signal;

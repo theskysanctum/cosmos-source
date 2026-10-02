@@ -1,0 +1,7 @@
+{
+    "name": "Antennae",
+    "description": "The built-in antennae feature.",
+    "fields": [
+        {"category": "Face", "key": "antennae", "label": "Antennae", "kind": "bool", "default": false}
+    ]
+}

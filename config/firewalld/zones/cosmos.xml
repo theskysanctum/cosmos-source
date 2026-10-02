@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<zone>
+  <short>CosmOS</short>
+  <description>Nothing from the network is let in except the doors listed here; everything else is rejected. Outgoing connections are unaffected, and so are the replies to them. SSH (key-only) is the only door open by default; the Webtop's HTTPS port is opened only while network access is switched on in Settings > Remote Access (cosmos-remote), and closed again when it is switched off. dhcpv6-client is not a service anyone connects to: it lets this computer receive the answer to its own IPv6 address request.</description>
+  <service name="ssh"/>
+  <service name="dhcpv6-client"/>
+</zone>

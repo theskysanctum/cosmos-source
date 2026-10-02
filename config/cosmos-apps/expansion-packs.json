@@ -1,0 +1,177 @@
+{
+  "_about": "Expansion Packs: named bundles the Shop can install (and remove) in one go. GUI apps are Flatpaks (sandboxed, no reboot, easy to remove); command-line things that have no Flatpak are RPMs layered with rpm-ostree. Every member goes through the app policy (app-policy.json) before anything is installed. 'includes' pulls in other packs. Nothing here is in the base image.",
+  "packs": [
+    {
+      "id": "game-downloads",
+      "name": "Game Downloads",
+      "description": "Adds Games and BIOS to the Shop: download ROMs and emulator BIOS files straight into GameBox's library, and full Xbox disc dumps are converted for xemu. Switched on separately in Settings, with a one-time disclaimer, because it fetches copyrighted content.",
+      "module": "gamegrubber"
+    },
+    {
+      "id": "developer-tools",
+      "name": "Developer Tools",
+      "description": "IDEs, editors and Git tools: VS Code, Sublime Text, Neovim, IntelliJ IDEA, PyCharm, Eclipse, DBeaver, Android Studio, gitg, git-gui, gitk, vim. Several have a built-in terminal.",
+      "size": "several GB",
+      "flatpak": [
+        "com.visualstudio.code",
+        "com.sublimehq.SublimeText",
+        "io.neovim.nvim",
+        "com.jetbrains.IntelliJ-IDEA-Community",
+        "org.eclipse.Java",
+        "io.dbeaver.DBeaverCommunity",
+        "com.google.AndroidStudio",
+        "org.gnome.gitg"
+      ],
+      "rpm": [
+        "git-gui",
+        "gitk",
+        "vim-enhanced"
+      ]
+    },
+    {
+      "id": "language-toolchains",
+      "name": "Language Toolchains",
+      "description": "Rust and Cargo, Go, Java (OpenJDK) and Ruby. Node.js and npm stay in the base image (Claude Code needs them).",
+      "size": "about 1.5 GB",
+      "rpm": [
+        "rust",
+        "cargo",
+        "golang",
+        "java-latest-openjdk-devel",
+        "ruby"
+      ]
+    },
+    {
+      "id": "game-development",
+      "name": "Game Development",
+      "description": "Godot (2D/3D engine) and LOVE (Lua 2D framework). Tiled is already installed.",
+      "size": "about 500 MB",
+      "flatpak": [
+        "org.godotengine.Godot",
+        "org.love2d.love2d",
+        "org.mapeditor.Tiled"
+      ]
+    },
+    {
+      "id": "creative",
+      "name": "Creative",
+      "description": "Art, photo and video: GIMP, Krita, Inkscape, darktable, Blender, Kdenlive, HandBrake, Audacity and Flameshot.",
+      "size": "several GB",
+      "flatpak": [
+        "org.gimp.GIMP",
+        "org.kde.krita",
+        "org.inkscape.Inkscape",
+        "org.darktable.Darktable",
+        "org.blender.Blender",
+        "org.kde.kdenlive",
+        "fr.handbrake.ghb",
+        "org.audacityteam.Audacity",
+        "org.flameshot.Flameshot"
+      ],
+      "rpm": []
+    },
+    {
+      "id": "music-studio",
+      "name": "Music Studio",
+      "description": "Make music: MuseScore, LMMS, Hydrogen, Qtractor and Carla.",
+      "size": "about 1.5 GB",
+      "flatpak": [
+        "org.musescore.MuseScore",
+        "io.lmms.LMMS",
+        "org.hydrogenmusic.Hydrogen",
+        "org.rncbc.qtractor",
+        "studio.kx.carla"
+      ],
+      "rpm": []
+    },
+    {
+      "id": "office",
+      "name": "Office",
+      "description": "LibreOffice: documents, spreadsheets and presentations.",
+      "size": "about 1.5 GB",
+      "flatpak": [
+        "org.libreoffice.LibreOffice"
+      ],
+      "rpm": []
+    },
+    {
+      "id": "communication",
+      "name": "Communication",
+      "description": "Thunderbird (mail), Pidgin (chat) and Telegram.",
+      "size": "about 1 GB",
+      "flatpak": [
+        "org.mozilla.thunderbird",
+        "im.pidgin.Pidgin",
+        "org.telegram.desktop"
+      ],
+      "rpm": []
+    },
+    {
+      "id": "wine",
+      "name": "Wine",
+      "description": "Wine for running Windows programs directly (games run through Proton and Game Packs without it). Layered with rpm-ostree; needs a restart.",
+      "size": "about 3 GB",
+      "flatpak": [],
+      "rpm": [
+        "wine"
+      ]
+    },
+    {
+      "id": "robotics",
+      "name": "Robotics",
+      "description": "The Fedora Robotics suite: OpenCV, the ROS build tools and the RoboCup soccer simulator. Layered with rpm-ostree; needs a restart.",
+      "size": "about 4 GB",
+      "flatpak": [],
+      "rpm": [
+        "opencv",
+        "libphidget22",
+        "python3-catkin_lint",
+        "python3-catkin_pkg",
+        "python3-catkin_tools",
+        "python3-rosdep",
+        "python3-rosdistro",
+        "python3-rosinstall_generator",
+        "python3-rospkg",
+        "python3-vcstool",
+        "rcssmonitor",
+        "rcssserver",
+        "rcssserver-gui",
+        "rcssserver3d"
+      ]
+    },
+    {
+      "id": "virtualization",
+      "name": "Virtualization",
+      "description": "Virtual machines and Android: QEMU with the Virtual Machines app (appears in the grid once installed; host device passthrough included), and Waydroid to run Android apps and games. Layered with rpm-ostree; needs a restart. Set Android up afterwards from Android Setup in the grid.",
+      "size": "about 1.5 GB",
+      "flatpak": [],
+      "rpm": [
+        "qemu-system-x86",
+        "qemu-ui-gtk",
+        "qemu-audio-pa",
+        "qemu-audio-pipewire",
+        "qemu-device-usb-host",
+        "edk2-ovmf",
+        "waydroid"
+      ]
+    },
+    {
+      "id": "everything",
+      "name": "Everything",
+      "description": "Every Expansion Pack above, in one click.",
+      "size": "several GB",
+      "includes": [
+        "communication",
+        "creative",
+        "developer-tools",
+        "game-development",
+        "language-toolchains",
+        "music-studio",
+        "office",
+        "robotics",
+        "virtualization",
+        "wine"
+      ]
+    }
+  ]
+}

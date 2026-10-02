@@ -1,0 +1,12 @@
+{
+    "name": "Satchel",
+    "description": "The built-in cross-body satchel bag accessory.",
+    "fields": [
+        {"category": "Accessories", "key": "accessories", "item": "satchel", "label": "Satchel", "kind": "multi_bool"},
+        {
+            "category": "Accessories", "key": "satchel_color", "label": "Satchel color", "kind": "color_opt",
+            "options": ["#22252e", "#2b3a55", "#4a3728", "#5c1414", "#1e3d2f", "#3a2a5c", "#6b6b6b", "#0a0e16"],
+            "none_label": "match pants", "default": null
+        }
+    ]
+}

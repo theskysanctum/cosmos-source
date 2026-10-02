@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Files
+Exec=cosmos-files %U
+Comment=Your files, USB drives and other drives
+Icon=system-file-manager
+Categories=System;FileTools;FileManager;
+MimeType=inode/directory;
+Terminal=false

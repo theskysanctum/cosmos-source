@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>CosmOS Play Together (hosting)</short>
+  <description>The ports a Moonlight guest needs to join a game you host with Sunshine. Never open by default: GameBox opens it for the length of a hosting session (with an automatic expiry as a safety net) and closes it when hosting stops. The Sunshine web/API port (47990) is deliberately not included - it is only ever used from this computer.</description>
+  <port protocol="tcp" port="47984"/>
+  <port protocol="tcp" port="47989"/>
+  <port protocol="tcp" port="48010"/>
+  <port protocol="udp" port="47998"/>
+  <port protocol="udp" port="47999"/>
+  <port protocol="udp" port="48000"/>
+  <port protocol="udp" port="48002"/>
+  <port protocol="udp" port="48010"/>
+</service>

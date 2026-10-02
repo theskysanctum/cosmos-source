@@ -1,0 +1,4 @@
+{
+    "name": "Halo",
+    "description": "The built-in halo feature. No \"fields\" here - halo stays a real, core avatar3d_viewer.py CUSTOM_FIELDS entry (it still drives the hairstyle-override check inside build_character()/build_rig() themselves), only the geometry moved out here."
+}

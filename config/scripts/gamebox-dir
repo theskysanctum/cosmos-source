@@ -1,0 +1,50 @@
+#!/bin/bash
+# Prints the directory GameBox runs from, getting it ready first when needed. Used by
+# gamebox-nested and gamebox-session, so there is one answer to "where is GameBox".
+#
+# In order:
+#   1. $GAMEBOX_REPO_DIR, when set.
+#   2. The copy baked into the image (/usr/share/gamebox, from the gamebox/ folder of the
+#      cosmos repo), which is read-only. GameBox writes into its own tree (credentials,
+#      settings, the compiled window manager, hot-reload), so it runs from a writable copy at
+#      /cosmos/app/current - the path GameBox itself calls its install location. That copy is
+#      made on first use and refreshed when the image changes (a stamp file written at build
+#      time differs): files from the image overwrite older ones, and files the image does not
+#      have - credentials and other things GameBox created - are left alone.
+# If nothing is found it prints the writable location, so the caller's "GameBox files not found"
+# message names a place.
+
+SEED="${COSMOS_GAMEBOX_SEED:-/usr/share/gamebox}"
+# The image has a writable /cosmos/app (a data folder GameBox has always used). A normal Fedora with the cosmos-gamebox package does not, so there the
+# writable copy goes in the user's own data folder instead.
+if [ -n "${COSMOS_GAMEBOX_LIVE:-}" ]; then
+	LIVE="$COSMOS_GAMEBOX_LIVE"
+elif [ -w /cosmos/app ]; then
+	LIVE=/cosmos/app/current
+else
+	LIVE="${XDG_DATA_HOME:-$HOME/.local/share}/cosmos/gamebox"
+fi
+
+if [ -n "${GAMEBOX_REPO_DIR:-}" ]; then
+	echo "$GAMEBOX_REPO_DIR"
+	exit 0
+fi
+if [ -f "$SEED/launcher/run.py" ]; then
+	if [ -f "$LIVE/launcher/run.py" ] && cmp -s "$SEED/.cosmos-image-stamp" "$LIVE/.cosmos-image-stamp"; then
+		echo "$LIVE"
+		exit 0
+	fi
+	# Two sessions can start at once (launch-gamebox and the session itself): one copies, the
+	# other waits for it.
+	if mkdir -p "$LIVE" 2>/dev/null && exec 9>"$LIVE/.sync.lock" && flock 9 \
+		&& { cmp -s "$SEED/.cosmos-image-stamp" "$LIVE/.cosmos-image-stamp" \
+			|| { cp -au "$SEED"/. "$LIVE"/ && cp -f "$SEED/.cosmos-image-stamp" "$LIVE/.cosmos-image-stamp"; }; }; then
+		echo "$LIVE"
+		exit 0
+	fi
+	echo "gamebox-dir: couldn't prepare a writable copy at $LIVE - running from the read-only image copy" >&2
+	echo "$SEED"
+	exit 0
+fi
+
+echo "$LIVE"

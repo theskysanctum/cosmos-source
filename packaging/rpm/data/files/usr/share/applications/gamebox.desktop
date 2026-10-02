@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=GameBox
+GenericName=Game Frontend
+Exec=launch-gamebox
+Comment=GameBox game and emulator frontend - baked into the image; run gamebox-fetch-assets from the app drawer if engines/cores/webshell are missing; adds a tray icon to close it
+Icon=applications-games
+Categories=Game;
+Keywords=games;emulator;cosmos;
+Terminal=false

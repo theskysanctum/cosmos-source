@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Updates
+Exec=cosmos-updates
+Comment=Update Flatpak apps, AppImages and the system in one place
+Icon=software-update-available
+Categories=System;
+Terminal=false
+NoDisplay=true

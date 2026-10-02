@@ -1,0 +1,9 @@
+#!/bin/bash
+# Makes the CosmOS boot splash the default plymouth theme and rebuilds the initramfs so it shows at boot. Run as root.
+# `cosmos-plymouth-enable --undo` goes back to the distribution's theme. (Image-based systems build this into the image instead.)
+set -euo pipefail
+[ "$(id -u)" = 0 ] || { echo "run as root: sudo cosmos-plymouth-enable" >&2; exit 1; }
+THEME=cosmos
+[ "${1:-}" = "--undo" ] && THEME=$(plymouth-set-default-theme --list | grep -vx cosmos | head -1)
+plymouth-set-default-theme -R "$THEME"
+echo "boot splash theme: $THEME (add rhgb quiet to the kernel command line if the splash does not show)"

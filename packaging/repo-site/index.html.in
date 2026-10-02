@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CosmOS packages</title>
+<style>
+ :root{color-scheme:light dark;--bg:#fff;--fg:#1c2230;--muted:#5b6478;--card:#f3f5fa;--acc:#d6007a}
+ @media (prefers-color-scheme:dark){:root{--bg:#0a0e16;--fg:#e8ecf4;--muted:#9aa5bd;--card:#141b2b}}
+ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,sans-serif}
+ main{max-width:46rem;margin:0 auto;padding:2rem 1rem 4rem}
+ h1{margin:0 0 .25rem}p.lead{color:var(--muted);margin-top:0}
+ pre{background:var(--card);padding:.9rem 1rem;border-radius:8px;overflow-x:auto;font-size:.92rem}
+ code{font-family:ui-monospace,monospace}
+ h2{margin-top:2rem;font-size:1.15rem;color:var(--acc)}
+ li{margin:.25rem 0}
+</style></head><body><main>
+<h1>CosmOS packages</h1>
+<p class="lead">The pieces of CosmOS as ordinary Fedora packages. Adding this repository is optional; nothing on your system uses it unless you do.</p>
+
+<h2>Add the repository</h2>
+<pre><code>sudo rpm --import @BASEURL@/RPM-GPG-KEY-cosmos
+sudo curl -o /etc/pki/rpm-gpg/RPM-GPG-KEY-cosmos @BASEURL@/RPM-GPG-KEY-cosmos
+sudo dnf config-manager addrepo --from-repofile=@BASEURL@/cosmos.repo</code></pre>
+<p>Packages and repository metadata are signed (GPL-3.0-or-later). Key fingerprint: <code>A317 4049 212E 0D8E FD18  DE16 48EE 8F0D B26F 39F2</code></p>
+<p>or install the package that contains the same file: <code>sudo rpm --import @BASEURL@/RPM-GPG-KEY-cosmos &amp;&amp; sudo dnf install @BASEURL@/noarch/@REPO_RPM@</code></p>
+
+<h2>Install what you want</h2>
+<pre><code>sudo dnf install cosmos-shop          # the Shop (curated apps, Expansion Packs, game downloads)
+sudo dnf install cosmos-files         # a file manager that shows only your files and drives
+sudo dnf install cosmos-controllers   # controller lights, rumble, gyro
+sudo dnf install cosmos-desktop       # the whole desktop</code></pre>
+<p>Packages that change how the machine works (the login screen, the admin service, the sudo shims, recovery) are separate and only installed when you ask for them: <code>cosmos-login</code>, <code>cosmos-kronos</code>, <code>cosmos-sudo-shims</code>, <code>cosmos-recovery</code>.</p>
+
+<h2>Packages in this repository</h2>
+<ul>@PACKAGE_LIST@</ul>
+<p>Built @BUILD_DATE@. The repository is not signed yet.</p>
+</main></body></html>

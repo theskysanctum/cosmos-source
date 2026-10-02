@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+"""kronos - ask the admin service to do something (the CosmOS replacement for typing sudo).
+
+  kronos exec -- COMMAND ARGS...   do an admin command; a typed action where one fits (dnf install, systemctl restart, ...), else the
+                                   passphrase-gated `run`. Output streams live; the exit status is the command's.
+  kronos run -- COMMAND ARGS...    always the `run` action (needs the admin passphrase)
+  kronos do ACTION [JSON]          a typed action with JSON arguments, e.g.  kronos do pkg.install '{"packages": ["htop"]}'
+  kronos status                    is the service up, is a passphrase set, is this program unlocked
+  kronos lock                      end this program's admin session
+  kronos passphrase                create or change the admin passphrase
+  kronos audit [N]                 the newest N audit entries;  kronos audit verify  checks the log's hash chain
+
+Exit status: the command's own; 126 refused (the reason is on stderr); 125 the admin service isn't available.
+"""
+import getpass
+import json
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, "/usr/local/bin")
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "scripts"))        # in the repo the client lives next door
+import cosmos_kronos as ck  # noqa: E402
+
+
+def out(text):
+    sys.stdout.write(text)
+    sys.stdout.flush()
+
+
+def show(result, streamed):
+    if result.get("status") in ("ok", "failed"):
+        if not streamed and result.get("output"):
+            out(result["output"])
+    else:
+        print(result.get("reason") or result.get("status", "refused"), file=sys.stderr)
+    return ck.exit_code(result)
+
+
+def main(argv):
+    if not argv or argv[0] in ("-h", "--help", "help"):
+        print(__doc__)
+        return 0
+    cmd, rest = argv[0], argv[1:]
+    if rest[:1] == ["--"]:
+        rest = rest[1:]
+    if cmd in ("exec", "run"):
+        if not rest:
+            print("kronos: which command?", file=sys.stderr)
+            return 2
+        seen = []
+        if cmd == "exec":
+            action, args = ck.map_command(rest)
+        else:
+            action, args = "run", {"argv": rest}
+        if action == "run" and not sys.stdin.isatty():          # `echo x | kronos exec -- tee /etc/foo` - the text goes along as the command's input
+            data = sys.stdin.read(1_048_577)
+            if data:
+                args["stdin"] = data
+        result = ck.ask(action, args, on_output=lambda t: (seen.append(t), out(t)))
+        return show(result, bool(seen))
+    if cmd == "do":
+        if not rest:
+            print("kronos: which action?", file=sys.stderr)
+            return 2
+        try:
+            args = json.loads(rest[1]) if len(rest) > 1 else {}
+        except ValueError:
+            print("kronos: the arguments must be JSON", file=sys.stderr)
+            return 2
+        seen = []
+        return show(ck.ask(rest[0], args, on_output=lambda t: (seen.append(t), out(t))), bool(seen))
+    if cmd == "status":
+        r = ck.call({"op": "status"})
+        if r.get("status") != "ok":
+            return show(r, False)
+        print(f"kronos is running. Admin passphrase: {r['passphrase']}. This program is {'unlocked' if r['unlocked'] else 'locked'}.")
+        return 0
+    if cmd == "lock":
+        return show(ck.call({"op": "lock", "all": "--all" in rest}), False)
+    if cmd == "passphrase":
+        status = ck.call({"op": "status"})
+        if status.get("status") != "ok":
+            return show(status, False)
+        old = None
+        if status["passphrase"] == "set":
+            old = getpass.getpass("Current admin passphrase: ")
+        new = ck.default_prompt("create", "Choose the new admin passphrase.") if os.environ.get("WAYLAND_DISPLAY") else getpass.getpass("New admin passphrase: ")
+        if new is None:
+            return 1
+        r = ck.call({"op": "set_passphrase", "new": new, **({"old": old} if old is not None else {})})
+        print("The admin passphrase is set." if r.get("status") == "ok" else r.get("reason", "Not changed."))
+        return 0 if r.get("status") == "ok" else 1
+    if cmd == "audit":
+        if rest[:1] == ["verify"]:
+            r = ck.call({"op": "audit_verify"})
+            if r.get("status") != "ok":
+                return show(r, False)
+            print("audit log: chain intact" if r["intact"] else "audit log: TAMPERED")
+            for p in r.get("problems", []):
+                print("  " + p)
+            return 0 if r["intact"] else 1
+        limit = int(rest[0]) if rest and rest[0].isdigit() else 20
+        r = ck.call({"op": "audit", "limit": limit})
+        if r.get("status") != "ok":
+            return show(r, False)
+        for e in r["entries"]:
+            print(f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(e.get('ts', 0)))}  {e.get('decision', e.get('event')):18} {e.get('action') or '':16} {e.get('reason', '')}")
+        return 0
+    print(__doc__, file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
